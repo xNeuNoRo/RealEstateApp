@@ -30,7 +30,7 @@ public static class ServicesRegistration
         // --- DbContext ---
         services.AddDbContext<IdentityContext>(options =>
             options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection"),
+                configuration.GetConnectionString("RealEstateDb"),
                 sql => sql.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName)
             )
         );
