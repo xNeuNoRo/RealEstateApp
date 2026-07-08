@@ -1,6 +1,5 @@
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Enums;
-using RealEstateApp.Domain.Events;
 using RealEstateApp.Domain.ValueObjects;
 
 namespace RealEstateApp.Domain.Entities;
@@ -107,9 +106,6 @@ public class Property : AggregateRoot
         foreach (var impId in initialImprovementIds.Distinct())
             property._improvements.Add(new PropertyImprovement(property.Id, impId));
 
-        property.RaiseEvent(
-            new PropertyCreatedEvent(property.Id, agentId, code, DateTimeOffset.UtcNow)
-        );
         return Result.Success(property);
     }
 
