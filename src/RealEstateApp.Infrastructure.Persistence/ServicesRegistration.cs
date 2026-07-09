@@ -1,15 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RealEstateApp.Domain.Interfaces.Persistence;
+using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
 using RealEstateApp.Infrastructure.Persistence.Contexts;
+using RealEstateApp.Infrastructure.Persistence.Persistence;
+using RealEstateApp.Infrastructure.Persistence.Repositories;
 
 namespace RealEstateApp.Infrastructure.Persistence;
 
 public static class ServicesRegistration
 {
     /// <summary>
-    /// Registra <see cref="AppDbContext"/> con SQL Server y el ensamblado de migraciones.
-    /// Repositorios y UnitOfWork se registran cuando existan sus implementaciones.
+    /// Registra <see cref="AppDbContext"/> con SQL Server, UnitOfWork y repositorios.
     /// </summary>
     public static IServiceCollection AddPersistence(
         this IServiceCollection services,
@@ -22,6 +25,9 @@ public static class ServicesRegistration
                 sql => sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)
             )
         );
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
         return services;
     }

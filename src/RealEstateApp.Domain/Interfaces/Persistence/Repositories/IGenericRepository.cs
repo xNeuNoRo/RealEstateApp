@@ -8,9 +8,13 @@ namespace RealEstateApp.Domain.Interfaces.Persistence.Repositories;
 /// Expone IQueryable para consultas avanzadas.
 /// </summary>
 public interface IGenericRepository<T>
-    where T : class
+    where T : BaseEntity<int>
 {
-    Task<T?> GetByIdAsync(int id, CancellationToken ct = default);
+    Task<T?> GetByIdAsync(
+        int id,
+        CancellationToken ct = default,
+        params Expression<Func<T, object>>[] includes
+    );
     Task<IReadOnlyList<T>> GetAllAsync(
         QueryOptions<T>? options = null,
         CancellationToken ct = default
