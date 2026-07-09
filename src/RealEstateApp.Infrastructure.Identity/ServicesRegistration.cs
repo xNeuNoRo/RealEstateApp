@@ -57,7 +57,11 @@ public static class ServicesRegistration
             .AddDefaultTokenProviders();
 
         // --- JWT ---
-        var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
+        var jwtSettings =
+            configuration.GetSection("JwtSettings").Get<JwtSettings>()
+            ?? throw new InvalidOperationException(
+                "JwtSettings no está configurado correctamente en appsettings.Development.json"
+            );
 
         services
             .AddAuthentication(opt =>
