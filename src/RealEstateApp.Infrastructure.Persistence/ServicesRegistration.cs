@@ -4,9 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 using RealEstateApp.Domain.Entities;
 using RealEstateApp.Domain.Interfaces.Persistence;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
+using RealEstateApp.Domain.Interfaces.Services;
 using RealEstateApp.Infrastructure.Persistence.Contexts;
 using RealEstateApp.Infrastructure.Persistence.Persistence;
 using RealEstateApp.Infrastructure.Persistence.Repositories;
+using RealEstateApp.Infrastructure.Persistence.Services;
 
 namespace RealEstateApp.Infrastructure.Persistence;
 
@@ -37,6 +39,8 @@ public static class ServicesRegistration
         services.AddScoped<IGenericRepository<PropertyType>, PropertyTypeRepository>();
         services.AddScoped<IGenericRepository<SaleType>, SaleTypeRepository>();
         services.AddScoped<IGenericRepository<Improvement>, ImprovementRepository>();
+
+        services.AddScoped<IPropertyCodeGenerator, PropertyCodeGenerator>();
 
         return services;
     }

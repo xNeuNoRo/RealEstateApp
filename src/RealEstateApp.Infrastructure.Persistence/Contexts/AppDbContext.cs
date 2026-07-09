@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Entities;
+using RealEstateApp.Infrastructure.Persistence.EntityConfigurations;
 
 namespace RealEstateApp.Infrastructure.Persistence.Contexts;
 
@@ -26,6 +27,11 @@ public sealed class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+        // Seedeamos datos iniciales para las entidades de catálogo (PropertyType, SaleType, Improvement)
+        CatalogSeeds.SeedPropertyTypes(modelBuilder);
+        CatalogSeeds.SeedSaleTypes(modelBuilder);
+        CatalogSeeds.SeedImprovements(modelBuilder);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
