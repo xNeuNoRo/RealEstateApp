@@ -11,17 +11,19 @@ public class IdentityContextFactory : IDesignTimeDbContextFactory<IdentityContex
 {
     public IdentityContext CreateDbContext(string[] args)
     {
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false)
-            .AddJsonFile("appsettings.Development.json", optional: true)
+            .AddJsonFile($"appsettings.{env}.json", optional: true)
             .AddEnvironmentVariables()
             .Build();
 
         var connectionString =
             configuration.GetConnectionString("RealEstateDb")
             ?? throw new InvalidOperationException(
-                "Connection string 'RealEstateDb' no encontrada en appsettings.Development.json"
+                $"Connection string 'RealEstateDb' no encontrada en la configuración (entorno: {env})."
             );
 
         var optionsBuilder = new DbContextOptionsBuilder<IdentityContext>();

@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using RealEstateApp.Domain.Entities;
 using RealEstateApp.Domain.Interfaces.Persistence;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
 using RealEstateApp.Domain.Interfaces.Services;
@@ -36,9 +35,6 @@ public static class ServicesRegistration
         services.AddScoped<IOfferRepository, OfferRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
         services.AddScoped<IFavoritePropertyRepository, FavoritePropertyRepository>();
-        services.AddScoped<IGenericRepository<PropertyType>, PropertyTypeRepository>();
-        services.AddScoped<IGenericRepository<SaleType>, SaleTypeRepository>();
-        services.AddScoped<IGenericRepository<Improvement>, ImprovementRepository>();
 
         services.AddScoped<IPropertyCodeGenerator, PropertyCodeGenerator>();
 

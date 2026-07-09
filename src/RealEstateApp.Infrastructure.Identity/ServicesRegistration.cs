@@ -40,7 +40,7 @@ public static class ServicesRegistration
 
         // --- Identity ---
         services
-            .AddIdentity<AppUser, IdentityRole>(opt =>
+            .AddIdentityCore<AppUser>(opt =>
             {
                 opt.Password.RequiredLength = 8;
                 opt.Password.RequireDigit = true;
@@ -53,6 +53,8 @@ public static class ServicesRegistration
 
                 opt.User.RequireUniqueEmail = true;
             })
+            .AddRoles<IdentityRole>()
+            .AddSignInManager<AppUser>()
             .AddEntityFrameworkStores<IdentityContext>()
             .AddDefaultTokenProviders();
 
