@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using RealEstateApp.Infrastructure.Identity.Entities;
 
 namespace RealEstateApp.Infrastructure.Identity.Seeds;
@@ -12,7 +13,8 @@ public static class DefaultDeveloperUser
 {
     public static async Task SeedAsync(
         UserManager<AppUser> userManager,
-        IConfiguration configuration
+        IConfiguration configuration,
+        ILogger? logger = null
     )
     {
         var userName = configuration["SeedData:DeveloperUserName"] ?? "developer";
@@ -30,10 +32,17 @@ public static class DefaultDeveloperUser
             IdentityDocument = configuration["SeedData:DeveloperIdentityDocument"] ?? "40212345672",
         };
 
-        var password = configuration["SeedData:DeveloperPassword"] ?? "Dev123!";
+        var password = configuration["SeedData:DeveloperPassword"] ?? "Developer123!";
         var result = await userManager.CreateAsync(user, password);
 
         if (result.Succeeded)
+        {
             await userManager.AddToRoleAsync(user, DefaultRoles.Developer);
+        }
+        else
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            logger?.LogError("Fallo al crear usuario developer '{User}': {Errors}", userName, errors);
+        }
     }
 }

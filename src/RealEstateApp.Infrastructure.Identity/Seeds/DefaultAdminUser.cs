@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using RealEstateApp.Infrastructure.Identity.Entities;
 
 namespace RealEstateApp.Infrastructure.Identity.Seeds;
@@ -12,7 +13,8 @@ public static class DefaultAdminUser
 {
     public static async Task SeedAsync(
         UserManager<AppUser> userManager,
-        IConfiguration configuration
+        IConfiguration configuration,
+        ILogger? logger = null
     )
     {
         var userName = configuration["SeedData:AdminUserName"] ?? "admin";
@@ -34,6 +36,13 @@ public static class DefaultAdminUser
         var result = await userManager.CreateAsync(user, password);
 
         if (result.Succeeded)
+        {
             await userManager.AddToRoleAsync(user, DefaultRoles.Admin);
+        }
+        else
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            logger?.LogError("Fallo al crear usuario admin '{User}': {Errors}", userName, errors);
+        }
     }
 }

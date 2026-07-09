@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using RealEstateApp.Application.Interfaces;
 using RealEstateApp.Domain.Settings;
@@ -131,9 +132,18 @@ public static class ServicesRegistration
         var roleManager = provider.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = provider.GetRequiredService<UserManager<AppUser>>();
         var configuration = provider.GetRequiredService<IConfiguration>();
+        var loggerFactory = provider.GetService<ILoggerFactory>();
 
         await DefaultRoles.SeedAsync(roleManager);
-        await DefaultAdminUser.SeedAsync(userManager, configuration);
-        await DefaultDeveloperUser.SeedAsync(userManager, configuration);
+        await DefaultAdminUser.SeedAsync(
+            userManager,
+            configuration,
+            loggerFactory?.CreateLogger("DefaultAdminUser")
+        );
+        await DefaultDeveloperUser.SeedAsync(
+            userManager,
+            configuration,
+            loggerFactory?.CreateLogger("DefaultDeveloperUser")
+        );
     }
 }

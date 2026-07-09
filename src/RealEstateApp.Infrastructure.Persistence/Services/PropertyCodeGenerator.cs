@@ -22,7 +22,7 @@ public sealed class PropertyCodeGenerator : IPropertyCodeGenerator
         var lastCode = await _context
             .Properties.AsNoTracking()
             .Select(x => x.Code.Value)
-            .OrderByDescending(c => c)
+            .OrderByDescending(c => int.Parse(c))
             .FirstOrDefaultAsync(ct);
 
         var next = lastCode switch

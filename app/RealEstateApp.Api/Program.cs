@@ -11,4 +11,6 @@ builder.Services.AddIdentityForWebApi(builder.Configuration);
 
 var app = builder.Build();
 
-app.Run();
+await app.Services.RunIdentitySeedAsync();
+
+await app.RunAsync();
