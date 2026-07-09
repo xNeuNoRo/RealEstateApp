@@ -18,6 +18,9 @@ public sealed class AppDbContext : DbContext
     public DbSet<PropertyType> PropertyTypes => Set<PropertyType>();
     public DbSet<SaleType> SaleTypes => Set<SaleType>();
     public DbSet<Improvement> Improvements => Set<Improvement>();
+    public DbSet<FavoriteProperty> FavoriteProperties => Set<FavoriteProperty>();
+    public DbSet<Offer> Offers => Set<Offer>();
+    public DbSet<Message> Messages => Set<Message>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
