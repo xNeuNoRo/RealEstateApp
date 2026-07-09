@@ -42,4 +42,13 @@ public static class FileConstants
         [".png"] = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A],
         [".webp"] = [0x52, 0x49, 0x46, 0x46],
     };
+
+    /// <summary>Subcarpeta para imágenes de propiedades.</summary>
+    public const string PropertiesFolder = "properties";
+
+    /// <summary>Subcarpeta para fotos de perfil de usuarios.</summary>
+    public const string ProfilesFolder = "profiles";
+
+    /// <summary>Subcarpeta para archivos temporales.</summary>
+    public const string TempFolder = "temp";
 }
