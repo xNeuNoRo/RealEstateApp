@@ -11,9 +11,7 @@ public class RazorRenderer : IRazorRenderer
 
     public RazorRenderer()
     {
-        _engine = new RazorLightEngineBuilder()
-            .UseMemoryCachingProvider()
-            .Build();
+        _engine = new RazorLightEngineBuilder().UseMemoryCachingProvider().Build();
     }
 
     /// <summary>
@@ -24,7 +22,8 @@ public class RazorRenderer : IRazorRenderer
         if (!File.Exists(templatePath))
         {
             throw new FileNotFoundException(
-                $"La plantilla de correo no se encontro en: {templatePath}");
+                $"La plantilla de correo no se encontro en: {templatePath}"
+            );
         }
 
         var templateContent = await File.ReadAllTextAsync(templatePath);

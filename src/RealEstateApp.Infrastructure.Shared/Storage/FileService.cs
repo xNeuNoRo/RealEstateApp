@@ -51,8 +51,10 @@ public class FileService : IFileService
     {
         try
         {
-            string sanitizedFolder = string
-                .Join("_", folderName.Split(Path.GetInvalidFileNameChars()))
+            string sanitizedFolder = string.Join(
+                    "_",
+                    folderName.Split(Path.GetInvalidFileNameChars())
+                )
                 .Replace("..", "")
                 .Trim('/', '\\');
 
@@ -215,19 +217,12 @@ public class FileService : IFileService
             if (File.Exists(absolutePath))
             {
                 File.Delete(absolutePath);
-                _logger.LogInformation(
-                    "Archivo eliminado del servidor: {Path}",
-                    absolutePath
-                );
+                _logger.LogInformation("Archivo eliminado del servidor: {Path}", absolutePath);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(
-                ex,
-                "No se pudo eliminar el archivo fisico: {Path}.",
-                filePath
-            );
+            _logger.LogWarning(ex, "No se pudo eliminar el archivo fisico: {Path}.", filePath);
         }
     }
 
@@ -254,11 +249,7 @@ public class FileService : IFileService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(
-                ex,
-                "No se pudo eliminar el archivo fisico: {Path}.",
-                filePath
-            );
+            _logger.LogWarning(ex, "No se pudo eliminar el archivo fisico: {Path}.", filePath);
         }
     }
 }
