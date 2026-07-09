@@ -13,7 +13,6 @@ using RealEstateApp.Infrastructure.Identity.Contexts;
 using RealEstateApp.Infrastructure.Identity.Entities;
 using RealEstateApp.Infrastructure.Identity.Seeds;
 using RealEstateApp.Infrastructure.Identity.Services;
-using RealEstateApp.Infrastructure.Shared.Services;
 
 namespace RealEstateApp.Infrastructure.Identity;
 
@@ -114,7 +113,6 @@ public static class ServicesRegistration
 
         // --- Servicios ---
         services.AddScoped<IAccountServiceForWebApi, AccountServiceForWebApi>();
-        services.AddScoped<IEmailService, EmailService>();
 
         // --- AutoMapper ---
         services.AddAutoMapper(cfg => { }, typeof(ServicesRegistration).Assembly);
