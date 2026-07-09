@@ -16,6 +16,16 @@ public class AppUser : IdentityUser
     /// <summary>Teléfono de contacto del usuario.</summary>
     public string? Phone { get; set; }
 
+    /// <summary>
+    /// Establece el teléfono sincronizando la propiedad personalizada Phone
+    /// con la heredada PhoneNumber de IdentityUser.
+    /// </summary>
+    public void SetPhone(string? phone)
+    {
+        Phone = phone;
+        PhoneNumber = phone;
+    }
+
     /// <summary>Ruta o URL de la imagen de perfil del usuario.</summary>
     public string? ProfileImage { get; set; }
 

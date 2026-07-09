@@ -1,11 +1,13 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using RealEstateApp.Application.Dtos.Auth;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Exceptions;
 using RealEstateApp.Domain.ValueObjects;
 using RealEstateApp.Infrastructure.Identity.Entities;
+using RealEstateApp.Infrastructure.Identity.Seeds;
 
 namespace RealEstateApp.Infrastructure.Identity.Services;
 
@@ -16,15 +18,28 @@ public abstract class BaseAccountService
 {
     protected readonly UserManager<AppUser> UserManager;
     protected readonly IMapper Mapper;
+    protected readonly ILogger Logger;
 
-    protected BaseAccountService(UserManager<AppUser> userManager, IMapper mapper)
+    protected BaseAccountService(
+        UserManager<AppUser> userManager,
+        IMapper mapper,
+        ILogger logger
+    )
     {
         UserManager = userManager;
         Mapper = mapper;
+        Logger = logger;
     }
 
     public async Task<RegisterResponseDto> RegisterUserAsync(RegisterUserDto dto)
     {
+        // Validamos rol permitido
+        if (!DefaultRoles.All.Contains(dto.Role))
+            throw new DomainException(
+                "Auth.InvalidRole",
+                $"El rol '{dto.Role}' no es un rol válido."
+            );
+
         // Validamos que el userName sea único
         if (await UserManager.FindByNameAsync(dto.UserName) is not null)
             throw new DomainException(
@@ -82,6 +97,11 @@ public abstract class BaseAccountService
         if (!result.Succeeded)
         {
             var errors = result.Errors.Select(e => e.Description).ToList();
+            Logger.LogWarning(
+                "Registro fallido para {User}: {Errors}",
+                dto.UserName,
+                string.Join(", ", errors)
+            );
             throw new DomainException(
                 "Auth.RegistrationFailed",
                 "No se pudo completar el registro.",
@@ -89,11 +109,33 @@ public abstract class BaseAccountService
             );
         }
 
-        await UserManager.AddToRoleAsync(user, dto.Role);
+        var roleResult = await UserManager.AddToRoleAsync(user, dto.Role);
+        if (!roleResult.Succeeded)
+        {
+            var errors = roleResult.Errors.Select(e => e.Description).ToList();
+            Logger.LogError(
+                "Rol '{Role}' no pudo asignarse a {User}: {Errors}",
+                dto.Role,
+                dto.UserName,
+                string.Join(", ", errors)
+            );
+            throw new DomainException(
+                "Auth.RoleAssignmentFailed",
+                "No se pudo asignar el rol al usuario.",
+                errors
+            );
+        }
 
         var roles = await UserManager.GetRolesAsync(user);
         var response = Mapper.Map<RegisterResponseDto>(user);
         response.Roles = roles.ToList().AsReadOnly();
+
+        Logger.LogInformation(
+            "Usuario {User} registrado con rol {Role}",
+            dto.UserName,
+            dto.Role
+        );
+
         return response;
     }
 
@@ -138,7 +180,14 @@ public abstract class BaseAccountService
             return false;
 
         var result = await UserManager.DeleteAsync(user);
-        return result.Succeeded;
+        if (result.Succeeded)
+        {
+            Logger.LogInformation("Usuario {UserId} eliminado.", id);
+            return true;
+        }
+
+        Logger.LogWarning("Fallo al eliminar usuario {UserId}.", id);
+        return false;
     }
 
     public async Task<UserDto?> EditUserAsync(EditUserDto dto)
@@ -146,6 +195,13 @@ public abstract class BaseAccountService
         var user = await UserManager.FindByIdAsync(dto.Id);
         if (user is null)
             return null;
+
+        // Validamos rol permitido
+        if (!DefaultRoles.All.Contains(dto.Role))
+            throw new DomainException(
+                "Auth.InvalidRole",
+                $"El rol '{dto.Role}' no es un rol válido."
+            );
 
         // Validamos que el userName sea único (excluyendo el propio usuario)
         if (await UserManager.Users.AnyAsync(u => u.UserName == dto.UserName && u.Id != dto.Id))
@@ -169,7 +225,7 @@ public abstract class BaseAccountService
         user.LastName = dto.LastName.Trim();
         user.UserName = dto.UserName;
         user.Email = dto.Email;
-        user.Phone = dto.Phone;
+        user.SetPhone(dto.Phone);
         user.ProfileImage = dto.ProfileImage;
 
         var result = await UserManager.UpdateAsync(user);
@@ -187,11 +243,30 @@ public abstract class BaseAccountService
         var currentRoles = await UserManager.GetRolesAsync(user);
         if (currentRoles.Count > 0)
             await UserManager.RemoveFromRolesAsync(user, currentRoles);
-        await UserManager.AddToRoleAsync(user, dto.Role);
+
+        var roleResult = await UserManager.AddToRoleAsync(user, dto.Role);
+        if (!roleResult.Succeeded)
+        {
+            var errors = roleResult.Errors.Select(e => e.Description).ToList();
+            Logger.LogError(
+                "Rol '{Role}' no pudo asignarse a {UserId}: {Errors}",
+                dto.Role,
+                dto.Id,
+                string.Join(", ", errors)
+            );
+            throw new DomainException(
+                "Auth.RoleAssignmentFailed",
+                "No se pudo asignar el rol al usuario.",
+                errors
+            );
+        }
 
         var roles = await UserManager.GetRolesAsync(user);
         var response = Mapper.Map<UserDto>(user);
         response.Roles = roles.ToList().AsReadOnly();
+
+        Logger.LogInformation("Usuario {UserId} actualizado con rol {Role}.", dto.Id, dto.Role);
+
         return response;
     }
 
@@ -203,7 +278,14 @@ public abstract class BaseAccountService
 
         user.Active = true;
         var result = await UserManager.UpdateAsync(user);
-        return result.Succeeded;
+        if (result.Succeeded)
+        {
+            Logger.LogInformation("Usuario {UserId} activado.", id);
+            return true;
+        }
+
+        Logger.LogWarning("Fallo al activar usuario {UserId}.", id);
+        return false;
     }
 
     public async Task<bool> DeactivateUserAsync(string id)
@@ -214,7 +296,14 @@ public abstract class BaseAccountService
 
         user.Active = false;
         var result = await UserManager.UpdateAsync(user);
-        return result.Succeeded;
+        if (result.Succeeded)
+        {
+            Logger.LogInformation("Usuario {UserId} desactivado.", id);
+            return true;
+        }
+
+        Logger.LogWarning("Fallo al desactivar usuario {UserId}.", id);
+        return false;
     }
 
     private async Task<UserDto?> MapUserWithRolesAsync(AppUser? user)

@@ -12,6 +12,12 @@ public static class DefaultRoles
     public const string Admin = "Admin";
     public const string Developer = "Developer";
 
+    /// <summary>Conjunto inmutable de roles válidos del sistema.</summary>
+    public static readonly IReadOnlySet<string> All = new HashSet<string>
+    {
+        Client, Agent, Admin, Developer
+    };
+
     public static async Task SeedAsync(RoleManager<IdentityRole> roleManager)
     {
         foreach (var role in new[] { Client, Agent, Admin, Developer })

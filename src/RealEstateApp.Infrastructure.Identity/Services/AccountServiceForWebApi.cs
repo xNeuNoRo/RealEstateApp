@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using RealEstateApp.Application.Dtos.Auth;
@@ -25,9 +26,10 @@ public class AccountServiceForWebApi : BaseAccountService, IAccountServiceForWeb
         UserManager<AppUser> userManager,
         SignInManager<AppUser> signInManager,
         IMapper mapper,
-        IOptions<JwtSettings> jwtSettings
+        IOptions<JwtSettings> jwtSettings,
+        ILogger<AccountServiceForWebApi> logger
     )
-        : base(userManager, mapper)
+        : base(userManager, mapper, logger)
     {
         _signInManager = signInManager;
         _jwtSettings = jwtSettings.Value;
@@ -41,16 +43,28 @@ public class AccountServiceForWebApi : BaseAccountService, IAccountServiceForWeb
             ?? await UserManager.FindByEmailAsync(login.UserNameOrEmail);
 
         if (user is null)
+        {
+            Logger.LogWarning(
+                "Intento de login fallido: usuario {UserNameOrEmail} no encontrado.",
+                login.UserNameOrEmail
+            );
             throw new DomainException(
                 "Auth.InvalidCredentials",
                 "Los datos de acceso son inválidos."
             );
+        }
 
         if (!user.Active)
+        {
+            Logger.LogWarning(
+                "Intento de login de usuario inactivo: {UserId}.",
+                user.Id
+            );
             throw new DomainException(
                 "Auth.UserInactive",
                 "El usuario se encuentra inactivo y no puede autenticarse."
             );
+        }
 
         var result = await _signInManager.CheckPasswordSignInAsync(
             user,
@@ -59,19 +73,37 @@ public class AccountServiceForWebApi : BaseAccountService, IAccountServiceForWeb
         );
 
         if (result.IsLockedOut)
+        {
+            Logger.LogWarning(
+                "Cuenta bloqueada por intentos fallidos: {UserId}.",
+                user.Id
+            );
             throw new DomainException(
                 "Auth.LockedOut",
                 "La cuenta se encuentra bloqueada temporalmente debido a múltiples intentos fallidos."
             );
+        }
 
         if (!result.Succeeded)
+        {
+            Logger.LogWarning(
+                "Credenciales inválidas para {UserId}.",
+                user.Id
+            );
             throw new DomainException(
                 "Auth.InvalidCredentials",
                 "Los datos de acceso son inválidos."
             );
+        }
 
         var roles = await UserManager.GetRolesAsync(user);
         var (token, expiration) = GenerateJwtToken(user, roles);
+
+        Logger.LogInformation(
+            "Inicio de sesión exitoso: {UserId}, roles: {Roles}.",
+            user.Id,
+            string.Join(", ", roles)
+        );
 
         return new LoginResponseDto
         {

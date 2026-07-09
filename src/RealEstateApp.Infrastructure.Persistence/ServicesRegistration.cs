@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RealEstateApp.Domain.Interfaces.Events;
 using RealEstateApp.Domain.Interfaces.Persistence;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
 using RealEstateApp.Domain.Interfaces.Services;
@@ -8,6 +9,7 @@ using RealEstateApp.Infrastructure.Persistence.Contexts;
 using RealEstateApp.Infrastructure.Persistence.Persistence;
 using RealEstateApp.Infrastructure.Persistence.Repositories;
 using RealEstateApp.Infrastructure.Persistence.Services;
+using RealEstateApp.Infrastructure.Persistence.Services.EventHandlers;
 
 namespace RealEstateApp.Infrastructure.Persistence;
 
@@ -37,6 +39,14 @@ public static class ServicesRegistration
         services.AddScoped<IFavoritePropertyRepository, FavoritePropertyRepository>();
 
         services.AddScoped<IPropertyCodeGenerator, PropertyCodeGenerator>();
+
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+        services.AddScoped<
+            IEventHandler<Domain.Events.OfferAcceptedEvent>,
+            OfferAcceptedEventHandler
+        >();
+
+        services.AddScoped<IOfferPolicy, OfferPolicy>();
 
         return services;
     }
