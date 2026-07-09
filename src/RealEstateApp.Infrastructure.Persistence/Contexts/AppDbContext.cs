@@ -12,6 +12,9 @@ public sealed class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) { }
 
+    public DbSet<Property> Properties => Set<Property>();
+    public DbSet<PropertyImage> PropertyImages => Set<PropertyImage>();
+    public DbSet<PropertyImprovement> PropertyImprovements => Set<PropertyImprovement>();
     public DbSet<PropertyType> PropertyTypes => Set<PropertyType>();
     public DbSet<SaleType> SaleTypes => Set<SaleType>();
     public DbSet<Improvement> Improvements => Set<Improvement>();
