@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using RealEstateApp.Application.Interfaces;
+using RealEstateApp.Application.Models.Emails;
 
 namespace RealEstateApp.Infrastructure.Shared.Services;
 
@@ -16,14 +17,20 @@ public class EmailService : IEmailService
         _logger = logger;
     }
 
-    public Task SendAsync(string to, string subject, string body)
+    public Task<bool> SendEmailAsync<T>(
+        string to,
+        string subject,
+        string templateName,
+        T model,
+        CancellationToken ct = default
+    ) where T : IEmailModel
     {
         _logger.LogInformation(
-            "[Email stub] Para: {To} | Asunto: {Subject} | Cuerpo: {Body}",
+            "[Email stub] Para: {To} | Asunto: {Subject} | Plantilla: {Template}",
             to,
             subject,
-            body
+            templateName
         );
-        return Task.CompletedTask;
+        return Task.FromResult(true);
     }
 }
