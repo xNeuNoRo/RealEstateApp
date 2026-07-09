@@ -37,12 +37,10 @@ public class MailKitEmailService : IEmailService
         string templateName,
         T model,
         CancellationToken cancellationToken = default
-    ) where T : IEmailModel
+    )
+        where T : IEmailModel
     {
-        bool acquired = await _smtpSemaphore.WaitAsync(
-            TimeSpan.FromSeconds(30),
-            cancellationToken
-        );
+        bool acquired = await _smtpSemaphore.WaitAsync(TimeSpan.FromSeconds(30), cancellationToken);
 
         if (!acquired)
         {
