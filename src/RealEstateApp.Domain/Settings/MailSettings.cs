@@ -6,13 +6,13 @@ namespace RealEstateApp.Domain.Settings;
 public sealed class MailSettings
 {
     public const string SectionName = "MailSettings";
-    public required string SmtpHost { get; set; }
-    public int SmtpPort { get; set; }
-    public string? SmtpUser { get; set; }
-    public string? SmtpPass { get; set; }
-    public required string EmailFrom { get; set; }
-    public required string DisplayName { get; set; }
-    public bool UseSsl { get; set; }
+    public required string SmtpHost { get; init; }
+    public int SmtpPort { get; init; } = 587;
+    public string SmtpUser { get; init; } = string.Empty;
+    public string SmtpPass { get; init; } = string.Empty;
+    public required string EmailFrom { get; init; }
+    public required string DisplayName { get; init; }
+    public bool UseSsl { get; init; } = true;
 
     /// <summary>
     /// Verifica si la configuración SMTP está completa y válida.

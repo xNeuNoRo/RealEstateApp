@@ -12,6 +12,6 @@ public interface IEmailService
         string subject,
         string templateName,
         T model,
-        CancellationToken ct = default
+        CancellationToken cancellationToken = default
     ) where T : IEmailModel;
 }

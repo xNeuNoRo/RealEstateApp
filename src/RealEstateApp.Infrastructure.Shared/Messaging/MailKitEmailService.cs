@@ -100,7 +100,7 @@ public class MailKitEmailService : IEmailService
             {
                 await client.AuthenticateAsync(
                     _mailSettings.SmtpUser,
-                    _mailSettings.SmtpPass!,
+                    _mailSettings.SmtpPass,
                     cancellationToken
                 );
             }
