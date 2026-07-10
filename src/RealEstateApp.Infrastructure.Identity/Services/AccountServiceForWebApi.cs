@@ -10,6 +10,7 @@ using RealEstateApp.Application.Dtos.Auth;
 using RealEstateApp.Application.Interfaces;
 using RealEstateApp.Domain.Exceptions;
 using RealEstateApp.Domain.Settings;
+using RealEstateApp.Infrastructure.Identity.Contexts;
 using RealEstateApp.Infrastructure.Identity.Entities;
 
 namespace RealEstateApp.Infrastructure.Identity.Services;
@@ -27,9 +28,10 @@ public class AccountServiceForWebApi : BaseAccountService, IAccountServiceForWeb
         SignInManager<AppUser> signInManager,
         IMapper mapper,
         IOptions<JwtSettings> jwtSettings,
-        ILogger<AccountServiceForWebApi> logger
+        ILogger<AccountServiceForWebApi> logger,
+        IdentityContext identityContext
     )
-        : base(userManager, mapper, logger)
+        : base(userManager, mapper, logger, identityContext)
     {
         _signInManager = signInManager;
         _jwtSettings = jwtSettings.Value;

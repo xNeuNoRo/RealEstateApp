@@ -6,6 +6,7 @@ using RealEstateApp.Application.Dtos.Auth;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Exceptions;
 using RealEstateApp.Domain.ValueObjects;
+using RealEstateApp.Infrastructure.Identity.Contexts;
 using RealEstateApp.Infrastructure.Identity.Entities;
 using RealEstateApp.Infrastructure.Identity.Seeds;
 
@@ -19,16 +20,19 @@ public abstract class BaseAccountService
     protected readonly UserManager<AppUser> UserManager;
     protected readonly IMapper Mapper;
     protected readonly ILogger Logger;
+    protected readonly IdentityContext IdentityContext;
 
     protected BaseAccountService(
         UserManager<AppUser> userManager,
         IMapper mapper,
-        ILogger logger
+        ILogger logger,
+        IdentityContext identityContext
     )
     {
         UserManager = userManager;
         Mapper = mapper;
         Logger = logger;
+        IdentityContext = identityContext;
     }
 
     public async Task<RegisterResponseDto> RegisterUserAsync(RegisterUserDto dto)
@@ -144,11 +148,19 @@ public abstract class BaseAccountService
         var users = await UserManager.Users.ToListAsync();
         var dtos = new List<UserDto>(users.Count);
 
+        var userIds = users.Select(u => u.Id).ToList();
+        var rolesByUserId = await IdentityContext.UserRoles
+            .Where(ur => userIds.Contains(ur.UserId))
+            .Join(IdentityContext.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { ur.UserId, r.Name })
+            .GroupBy(x => x.UserId)
+            .ToDictionaryAsync(g => g.Key, g => g.Select(x => x.Name!).ToList());
+
         foreach (var user in users)
         {
-            var roles = await UserManager.GetRolesAsync(user);
             var dto = Mapper.Map<UserDto>(user);
-            dto.Roles = roles.ToList().AsReadOnly();
+            dto.Roles = rolesByUserId.TryGetValue(user.Id, out var roles)
+                ? roles.ToList().AsReadOnly()
+                : new List<string>().AsReadOnly();
             dtos.Add(dto);
         }
 
