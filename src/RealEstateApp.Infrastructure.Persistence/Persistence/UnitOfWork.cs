@@ -24,8 +24,8 @@ public sealed class UnitOfWork : IUnitOfWork
     public bool HasActiveTransaction => _transaction is not null;
 
     public async Task BeginTransactionAsync(
-        CancellationToken ct = default,
-        IsolationLevel isolationLevel = IsolationLevel.ReadCommitted
+        IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
+        CancellationToken ct = default
     )
     {
         if (HasActiveTransaction)
@@ -49,7 +49,14 @@ public sealed class UnitOfWork : IUnitOfWork
         }
         catch
         {
-            await RollbackAsync(ct);
+            try
+            {
+                await RollbackAsync(ct);
+            }
+            catch
+            {
+                /* No arrojamos nada para preservar la excepcion original. */
+            }
             throw;
         }
         finally
@@ -74,17 +81,19 @@ public sealed class UnitOfWork : IUnitOfWork
 
     private async Task DispatchDomainEventsAsync(CancellationToken ct)
     {
-        var aggregates = _context.ChangeTracker
-            .Entries<AggregateRoot>()
+        var aggregates = _context
+            .ChangeTracker.Entries<AggregateRoot>()
             .Where(e => e.Entity.DomainEvents.Count > 0)
             .Select(e => e.Entity)
             .ToList();
 
         foreach (var aggregate in aggregates)
         {
+            // Copiamos los eventos a una lista para evitar modificar la colección mientras iteramos.
             var events = aggregate.DomainEvents.ToList();
             aggregate.ClearDomainEvents();
 
+            // Usamos reflexión para invocar el método genérico DispatchAsync con el tipo de evento correcto.
             foreach (var @event in events)
             {
                 var eventType = @event.GetType();
@@ -92,6 +101,7 @@ public sealed class UnitOfWork : IUnitOfWork
                     .GetMethod(nameof(IDomainEventDispatcher.DispatchAsync))!
                     .MakeGenericMethod(eventType);
 
+                // Invocamos el método genérico y esperamos su resultado.
                 await (Task)method.Invoke(_dispatcher, [@event, ct])!;
             }
         }

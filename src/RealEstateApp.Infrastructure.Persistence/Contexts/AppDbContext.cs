@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Entities;
 using RealEstateApp.Infrastructure.Persistence.EntityConfigurations;
@@ -10,8 +11,19 @@ namespace RealEstateApp.Infrastructure.Persistence.Contexts;
 /// </summary>
 public sealed class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options) { }
+    private readonly IDateTimeProvider _timeProvider;
+    private readonly ILogger<AppDbContext> _logger;
+
+    public AppDbContext(
+        DbContextOptions<AppDbContext> options,
+        IDateTimeProvider timeProvider,
+        ILogger<AppDbContext> logger
+    )
+        : base(options)
+    {
+        _timeProvider = timeProvider;
+        _logger = logger;
+    }
 
     public DbSet<Property> Properties => Set<Property>();
     public DbSet<PropertyImage> PropertyImages => Set<PropertyImage>();
@@ -28,7 +40,6 @@ public sealed class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
-        // Seedeamos datos iniciales para las entidades de catálogo (PropertyType, SaleType, Improvement)
         CatalogSeeds.SeedPropertyTypes(modelBuilder);
         CatalogSeeds.SeedSaleTypes(modelBuilder);
         CatalogSeeds.SeedImprovements(modelBuilder);
@@ -36,33 +47,39 @@ public sealed class AppDbContext : DbContext
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        var sw = System.Diagnostics.Stopwatch.StartNew();
         AuditEntries();
-        return base.SaveChangesAsync(cancellationToken);
+        var result = base.SaveChangesAsync(cancellationToken);
+        sw.Stop();
+        if (sw.ElapsedMilliseconds > 100)
+            _logger.LogWarning("SaveChangesAsync tardó {Duration}ms", sw.ElapsedMilliseconds);
+        return result;
     }
 
     public override int SaveChanges()
     {
+        var sw = System.Diagnostics.Stopwatch.StartNew();
         AuditEntries();
-        return base.SaveChanges();
+        var result = base.SaveChanges();
+        sw.Stop();
+        if (sw.ElapsedMilliseconds > 100)
+            _logger.LogWarning("SaveChanges tardó {Duration}ms", sw.ElapsedMilliseconds);
+        return result;
     }
 
-    /// <summary>
-    /// Actualiza <c>CreatedAt</c> en insert y <c>UpdatedAt</c> en update.
-    /// </summary>
     private void AuditEntries()
     {
-        const string createdAt = nameof(IAuditableEntity.CreatedAt);
-        const string updatedAt = nameof(IAuditableEntity.UpdatedAt);
+        var now = _timeProvider.UtcNow;
 
         foreach (var entry in ChangeTracker.Entries<IAuditableEntity>())
         {
             if (entry.State == EntityState.Added)
             {
-                entry.Property(createdAt).CurrentValue = DateTimeOffset.UtcNow;
+                entry.Property(nameof(IAuditableEntity.CreatedAt)).CurrentValue = now;
             }
             else if (entry.State == EntityState.Modified)
             {
-                entry.Property(updatedAt).CurrentValue = DateTimeOffset.UtcNow;
+                entry.Property(nameof(IAuditableEntity.UpdatedAt)).CurrentValue = now;
             }
         }
     }

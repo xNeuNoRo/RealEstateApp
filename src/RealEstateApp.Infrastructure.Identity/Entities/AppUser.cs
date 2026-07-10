@@ -37,6 +37,12 @@ public class AppUser : IdentityUser
     /// <summary>Indica si el usuario puede iniciar sesión.</summary>
     public bool Active { get; set; } = true;
 
+    /// <summary>Fecha de creación del registro.</summary>
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    /// <summary>Fecha de última actualización del registro.</summary>
+    public DateTimeOffset? UpdatedAt { get; set; }
+
     /// <summary>Devuelve el nombre completo del usuario.</summary>
     public string GetDisplayName() => $"{FirstName} {LastName}".Trim();
 }

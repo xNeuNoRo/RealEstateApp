@@ -30,6 +30,7 @@ public class IdentityContext : IdentityDbContext<AppUser>
             e.Property(u => u.ProfileImage).HasMaxLength(500);
             e.Property(u => u.IdentityDocument).HasMaxLength(11);
             e.Property(u => u.Active).IsRequired().HasDefaultValue(true);
+            e.Property(u => u.CreatedAt).IsRequired().HasDefaultValueSql("GETUTCDATE()");
 
             // Indice único para IdentityDocument, pero permite nulos
             // (no todos los usuarios tienen que tenerlo)

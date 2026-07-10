@@ -31,7 +31,16 @@ public static class ServicesRegistration
         services.AddDbContext<IdentityContext>(options =>
             options.UseSqlServer(
                 configuration.GetConnectionString("RealEstateDb"),
-                sql => sql.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName)
+                sql =>
+                {
+                    sql.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName);
+                    sql.EnableRetryOnFailure(
+                        maxRetryCount: 3,
+                        maxRetryDelay: TimeSpan.FromSeconds(5),
+                        errorNumbersToAdd: null
+                    );
+                    sql.CommandTimeout(30);
+                }
             )
         );
 

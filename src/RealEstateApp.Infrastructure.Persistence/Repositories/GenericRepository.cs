@@ -24,10 +24,7 @@ public class GenericRepository<T> : IGenericRepository<T>
         params Expression<Func<T, object>>[] includes
     )
     {
-        if (includes.Length == 0)
-            return await _dbSet.FindAsync([id], ct);
-
-        IQueryable<T> query = _dbSet;
+        IQueryable<T> query = _dbSet.AsNoTracking();
 
         foreach (var include in includes)
             query = query.Include(include);
