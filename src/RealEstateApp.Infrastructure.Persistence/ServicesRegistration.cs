@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Interfaces.Events;
 using RealEstateApp.Domain.Interfaces.Persistence;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
@@ -40,7 +39,7 @@ public static class ServicesRegistration
             )
         );
 
-        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+        services.AddSingleton(TimeProvider.System);
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));

@@ -11,12 +11,12 @@ namespace RealEstateApp.Infrastructure.Persistence.Contexts;
 /// </summary>
 public sealed class AppDbContext : DbContext
 {
-    private readonly IDateTimeProvider _timeProvider;
+    private readonly TimeProvider _timeProvider;
     private readonly ILogger<AppDbContext> _logger;
 
     public AppDbContext(
         DbContextOptions<AppDbContext> options,
-        IDateTimeProvider timeProvider,
+        TimeProvider timeProvider,
         ILogger<AppDbContext> logger
     )
         : base(options)
@@ -69,7 +69,7 @@ public sealed class AppDbContext : DbContext
 
     private void AuditEntries()
     {
-        var now = _timeProvider.UtcNow;
+        var now = _timeProvider.GetUtcNow();
 
         foreach (var entry in ChangeTracker.Entries<IAuditableEntity>())
         {

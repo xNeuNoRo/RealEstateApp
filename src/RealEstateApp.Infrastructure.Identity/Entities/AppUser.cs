@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using RealEstateApp.Domain.Common;
 
 namespace RealEstateApp.Infrastructure.Identity.Entities;
 
@@ -38,7 +39,7 @@ public class AppUser : IdentityUser
     public bool Active { get; set; } = true;
 
     /// <summary>Fecha de creación del registro.</summary>
-    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset CreatedAt { get; set; } = DomainTime.UtcNow;
 
     /// <summary>Fecha de última actualización del registro.</summary>
     public DateTimeOffset? UpdatedAt { get; set; }

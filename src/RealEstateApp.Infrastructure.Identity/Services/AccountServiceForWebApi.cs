@@ -22,6 +22,7 @@ public class AccountServiceForWebApi : BaseAccountService, IAccountServiceForWeb
 {
     private readonly SignInManager<AppUser> _signInManager;
     private readonly JwtSettings _jwtSettings;
+    private readonly TimeProvider _timeProvider;
 
     public AccountServiceForWebApi(
         UserManager<AppUser> userManager,
@@ -29,12 +30,14 @@ public class AccountServiceForWebApi : BaseAccountService, IAccountServiceForWeb
         IMapper mapper,
         IOptions<JwtSettings> jwtSettings,
         ILogger<AccountServiceForWebApi> logger,
-        IdentityContext identityContext
+        IdentityContext identityContext,
+        TimeProvider timeProvider
     )
         : base(userManager, mapper, logger, identityContext)
     {
         _signInManager = signInManager;
         _jwtSettings = jwtSettings.Value;
+        _timeProvider = timeProvider;
     }
 
     public async Task<LoginResponseDto> AuthenticateAsync(LoginDto login)
@@ -132,7 +135,7 @@ public class AccountServiceForWebApi : BaseAccountService, IAccountServiceForWeb
         foreach (var role in roles)
             claims.Add(new Claim(ClaimTypes.Role, role));
 
-        var expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes);
+        var expiration = _timeProvider.GetUtcNow().UtcDateTime.AddMinutes(_jwtSettings.DurationInMinutes);
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
