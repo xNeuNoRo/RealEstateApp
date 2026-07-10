@@ -39,6 +39,7 @@ public sealed class MessageConfiguration : IEntityTypeConfiguration<Message>
                 x.PropertyId,
                 x.ClientId,
                 x.AgentId,
+                x.CreatedAt,
             })
             .HasDatabaseName("IX_Messages_Conversation");
     }

@@ -84,5 +84,7 @@ public sealed class PropertyConfiguration : IEntityTypeConfiguration<Property>
         builder.HasIndex(x => x.AgentId);
         builder.HasIndex(x => x.Status);
         builder.HasIndex(x => new { x.Status, x.PropertyTypeId });
+        builder.HasIndex("PriceAmount").HasDatabaseName("IX_Properties_PriceAmount");
+        builder.HasIndex("SizeArea").HasDatabaseName("IX_Properties_SizeArea");
     }
 }

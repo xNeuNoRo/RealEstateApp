@@ -45,7 +45,7 @@ public static class ServicesRegistration
         );
 
         // --- JWT Settings ---
-        services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
 
         // --- Identity ---
         services
@@ -69,7 +69,7 @@ public static class ServicesRegistration
 
         // --- JWT ---
         var jwtSettings =
-            configuration.GetSection("JwtSettings").Get<JwtSettings>()
+            configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()
             ?? throw new InvalidOperationException(
                 "JwtSettings no está configurado correctamente en appsettings.Development.json"
             );
