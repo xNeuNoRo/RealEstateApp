@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+using RealEstateApp.Application.Interfaces.Services;
 
 namespace RealEstateApp.Application.Interfaces;
 
@@ -8,9 +8,9 @@ namespace RealEstateApp.Application.Interfaces;
 public interface IFileService
 {
     string GetAbsolutePath(string relativePath);
-    Task<string> UploadFileAsync(IFormFile file, string folderName);
-    Task<string> UploadTempFileAsync(IFormFile file);
-    bool IsImageValid(IFormFile file);
+    Task<string> UploadFileAsync(IAppFile file, string folderName);
+    Task<string> UploadTempFileAsync(IAppFile file);
+    bool IsImageValid(IAppFile file);
     void DeleteFile(string filePath);
     Task DeleteFileAsync(string filePath);
 }

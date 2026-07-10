@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RealEstateApp.Application.Interfaces;
+using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Domain.Settings;
 
 namespace RealEstateApp.Infrastructure.Shared.Storage;
@@ -47,7 +47,7 @@ public class FileService : IFileService
     /// <summary>
     /// Guarda un archivo en la subcarpeta indicada y retorna la ruta relativa pública.
     /// </summary>
-    public async Task<string> UploadFileAsync(IFormFile file, string folderName)
+    public async Task<string> UploadFileAsync(IAppFile file, string folderName)
     {
         try
         {
@@ -77,7 +77,7 @@ public class FileService : IFileService
             string absoluteFilePath = Path.Combine(absoluteFolderPath, fileName);
             using (var stream = new FileStream(absoluteFilePath, FileMode.Create))
             {
-                await file.CopyToAsync(stream);
+                await file.Content.CopyToAsync(stream);
             }
 
             _logger.LogInformation("Archivo guardado exitosamente: {Path}", relativePath);
@@ -93,7 +93,7 @@ public class FileService : IFileService
     /// <summary>
     /// Guarda un archivo temporal y retorna la ruta relativa.
     /// </summary>
-    public async Task<string> UploadTempFileAsync(IFormFile file)
+    public async Task<string> UploadTempFileAsync(IAppFile file)
     {
         try
         {
@@ -109,7 +109,7 @@ public class FileService : IFileService
             string fullPath = Path.Combine(absoluteTempPath, fileName);
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
-                await file.CopyToAsync(stream);
+                await file.Content.CopyToAsync(stream);
             }
 
             return $"{FileConstants.TempFolder}/{fileName}";
@@ -124,7 +124,7 @@ public class FileService : IFileService
     /// <summary>
     /// Valida que un archivo sea una imagen permitida por tamaño, extensión, MIME y magic bytes.
     /// </summary>
-    public bool IsImageValid(IFormFile file)
+    public bool IsImageValid(IAppFile file)
     {
         if (file == null || file.Length == 0)
             return false;
@@ -161,39 +161,49 @@ public class FileService : IFileService
         return true;
     }
 
-    private bool HasValidMagicBytes(IFormFile file, string extension)
+    private bool HasValidMagicBytes(IAppFile file, string extension)
     {
         if (!_settings.ImageMagicBytes.TryGetValue(extension, out var expected) || expected is null)
             return false;
 
         try
         {
-            using var stream = file.OpenReadStream();
+            var stream = file.Content;
+            long originalPosition = stream.Position;
+            stream.Position = 0;
+
             var buffer = new byte[expected.Length];
             int read = stream.Read(buffer, 0, expected.Length);
 
             if (read < expected.Length)
+            {
+                stream.Position = originalPosition;
                 return false;
+            }
 
             for (int i = 0; i < expected.Length; i++)
             {
                 if (buffer[i] != expected[i])
+                {
+                    stream.Position = originalPosition;
                     return false;
+                }
             }
 
-            // Validacion adicional para WEBP: bytes 8-11 deben ser "WEBP"
             if (extension == ".webp")
             {
                 stream.Seek(8, SeekOrigin.Begin);
                 var webpHeader = new byte[4];
                 int webpRead = stream.Read(webpHeader, 0, 4);
+                stream.Position = originalPosition;
                 return webpRead == 4
-                    && webpHeader[0] == 0x57 // W
-                    && webpHeader[1] == 0x45 // E
-                    && webpHeader[2] == 0x42 // B
-                    && webpHeader[3] == 0x50; // P
+                    && webpHeader[0] == 0x57
+                    && webpHeader[1] == 0x45
+                    && webpHeader[2] == 0x42
+                    && webpHeader[3] == 0x50;
             }
 
+            stream.Position = originalPosition;
             return true;
         }
         catch
