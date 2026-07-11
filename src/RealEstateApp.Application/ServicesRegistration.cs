@@ -6,6 +6,7 @@ using RealEstateApp.Application.Interfaces.UseCases.Chat;
 using RealEstateApp.Application.Interfaces.UseCases.Favorites;
 using RealEstateApp.Application.Interfaces.UseCases.Offers;
 using RealEstateApp.Application.Interfaces.UseCases.Property;
+using RealEstateApp.Application.UseCases.Catalog;
 using RealEstateApp.Application.UseCases.Offers;
 using RealEstateApp.Application.UseCases.Property;
 
@@ -82,6 +83,16 @@ public static class ServicesRegistration
         // services.AddScoped<ICreateImprovementUseCase, CreateImprovementUseCase>();
         // services.AddScoped<IUpdateImprovementUseCase, UpdateImprovementUseCase>();
         // services.AddScoped<IGetAllImprovementsUseCase, GetAllImprovementsUseCase>();
+
+        // Descomentar cuando las implementaciones existan (@IsaiasMorillo @notengel)
+        // services.AddScoped<ICreatePropertyTypeUseCase, CreatePropertyTypeUseCase>();
+        // services.AddScoped<IUpdatePropertyTypeUseCase, UpdatePropertyTypeUseCase>();
+        // services.AddScoped<IGetAllPropertyTypesUseCase, GetAllPropertyTypesUseCase>();
+
+        // SaleType
+        services.AddScoped<ICreateSaleTypeUseCase, CreateSaleTypeUseCase>();
+        services.AddScoped<IUpdateSaleTypeUseCase, UpdateSaleTypeUseCase>();
+        services.AddScoped<IGetAllSaleTypesUseCase, GetAllSaleTypesUseCase>();
 
         return services;
     }
