@@ -9,5 +9,10 @@ public sealed class CatalogMappingProfile : Profile
     public CatalogMappingProfile()
     {
         CreateMap<Improvement, ImprovementResponse>();
+
+        CreateMap<PropertyType, PropertyTypeResponse>();
+
+        CreateMap<SaleType, SaleTypeResponse>()
+            .ForMember(d => d.Code, o => o.MapFrom(s => s.Code.ToString()));
     }
 }
