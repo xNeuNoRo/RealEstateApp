@@ -1,6 +1,7 @@
 using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using RealEstateApp.Application.Interfaces.UseCases.Chat;
 using RealEstateApp.Application.Interfaces.UseCases.Favorites;
 using RealEstateApp.Application.Interfaces.UseCases.Property;
 using RealEstateApp.Application.UseCases.Property;
@@ -46,6 +47,17 @@ public static class ServicesRegistration
         // services.AddScoped<IAddFavoriteUseCase, AddFavoriteUseCase>();
         // services.AddScoped<IRemoveFavoriteUseCase, RemoveFavoriteUseCase>();
         // services.AddScoped<IGetMyFavoritesUseCase, GetMyFavoritesUseCase>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddChatUseCases(this IServiceCollection services)
+    {
+        // Descomentar cuando las implementaciones existan (@IsaiasMorillo @notengel)
+        // services.AddScoped<ISendMessageUseCase, SendMessageUseCase>();
+        // services.AddScoped<IReplyMessageUseCase, ReplyMessageUseCase>();
+        // services.AddScoped<IGetConversationUseCase, GetConversationUseCase>();
+        // services.AddScoped<IGetMyConversationsUseCase, GetMyConversationsUseCase>();
 
         return services;
     }
