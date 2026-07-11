@@ -1,6 +1,7 @@
 using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using RealEstateApp.Application.Interfaces.UseCases.Catalog;
 using RealEstateApp.Application.Interfaces.UseCases.Chat;
 using RealEstateApp.Application.Interfaces.UseCases.Favorites;
 using RealEstateApp.Application.Interfaces.UseCases.Offers;
@@ -71,6 +72,16 @@ public static class ServicesRegistration
         services.AddScoped<IRejectOfferUseCase, RejectOfferUseCase>();
         services.AddScoped<IGetPropertyOffersUseCase, GetPropertyOffersUseCase>();
         services.AddScoped<IGetMyOffersUseCase, GetMyOffersUseCase>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddCatalogUseCases(this IServiceCollection services)
+    {
+        // Descomentar cuando las implementaciones existan (@IsaiasMorillo @notengel)
+        // services.AddScoped<ICreateImprovementUseCase, CreateImprovementUseCase>();
+        // services.AddScoped<IUpdateImprovementUseCase, UpdateImprovementUseCase>();
+        // services.AddScoped<IGetAllImprovementsUseCase, GetAllImprovementsUseCase>();
 
         return services;
     }
