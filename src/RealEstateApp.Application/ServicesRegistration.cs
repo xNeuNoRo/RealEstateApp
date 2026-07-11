@@ -1,6 +1,8 @@
 using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using RealEstateApp.Application.Interfaces.UseCases.Property;
+using RealEstateApp.Application.UseCases.Property;
 
 namespace RealEstateApp.Application;
 
@@ -20,6 +22,19 @@ public static class ServicesRegistration
         services.AddAutoMapper(_ => { }, Assembly.GetExecutingAssembly());
         // FluentValidation
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+        return services;
+    }
+
+    public static IServiceCollection AddPropertyUseCases(this IServiceCollection services)
+    {
+        services.AddScoped<IGetPropertyListUseCase, GetPropertyListUseCase>();
+        services.AddScoped<ISearchPropertyByCodeUseCase, SearchPropertyByCodeUseCase>();
+        services.AddScoped<IGetPropertyDetailUseCase, GetPropertyDetailUseCase>();
+        services.AddScoped<IGetAgentPropertiesUseCase, GetAgentPropertiesUseCase>();
+        services.AddScoped<ICreatePropertyUseCase, CreatePropertyUseCase>();
+        services.AddScoped<IUpdatePropertyUseCase, UpdatePropertyUseCase>();
+        services.AddScoped<IDeletePropertyUseCase, DeletePropertyUseCase>();
 
         return services;
     }
