@@ -3,7 +3,9 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using RealEstateApp.Application.Interfaces.UseCases.Chat;
 using RealEstateApp.Application.Interfaces.UseCases.Favorites;
+using RealEstateApp.Application.Interfaces.UseCases.Offers;
 using RealEstateApp.Application.Interfaces.UseCases.Property;
+using RealEstateApp.Application.UseCases.Offers;
 using RealEstateApp.Application.UseCases.Property;
 
 namespace RealEstateApp.Application;
@@ -58,6 +60,17 @@ public static class ServicesRegistration
         // services.AddScoped<IReplyMessageUseCase, ReplyMessageUseCase>();
         // services.AddScoped<IGetConversationUseCase, GetConversationUseCase>();
         // services.AddScoped<IGetMyConversationsUseCase, GetMyConversationsUseCase>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddOfferUseCases(this IServiceCollection services)
+    {
+        services.AddScoped<ICreateOfferUseCase, CreateOfferUseCase>();
+        services.AddScoped<IAcceptOfferUseCase, AcceptOfferUseCase>();
+        services.AddScoped<IRejectOfferUseCase, RejectOfferUseCase>();
+        services.AddScoped<IGetPropertyOffersUseCase, GetPropertyOffersUseCase>();
+        services.AddScoped<IGetMyOffersUseCase, GetMyOffersUseCase>();
 
         return services;
     }
