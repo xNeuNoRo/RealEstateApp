@@ -12,7 +12,9 @@ using RealEstateApp.Application.Interfaces;
 using RealEstateApp.Application.Interfaces.UseCases.Auth;
 using RealEstateApp.Domain.Settings;
 using RealEstateApp.Infrastructure.Identity.Contexts;
+using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
 using RealEstateApp.Infrastructure.Identity.Entities;
+using RealEstateApp.Infrastructure.Identity.Repositories;
 using RealEstateApp.Infrastructure.Identity.Seeds;
 using RealEstateApp.Infrastructure.Identity.Services;
 using RealEstateApp.Infrastructure.Identity.UseCases.Auth;
@@ -131,6 +133,7 @@ public static class ServicesRegistration
 
         // --- Servicios ---
         services.AddScoped<IAccountServiceForWebApi, AccountServiceForWebApi>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         // --- AutoMapper ---
         services.AddAutoMapper(cfg => { }, typeof(ServicesRegistration).Assembly);
