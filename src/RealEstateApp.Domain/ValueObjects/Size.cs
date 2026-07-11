@@ -19,9 +19,13 @@ public sealed class Size : ValueObject
     public static Result<Size> Create(decimal area, string unit = "m²")
     {
         if (area <= 0)
-            return Result.Failure<Size>(Error.Validation("Size.Invalid", "El tamaño debe ser mayor que cero."));
+            return Result.Failure<Size>(
+                Error.Validation("Size.Invalid", "El tamaño debe ser mayor que cero.")
+            );
         if (string.IsNullOrWhiteSpace(unit))
-            return Result.Failure<Size>(Error.Validation("Size.InvalidUnit", "La unidad de medida no puede estar vacía."));
+            return Result.Failure<Size>(
+                Error.Validation("Size.InvalidUnit", "La unidad de medida no puede estar vacía.")
+            );
 
         return Result.Success(new Size(area, unit));
     }

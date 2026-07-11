@@ -54,8 +54,8 @@ public class Offer : AggregateRoot
             );
 
         Status = OfferStatus.Accepted;
-        RespondedAt = DateTimeOffset.UtcNow;
-        RaiseEvent(new OfferAcceptedEvent(Id, PropertyId, ClientId, Amount, DateTimeOffset.UtcNow));
+        RespondedAt = DomainTime.UtcNow;
+        RaiseEvent(new OfferAcceptedEvent(Id, PropertyId, ClientId, Amount, DomainTime.UtcNow));
         Touch();
         return Result.Success();
     }
@@ -71,7 +71,7 @@ public class Offer : AggregateRoot
             );
 
         Status = OfferStatus.Rejected;
-        RespondedAt = DateTimeOffset.UtcNow;
+        RespondedAt = DomainTime.UtcNow;
         Touch();
         return Result.Success();
     }
