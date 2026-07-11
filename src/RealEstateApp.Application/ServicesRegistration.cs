@@ -1,6 +1,7 @@
 using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using RealEstateApp.Application.Interfaces.UseCases.Favorites;
 using RealEstateApp.Application.Interfaces.UseCases.Property;
 using RealEstateApp.Application.UseCases.Property;
 
@@ -35,6 +36,16 @@ public static class ServicesRegistration
         services.AddScoped<ICreatePropertyUseCase, CreatePropertyUseCase>();
         services.AddScoped<IUpdatePropertyUseCase, UpdatePropertyUseCase>();
         services.AddScoped<IDeletePropertyUseCase, DeletePropertyUseCase>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddFavoriteUseCases(this IServiceCollection services)
+    {
+        // Descomentar cuando las implementaciones existan (@IsaiasMorillo @notengel)
+        // services.AddScoped<IAddFavoriteUseCase, AddFavoriteUseCase>();
+        // services.AddScoped<IRemoveFavoriteUseCase, RemoveFavoriteUseCase>();
+        // services.AddScoped<IGetMyFavoritesUseCase, GetMyFavoritesUseCase>();
 
         return services;
     }
