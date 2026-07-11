@@ -24,7 +24,8 @@ public sealed class GetAgentPropertiesUseCase : IGetAgentPropertiesUseCase
         IPropertyRepository propertyRepository,
         ICurrentUserService currentUser,
         IMapper mapper,
-        IValidator<GetAgentPropertiesRequest> validator)
+        IValidator<GetAgentPropertiesRequest> validator
+    )
     {
         _propertyRepository = propertyRepository;
         _currentUser = currentUser;
@@ -34,7 +35,8 @@ public sealed class GetAgentPropertiesUseCase : IGetAgentPropertiesUseCase
 
     public async Task<Result<PagedResult<PropertySummaryResponse>>> ExecuteAsync(
         GetAgentPropertiesRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -42,18 +44,20 @@ public sealed class GetAgentPropertiesUseCase : IGetAgentPropertiesUseCase
 
         if (!_currentUser.IsAuthenticated || _currentUser.UserId is null)
             return Result<PagedResult<PropertySummaryResponse>>.Failure(
-                Error.Unauthorized("Auth.NotAuthenticated", "Debe iniciar sesión para realizar esta acción."));
+                Error.Unauthorized(
+                    "Auth.NotAuthenticated",
+                    "Debe iniciar sesión para realizar esta acción."
+                )
+            );
 
         if (!_currentUser.IsInRole(nameof(Roles.Agent)))
             return Result<PagedResult<PropertySummaryResponse>>.Failure(
-                Error.Forbidden("Auth.AgentOnly", "Solo los agentes pueden ver sus propiedades."));
+                Error.Forbidden("Auth.AgentOnly", "Solo los agentes pueden ver sus propiedades.")
+            );
 
         var options = new QueryOptions<PropertyEntity>
         {
-            Includes =
-            [
-                p => p.Images,
-            ],
+            Includes = [p => p.Images],
             OrderBy = q => q.OrderByDescending(p => p.CreatedAt),
             Skip = (request.Page - 1) * request.PageSize,
             Take = request.PageSize,
@@ -63,7 +67,8 @@ public sealed class GetAgentPropertiesUseCase : IGetAgentPropertiesUseCase
             _currentUser.UserId,
             request.Status,
             options,
-            cancellationToken);
+            cancellationToken
+        );
 
         Expression<Func<PropertyEntity, bool>> countFilter = request.Status.HasValue
             ? p => p.AgentId == _currentUser.UserId && p.Status == request.Status.Value
@@ -73,6 +78,12 @@ public sealed class GetAgentPropertiesUseCase : IGetAgentPropertiesUseCase
         var items = _mapper.Map<List<PropertySummaryResponse>>(properties);
 
         return Result<PagedResult<PropertySummaryResponse>>.Success(
-            new PagedResult<PropertySummaryResponse>(items, totalCount, request.Page, request.PageSize));
+            new PagedResult<PropertySummaryResponse>(
+                items,
+                totalCount,
+                request.Page,
+                request.PageSize
+            )
+        );
     }
 }

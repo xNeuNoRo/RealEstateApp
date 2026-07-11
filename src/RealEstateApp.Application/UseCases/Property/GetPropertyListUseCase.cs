@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using AutoMapper;
 using FluentValidation;
-using Microsoft.Extensions.Logging;
 using RealEstateApp.Application.Common.Validation;
 using RealEstateApp.Application.Dtos.Property.Requests;
 using RealEstateApp.Application.Dtos.Property.Responses;
@@ -24,7 +23,8 @@ public sealed class GetPropertyListUseCase : IGetPropertyListUseCase
         IPropertyRepository propertyRepository,
         IUserRepository userRepository,
         IMapper mapper,
-        IValidator<GetPropertyListRequest> validator)
+        IValidator<GetPropertyListRequest> validator
+    )
     {
         _propertyRepository = propertyRepository;
         _userRepository = userRepository;
@@ -34,7 +34,8 @@ public sealed class GetPropertyListUseCase : IGetPropertyListUseCase
 
     public async Task<Result<PagedResult<PropertyListItemResponse>>> ExecuteAsync(
         GetPropertyListRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -45,12 +46,7 @@ public sealed class GetPropertyListUseCase : IGetPropertyListUseCase
         var options = new QueryOptions<PropertyEntity>
         {
             Filter = filter,
-            Includes =
-            [
-                p => p.PropertyType!,
-                p => p.SaleType!,
-                p => p.Images,
-            ],
+            Includes = [p => p.PropertyType!, p => p.SaleType!, p => p.Images],
             OrderBy = q => q.OrderByDescending(p => p.CreatedAt),
             Skip = (request.Page - 1) * request.PageSize,
             Take = request.PageSize,
@@ -72,15 +68,23 @@ public sealed class GetPropertyListUseCase : IGetPropertyListUseCase
         }
 
         return Result<PagedResult<PropertyListItemResponse>>.Success(
-            new PagedResult<PropertyListItemResponse>(items, totalCount, request.Page, request.PageSize));
+            new PagedResult<PropertyListItemResponse>(
+                items,
+                totalCount,
+                request.Page,
+                request.PageSize
+            )
+        );
     }
 
     private static Expression<Func<PropertyEntity, bool>> BuildFilter(GetPropertyListRequest req)
     {
         return p =>
             p.Status == PropertyStatus.Available
-            && (string.IsNullOrWhiteSpace(req.SearchTerm)
-                || (p.Description.Contains(req.SearchTerm) || p.Code.Value.Contains(req.SearchTerm)))
+            && (
+                string.IsNullOrWhiteSpace(req.SearchTerm)
+                || (p.Description.Contains(req.SearchTerm) || p.Code.Value.Contains(req.SearchTerm))
+            )
             && (!req.PriceMin.HasValue || p.Price.Amount >= req.PriceMin.Value)
             && (!req.PriceMax.HasValue || p.Price.Amount <= req.PriceMax.Value)
             && (!req.SizeMin.HasValue || p.Size.Area >= req.SizeMin.Value)

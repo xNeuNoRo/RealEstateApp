@@ -23,7 +23,8 @@ public sealed class GetPropertyDetailUseCase : IGetPropertyDetailUseCase
         IGenericRepository<Improvement> improvementRepository,
         IUserRepository userRepository,
         IMapper mapper,
-        IValidator<GetPropertyDetailRequest> validator)
+        IValidator<GetPropertyDetailRequest> validator
+    )
     {
         _propertyRepository = propertyRepository;
         _improvementRepository = improvementRepository;
@@ -34,7 +35,8 @@ public sealed class GetPropertyDetailUseCase : IGetPropertyDetailUseCase
 
     public async Task<Result<PropertyDetailResponse>> ExecuteAsync(
         GetPropertyDetailRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -46,11 +48,13 @@ public sealed class GetPropertyDetailUseCase : IGetPropertyDetailUseCase
             p => p.PropertyType!,
             p => p.SaleType!,
             p => p.Images,
-            p => p.Improvements);
+            p => p.Improvements
+        );
 
         if (property is null)
             return Result<PropertyDetailResponse>.Failure(
-                Error.NotFound("Property.NotFound", "No se encontró la propiedad especificada."));
+                Error.NotFound("Property.NotFound", "No se encontró la propiedad especificada.")
+            );
 
         var response = _mapper.Map<PropertyDetailResponse>(property);
 
@@ -58,18 +62,18 @@ public sealed class GetPropertyDetailUseCase : IGetPropertyDetailUseCase
         if (improvementIds.Count > 0)
         {
             var improvements = await _improvementRepository.GetAllAsync(
-                new QueryOptions<Improvement>
-                {
-                    Filter = imp => improvementIds.Contains(imp.Id),
-                },
-                cancellationToken);
+                new QueryOptions<Improvement> { Filter = imp => improvementIds.Contains(imp.Id) },
+                cancellationToken
+            );
 
-            response.Improvements = improvements.Select(i => new PropertyImprovementDto
-            {
-                Id = i.Id,
-                Name = i.Name,
-                Description = i.Description,
-            }).ToList();
+            response.Improvements = improvements
+                .Select(i => new PropertyImprovementDto
+                {
+                    Id = i.Id,
+                    Name = i.Name,
+                    Description = i.Description,
+                })
+                .ToList();
         }
 
         var agent = await _userRepository.GetByIdAsync(property.AgentId, cancellationToken);

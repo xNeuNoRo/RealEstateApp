@@ -6,7 +6,6 @@ using RealEstateApp.Application.Interfaces;
 using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Application.Interfaces.UseCases.Property;
 using RealEstateApp.Domain.Common;
-using RealEstateApp.Domain.Entities;
 using RealEstateApp.Domain.Enums;
 using RealEstateApp.Domain.Interfaces.Persistence;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
@@ -30,7 +29,8 @@ public sealed class UpdatePropertyUseCase : IUpdatePropertyUseCase
         IUnitOfWork unitOfWork,
         ICurrentUserService currentUser,
         IValidator<UpdatePropertyRequest> validator,
-        ILogger<UpdatePropertyUseCase> logger)
+        ILogger<UpdatePropertyUseCase> logger
+    )
     {
         _propertyRepository = propertyRepository;
         _fileService = fileService;
@@ -42,7 +42,8 @@ public sealed class UpdatePropertyUseCase : IUpdatePropertyUseCase
 
     public async Task<Result> ExecuteAsync(
         UpdatePropertyRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -50,29 +51,49 @@ public sealed class UpdatePropertyUseCase : IUpdatePropertyUseCase
 
         if (!_currentUser.IsAuthenticated || _currentUser.UserId is null)
             return Result.Failure(
-                Error.Unauthorized("Auth.NotAuthenticated", "Debe iniciar sesión para realizar esta acción."));
+                Error.Unauthorized(
+                    "Auth.NotAuthenticated",
+                    "Debe iniciar sesión para realizar esta acción."
+                )
+            );
 
         if (!_currentUser.IsInRole(nameof(Roles.Agent)))
             return Result.Failure(
-                Error.Forbidden("Auth.AgentOnly", "Solo los agentes pueden editar propiedades."));
+                Error.Forbidden("Auth.AgentOnly", "Solo los agentes pueden editar propiedades.")
+            );
 
         var property = await _propertyRepository.GetByIdAsync(
-            request.PropertyId, cancellationToken,
-            p => p.Images, p => p.Improvements);
+            request.PropertyId,
+            cancellationToken,
+            p => p.Images,
+            p => p.Improvements
+        );
 
         if (property is null)
             return Result.Failure(
-                Error.NotFound("Property.NotFound", "No se encontró la propiedad especificada."));
+                Error.NotFound("Property.NotFound", "No se encontró la propiedad especificada.")
+            );
 
         var isOwner = await _propertyRepository.IsPropertyOwnedByAgentAsync(
-            request.PropertyId, _currentUser.UserId, cancellationToken);
+            request.PropertyId,
+            _currentUser.UserId,
+            cancellationToken
+        );
         if (!isOwner)
             return Result.Failure(
-                Error.Forbidden("Property.NotOwner", "Solo el agente propietario puede editar esta propiedad."));
+                Error.Forbidden(
+                    "Property.NotOwner",
+                    "Solo el agente propietario puede editar esta propiedad."
+                )
+            );
 
         if (property.Status != PropertyStatus.Available)
             return Result.Failure(
-                Error.Conflict("Property.NotAvailable", "Solo se pueden editar propiedades disponibles."));
+                Error.Conflict(
+                    "Property.NotAvailable",
+                    "Solo se pueden editar propiedades disponibles."
+                )
+            );
 
         Price? newPrice = null;
         if (request.Price.HasValue)
@@ -100,7 +121,8 @@ public sealed class UpdatePropertyUseCase : IUpdatePropertyUseCase
             request.Bedrooms,
             request.Bathrooms,
             request.PropertyTypeId,
-            request.SaleTypeId);
+            request.SaleTypeId
+        );
 
         if (detailsResult.IsFailure)
             return Result.Failure(detailsResult.GetError());
@@ -112,7 +134,11 @@ public sealed class UpdatePropertyUseCase : IUpdatePropertyUseCase
             {
                 if (!_fileService.IsImageValid(img))
                     return Result.Failure(
-                        Error.Validation("Property.InvalidImage", "Una de las imágenes no tiene un formato válido."));
+                        Error.Validation(
+                            "Property.InvalidImage",
+                            "Una de las imágenes no tiene un formato válido."
+                        )
+                    );
 
                 var url = await _fileService.UploadFileAsync(img, folder);
                 var addResult = property.AddImage(url);
@@ -153,7 +179,11 @@ public sealed class UpdatePropertyUseCase : IUpdatePropertyUseCase
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Propiedad {PropertyId} actualizada por agente {AgentId}.", request.PropertyId, _currentUser.UserId);
+        _logger.LogInformation(
+            "Propiedad {PropertyId} actualizada por agente {AgentId}.",
+            request.PropertyId,
+            _currentUser.UserId
+        );
 
         return Result.Success();
     }
