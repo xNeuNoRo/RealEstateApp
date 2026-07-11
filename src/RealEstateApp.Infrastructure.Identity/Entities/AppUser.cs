@@ -38,6 +38,20 @@ public class AppUser : IdentityUser
     /// <summary>Indica si el usuario puede iniciar sesión.</summary>
     public bool Active { get; set; } = true;
 
+    /// <summary>Activa la cuenta del usuario</summary>
+    public void Activate()
+    {
+        Active = true;
+        UpdatedAt = DomainTime.UtcNow;
+    }
+
+    /// <summary>Desactiva la cuenta del usuario</summary>
+    public void Deactivate()
+    {
+        Active = false;
+        UpdatedAt = DomainTime.UtcNow;
+    }
+
     /// <summary>Fecha de creación del registro.</summary>
     public DateTimeOffset CreatedAt { get; set; } = DomainTime.UtcNow;
 

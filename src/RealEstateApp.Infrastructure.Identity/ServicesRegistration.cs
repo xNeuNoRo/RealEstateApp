@@ -9,11 +9,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using RealEstateApp.Application.Interfaces;
+using RealEstateApp.Application.Interfaces.UseCases.Auth;
 using RealEstateApp.Domain.Settings;
 using RealEstateApp.Infrastructure.Identity.Contexts;
 using RealEstateApp.Infrastructure.Identity.Entities;
 using RealEstateApp.Infrastructure.Identity.Seeds;
 using RealEstateApp.Infrastructure.Identity.Services;
+using RealEstateApp.Infrastructure.Identity.UseCases.Auth;
 
 namespace RealEstateApp.Infrastructure.Identity;
 
@@ -132,6 +134,23 @@ public static class ServicesRegistration
 
         // --- AutoMapper ---
         services.AddAutoMapper(cfg => { }, typeof(ServicesRegistration).Assembly);
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registra los Use Cases de autenticación para la WebApp (cookies, no JWT).
+    /// </summary>
+    public static IServiceCollection AddAuthUseCases(this IServiceCollection services)
+    {
+        services.AddScoped<ILoginUseCase, LoginUseCase>();
+        services.AddScoped<IRegisterClientUseCase, RegisterClientUseCase>();
+        services.AddScoped<IRegisterAgentUseCase, RegisterAgentUseCase>();
+        services.AddScoped<IActivateAccountUseCase, ActivateAccountUseCase>();
+        services.AddScoped<IResendActivationUseCase, ResendActivationUseCase>();
+        services.AddScoped<IForgotPasswordUseCase, ForgotPasswordUseCase>();
+        services.AddScoped<IResetPasswordUseCase, ResetPasswordUseCase>();
+        services.AddScoped<IChangePasswordUseCase, ChangePasswordUseCase>();
 
         return services;
     }
