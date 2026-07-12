@@ -9,14 +9,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using RealEstateApp.Application.Interfaces;
+using RealEstateApp.Application.Interfaces.UseCases.Admin;
 using RealEstateApp.Application.Interfaces.UseCases.Auth;
+using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
 using RealEstateApp.Domain.Settings;
 using RealEstateApp.Infrastructure.Identity.Contexts;
-using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
 using RealEstateApp.Infrastructure.Identity.Entities;
 using RealEstateApp.Infrastructure.Identity.Repositories;
 using RealEstateApp.Infrastructure.Identity.Seeds;
 using RealEstateApp.Infrastructure.Identity.Services;
+using RealEstateApp.Infrastructure.Identity.UseCases.Admin;
 using RealEstateApp.Infrastructure.Identity.UseCases.Auth;
 
 namespace RealEstateApp.Infrastructure.Identity;
@@ -154,6 +156,27 @@ public static class ServicesRegistration
         services.AddScoped<IForgotPasswordUseCase, ForgotPasswordUseCase>();
         services.AddScoped<IResetPasswordUseCase, ResetPasswordUseCase>();
         services.AddScoped<IChangePasswordUseCase, ChangePasswordUseCase>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registra los Use Cases del módulo Admin
+    /// </summary>
+    public static IServiceCollection AddAdminUseCases(this IServiceCollection services)
+    {
+        services.AddScoped<IGetAdminDashboardUseCase, GetAdminDashboardUseCase>();
+        services.AddScoped<IGetAgentsListUseCase, GetAgentsListUseCase>();
+        services.AddScoped<IToggleAgentActiveUseCase, ToggleAgentActiveUseCase>();
+        services.AddScoped<IDeleteAgentUseCase, DeleteAgentUseCase>();
+        services.AddScoped<IGetAdminsListUseCase, GetAdminsListUseCase>();
+        services.AddScoped<ICreateAdminUseCase, CreateAdminUseCase>();
+        services.AddScoped<IUpdateAdminUseCase, UpdateAdminUseCase>();
+        services.AddScoped<IToggleAdminActiveUseCase, ToggleAdminActiveUseCase>();
+        services.AddScoped<IGetDevelopersListUseCase, GetDevelopersListUseCase>();
+        services.AddScoped<ICreateDeveloperUseCase, CreateDeveloperUseCase>();
+        services.AddScoped<IUpdateDeveloperUseCase, UpdateDeveloperUseCase>();
+        services.AddScoped<IToggleDeveloperActiveUseCase, ToggleDeveloperActiveUseCase>();
 
         return services;
     }
