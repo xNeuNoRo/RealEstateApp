@@ -10,6 +10,7 @@ using RealEstateApp.Domain.Entities;
 using RealEstateApp.Domain.Enums;
 using RealEstateApp.Domain.Interfaces.Persistence;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
+using PropertyEntity = RealEstateApp.Domain.Entities.Property;
 
 namespace RealEstateApp.Application.UseCases.Catalog;
 
@@ -17,10 +18,6 @@ public sealed class DeleteSaleTypeUseCase : IDeleteSaleTypeUseCase
 {
     private readonly IGenericRepository<SaleType> _saleTypeRepo;
     private readonly IPropertyRepository _propertyRepo;
-    private readonly IGenericRepository<PropertyImage> _imageRepo;
-    private readonly IGenericRepository<Message> _messageRepo;
-    private readonly IGenericRepository<Offer> _offerRepo;
-    private readonly IGenericRepository<FavoriteProperty> _favoriteRepo;
     private readonly IFileService _fileService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUser;
@@ -30,10 +27,6 @@ public sealed class DeleteSaleTypeUseCase : IDeleteSaleTypeUseCase
     public DeleteSaleTypeUseCase(
         IGenericRepository<SaleType> saleTypeRepo,
         IPropertyRepository propertyRepo,
-        IGenericRepository<PropertyImage> imageRepo,
-        IGenericRepository<Message> messageRepo,
-        IGenericRepository<Offer> offerRepo,
-        IGenericRepository<FavoriteProperty> favoriteRepo,
         IFileService fileService,
         IUnitOfWork unitOfWork,
         ICurrentUserService currentUser,
@@ -43,10 +36,6 @@ public sealed class DeleteSaleTypeUseCase : IDeleteSaleTypeUseCase
     {
         _saleTypeRepo = saleTypeRepo;
         _propertyRepo = propertyRepo;
-        _imageRepo = imageRepo;
-        _messageRepo = messageRepo;
-        _offerRepo = offerRepo;
-        _favoriteRepo = favoriteRepo;
         _fileService = fileService;
         _unitOfWork = unitOfWork;
         _currentUser = currentUser;
@@ -83,7 +72,7 @@ public sealed class DeleteSaleTypeUseCase : IDeleteSaleTypeUseCase
             );
 
         var properties = await _propertyRepo.GetAllAsync(
-            new QueryOptions<Domain.Entities.Property>
+            new QueryOptions<PropertyEntity>
             {
                 Filter = p => p.SaleTypeId == request.Id,
                 Includes = [p => p.Images],
@@ -93,7 +82,17 @@ public sealed class DeleteSaleTypeUseCase : IDeleteSaleTypeUseCase
 
         foreach (var property in properties)
         {
-            DeletePropertyCascade(property);
+            foreach (var img in property.Images)
+            {
+                try
+                {
+                    _fileService.DeleteFile(img.Url);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Error al eliminar imagen {Url}.", img.Url);
+                }
+            }
         }
 
         _saleTypeRepo.Delete(saleType);
@@ -107,38 +106,5 @@ public sealed class DeleteSaleTypeUseCase : IDeleteSaleTypeUseCase
         );
 
         return Result.Success();
-    }
-
-    private void DeletePropertyCascade(Domain.Entities.Property property)
-    {
-        foreach (var img in property.Images)
-        {
-            try
-            {
-                _fileService.DeleteFile(img.Url);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error al eliminar imagen {Url}.", img.Url);
-            }
-        }
-
-        var images = _imageRepo.Query().Where(i => i.PropertyId == property.Id).ToList();
-        foreach (var img in images)
-            _imageRepo.Delete(img);
-
-        var messages = _messageRepo.Query().Where(m => m.PropertyId == property.Id).ToList();
-        foreach (var msg in messages)
-            _messageRepo.Delete(msg);
-
-        var offers = _offerRepo.Query().Where(o => o.PropertyId == property.Id).ToList();
-        foreach (var offer in offers)
-            _offerRepo.Delete(offer);
-
-        var favorites = _favoriteRepo.Query().Where(f => f.PropertyId == property.Id).ToList();
-        foreach (var fav in favorites)
-            _favoriteRepo.Delete(fav);
-
-        _propertyRepo.Delete(property);
     }
 }
