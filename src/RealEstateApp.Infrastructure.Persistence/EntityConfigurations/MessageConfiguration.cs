@@ -29,7 +29,7 @@ public sealed class MessageConfiguration : IEntityTypeConfiguration<Message>
             .HasOne(x => x.Property)
             .WithMany()
             .HasForeignKey(x => x.PropertyId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Indices para consultas de conversación
         builder.HasIndex(x => x.PropertyId);
