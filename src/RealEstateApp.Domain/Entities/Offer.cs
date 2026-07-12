@@ -15,6 +15,8 @@ public class Offer : AggregateRoot
     public OfferStatus Status { get; private set; }
     public DateTimeOffset? RespondedAt { get; private set; }
 
+    public Property Property { get; private set; } = null!;
+
     private Offer() { }
 
     public static Result<Offer> Create(int propertyId, string clientId, decimal amount)
