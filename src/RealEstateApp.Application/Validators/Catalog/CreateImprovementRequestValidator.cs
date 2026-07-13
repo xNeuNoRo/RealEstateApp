@@ -10,12 +10,12 @@ public sealed class CreateImprovementRequestValidator : AbstractValidator<Create
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage("El nombre es requerido.")
-            .MaximumLength(80)
-            .WithMessage("El nombre no debe exceder 80 caracteres.");
+            .MaximumLength(100)
+            .WithMessage("El nombre no debe exceder 100 caracteres.");
         RuleFor(x => x.Description)
             .NotEmpty()
             .WithMessage("La descripción es requerida.")
-            .MaximumLength(80)
-            .WithMessage("La descripción no debe exceder 80 caracteres.");
+            .MaximumLength(300)
+            .WithMessage("La descripción no debe exceder 300 caracteres.");
     }
 }

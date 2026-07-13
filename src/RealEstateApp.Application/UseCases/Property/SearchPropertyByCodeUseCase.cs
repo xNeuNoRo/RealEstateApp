@@ -6,6 +6,7 @@ using RealEstateApp.Application.Dtos.Property.Responses;
 using RealEstateApp.Application.Interfaces.UseCases.Property;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Entities;
+using ImprovementEntity = RealEstateApp.Domain.Entities.Improvement;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
 using RealEstateApp.Domain.ValueObjects;
 using PropertyEntity = RealEstateApp.Domain.Entities.Property;
@@ -15,14 +16,14 @@ namespace RealEstateApp.Application.UseCases.Property;
 public sealed class SearchPropertyByCodeUseCase : ISearchPropertyByCodeUseCase
 {
     private readonly IPropertyRepository _propertyRepository;
-    private readonly IGenericRepository<Improvement> _improvementRepository;
+    private readonly IGenericRepository<ImprovementEntity> _improvementRepository;
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
     private readonly IValidator<SearchPropertyByCodeRequest> _validator;
 
     public SearchPropertyByCodeUseCase(
         IPropertyRepository propertyRepository,
-        IGenericRepository<Improvement> improvementRepository,
+        IGenericRepository<ImprovementEntity> improvementRepository,
         IUserRepository userRepository,
         IMapper mapper,
         IValidator<SearchPropertyByCodeRequest> validator
@@ -77,7 +78,7 @@ public sealed class SearchPropertyByCodeUseCase : ISearchPropertyByCodeUseCase
         if (improvementIds.Count > 0)
         {
             var improvements = await _improvementRepository.GetAllAsync(
-                new QueryOptions<Improvement> { Filter = imp => improvementIds.Contains(imp.Id) },
+                new QueryOptions<ImprovementEntity> { Filter = imp => improvementIds.Contains(imp.Id) },
                 cancellationToken
             );
 
