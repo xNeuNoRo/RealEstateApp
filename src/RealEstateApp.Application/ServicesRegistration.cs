@@ -78,13 +78,13 @@ public static class ServicesRegistration
         return services;
     }
 
-    public static IServiceCollection AddCatalogUseCases(this IServiceCollection services)
+public static IServiceCollection AddCatalogUseCases(this IServiceCollection services)
     {
         // Descomentar cuando las implementaciones existan (@IsaiasMorillo @notengel)
         services.AddScoped<ICreateImprovementUseCase, CreateImprovementUseCase>();
         // services.AddScoped<IUpdateImprovementUseCase, UpdateImprovementUseCase>();
-        // services.AddScoped<IGetAllImprovementsUseCase, GetAllImprovementsUseCase>();
-        // services.AddScoped<IDeleteImprovementUseCase, DeleteImprovementUseCase>();
+        services.AddScoped<IGetAllImprovementsUseCase, GetAllImprovementsUseCase>();
+        services.AddScoped<IDeleteImprovementUseCase, DeleteImprovementUseCase>();
 
         // Descomentar cuando las implementaciones existan (@IsaiasMorillo @notengel)
         // services.AddScoped<ICreatePropertyTypeUseCase, CreatePropertyTypeUseCase>();
