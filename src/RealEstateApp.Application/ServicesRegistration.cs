@@ -58,11 +58,11 @@ public static class ServicesRegistration
 
     public static IServiceCollection AddChatUseCases(this IServiceCollection services)
     {
-        // Descomentar cuando las implementaciones existan (@IsaiasMorillo @notengel)
-        // services.AddScoped<ISendMessageUseCase, SendMessageUseCase>();
-        // services.AddScoped<IReplyMessageUseCase, ReplyMessageUseCase>();
-        // services.AddScoped<IGetConversationUseCase, GetConversationUseCase>();
-        // services.AddScoped<IGetMyConversationsUseCase, GetMyConversationsUseCase>();
+
+        services.AddScoped<ISendMessageUseCase, SendMessageUseCase>();
+        services.AddScoped<IReplyMessageUseCase, ReplyMessageUseCase>();
+        services.AddScoped<IGetConversationUseCase, GetConversationUseCase>();
+        services.AddScoped<IGetMyConversationsUseCase, GetMyConversationsUseCase>();
 
         return services;
     }
