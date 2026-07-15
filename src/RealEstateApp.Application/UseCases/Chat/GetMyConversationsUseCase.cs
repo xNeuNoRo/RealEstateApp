@@ -55,8 +55,6 @@ public sealed class GetMyConversationsUseCase : IGetMyConversationsUseCase
                 Error.Forbidden("Auth.NotAllowed", "No tienes permiso para ver conversaciones.")
             );
 
-        // ponytail: full fetch then group in memory; server-side grouping (e.g. row_number over partition)
-        // would need a raw SQL / Dapper helper — add when conversations per user exceed ~500.
 
         IReadOnlyList<Message> allMessages;
         int totalConversations;

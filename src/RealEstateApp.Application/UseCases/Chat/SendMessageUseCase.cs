@@ -77,7 +77,7 @@ public sealed class SendMessageUseCase : ISendMessageUseCase
         if (createResult.IsFailure)
             return Result<MessageResponse>.Failure(createResult.GetError());
 
-        var message = createResult.Value;
+        var message = createResult.GetValue();
 
         await _messageRepository.AddAsync(message, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -7,7 +7,9 @@ using RealEstateApp.Application.Interfaces.UseCases.Favorites;
 using RealEstateApp.Application.Interfaces.UseCases.Offers;
 using RealEstateApp.Application.Interfaces.UseCases.Property;
 using RealEstateApp.Application.UseCases.Catalog;
+using RealEstateApp.Application.UseCases.Favorites;
 using RealEstateApp.Application.UseCases.Improvement;
+using RealEstateApp.Application.UseCases.Chat;
 using RealEstateApp.Application.UseCases.Offers;
 using RealEstateApp.Application.UseCases.Property;
 
@@ -48,10 +50,10 @@ public static class ServicesRegistration
 
     public static IServiceCollection AddFavoriteUseCases(this IServiceCollection services)
     {
-        // Descomentar cuando las implementaciones existan (@IsaiasMorillo @notengel)
-        // services.AddScoped<IAddFavoriteUseCase, AddFavoriteUseCase>();
-        // services.AddScoped<IRemoveFavoriteUseCase, RemoveFavoriteUseCase>();
-        // services.AddScoped<IGetMyFavoritesUseCase, GetMyFavoritesUseCase>();
+        
+        services.AddScoped<IAddFavoriteUseCase, AddFavoriteUseCase>();
+        services.AddScoped<IGetMyFavoritesUseCase, GetMyFavoritesUseCase>();
+        services.AddScoped<IRemoveFavoriteUseCase, RemoveFavoriteUseCase>();
 
         return services;
     }

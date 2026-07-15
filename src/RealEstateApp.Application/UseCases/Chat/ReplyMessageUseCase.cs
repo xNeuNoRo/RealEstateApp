@@ -105,7 +105,7 @@ public sealed class ReplyMessageUseCase : IReplyMessageUseCase
         if (createResult.IsFailure)
             return Result<MessageResponse>.Failure(createResult.GetError());
 
-        var message = createResult.Value;
+        var message = createResult.GetValue();
 
         await _messageRepository.AddAsync(message, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

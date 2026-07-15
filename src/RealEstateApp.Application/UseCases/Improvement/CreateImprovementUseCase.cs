@@ -23,7 +23,7 @@ public sealed class CreateImprovementUseCase : ICreateImprovementUseCase
     private readonly IValidator<CreateImprovementRequest> _validator;
 
 
-     public CreateImprovementUseCase(
+    public CreateImprovementUseCase(
         IGenericRepository<ImprovementEntity> repository,
         IUnitOfWork unitOfWork,
         ICurrentUserService currentUser,
