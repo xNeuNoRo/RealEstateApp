@@ -7,6 +7,7 @@ using RealEstateApp.Application.Interfaces.UseCases.Favorites;
 using RealEstateApp.Application.Interfaces.UseCases.Offers;
 using RealEstateApp.Application.Interfaces.UseCases.Property;
 using RealEstateApp.Application.UseCases.Catalog;
+using RealEstateApp.Application.UseCases.Chat;
 using RealEstateApp.Application.UseCases.Offers;
 using RealEstateApp.Application.UseCases.Property;
 
@@ -57,11 +58,11 @@ public static class ServicesRegistration
 
     public static IServiceCollection AddChatUseCases(this IServiceCollection services)
     {
-        // Descomentar cuando las implementaciones existan (@IsaiasMorillo @notengel)
-        // services.AddScoped<ISendMessageUseCase, SendMessageUseCase>();
-        // services.AddScoped<IReplyMessageUseCase, ReplyMessageUseCase>();
-        // services.AddScoped<IGetConversationUseCase, GetConversationUseCase>();
-        // services.AddScoped<IGetMyConversationsUseCase, GetMyConversationsUseCase>();
+
+        services.AddScoped<ISendMessageUseCase, SendMessageUseCase>();
+        services.AddScoped<IReplyMessageUseCase, ReplyMessageUseCase>();
+        services.AddScoped<IGetConversationUseCase, GetConversationUseCase>();
+        services.AddScoped<IGetMyConversationsUseCase, GetMyConversationsUseCase>();
 
         return services;
     }
