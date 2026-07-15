@@ -7,7 +7,7 @@ using RealEstateApp.Application.Interfaces.UseCases.Favorites;
 using RealEstateApp.Application.Interfaces.UseCases.Offers;
 using RealEstateApp.Application.Interfaces.UseCases.Property;
 using RealEstateApp.Application.UseCases.Catalog;
-using RealEstateApp.Application.UseCases.Chat;
+using RealEstateApp.Application.UseCases.Improvement;
 using RealEstateApp.Application.UseCases.Offers;
 using RealEstateApp.Application.UseCases.Property;
 
@@ -78,16 +78,16 @@ public static class ServicesRegistration
         return services;
     }
 
-    public static IServiceCollection AddCatalogUseCases(this IServiceCollection services)
+public static IServiceCollection AddCatalogUseCases(this IServiceCollection services)
     {
         // Descomentar cuando las implementaciones existan (@IsaiasMorillo @notengel)
-        // services.AddScoped<ICreateImprovementUseCase, CreateImprovementUseCase>();
+        services.AddScoped<ICreateImprovementUseCase, CreateImprovementUseCase>();
         // services.AddScoped<IUpdateImprovementUseCase, UpdateImprovementUseCase>();
-        // services.AddScoped<IGetAllImprovementsUseCase, GetAllImprovementsUseCase>();
-        // services.AddScoped<IDeleteImprovementUseCase, DeleteImprovementUseCase>();
+        services.AddScoped<IGetAllImprovementsUseCase, GetAllImprovementsUseCase>();
+        services.AddScoped<IDeleteImprovementUseCase, DeleteImprovementUseCase>();
 
         // Descomentar cuando las implementaciones existan (@IsaiasMorillo @notengel)
-        // services.AddScoped<ICreatePropertyTypeUseCase, CreatePropertyTypeUseCase>();
+        services.AddScoped<ICreatePropertyTypeUseCase, CreatePropertyTypeUseCase>();
         // services.AddScoped<IUpdatePropertyTypeUseCase, UpdatePropertyTypeUseCase>();
         // services.AddScoped<IGetAllPropertyTypesUseCase, GetAllPropertyTypesUseCase>();
         // services.AddScoped<IDeletePropertyTypeUseCase, DeletePropertyTypeUseCase>();
