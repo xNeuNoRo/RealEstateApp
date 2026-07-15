@@ -87,7 +87,7 @@ public static IServiceCollection AddCatalogUseCases(this IServiceCollection serv
         services.AddScoped<IDeleteImprovementUseCase, DeleteImprovementUseCase>();
 
         // Descomentar cuando las implementaciones existan (@IsaiasMorillo @notengel)
-        // services.AddScoped<ICreatePropertyTypeUseCase, CreatePropertyTypeUseCase>();
+        services.AddScoped<ICreatePropertyTypeUseCase, CreatePropertyTypeUseCase>();
         // services.AddScoped<IUpdatePropertyTypeUseCase, UpdatePropertyTypeUseCase>();
         // services.AddScoped<IGetAllPropertyTypesUseCase, GetAllPropertyTypesUseCase>();
         // services.AddScoped<IDeletePropertyTypeUseCase, DeletePropertyTypeUseCase>();
