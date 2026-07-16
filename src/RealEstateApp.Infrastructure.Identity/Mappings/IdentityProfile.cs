@@ -1,4 +1,5 @@
 using AutoMapper;
+using RealEstateApp.Application.Dtos.Agent.Responses;
 using RealEstateApp.Application.Dtos.Auth;
 using RealEstateApp.Application.Dtos.Client.Responses;
 using RealEstateApp.Infrastructure.Identity.Entities;
@@ -15,6 +16,8 @@ public class IdentityProfile : Profile
         CreateMap<AppUser, UserDto>();
         CreateMap<AppUser, RegisterResponseDto>();
         CreateMap<AppUser, ClientProfileResponse>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+        CreateMap<AppUser, AgentProfileResponse>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
     }
 }
