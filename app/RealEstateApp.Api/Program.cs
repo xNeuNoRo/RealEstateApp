@@ -17,9 +17,11 @@ builder.Services.AddFavoriteUseCases();
 builder.Services.AddChatUseCases();
 builder.Services.AddCatalogUseCases();
 builder.Services.AddClientUseCases();
+builder.Services.AddAgentUseCases();
 builder.Services.AddAuthUseCases();
 builder.Services.AddAdminUseCases();
 builder.Services.AddIdentityClientUseCases();
+builder.Services.AddIdentityAgentUseCases();
 
 var app = builder.Build();
 
