@@ -171,7 +171,7 @@ namespace RealEstateApp.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PropertyId");
 
-                    b.HasIndex("PropertyId", "ClientId", "AgentId")
+                    b.HasIndex("PropertyId", "ClientId", "AgentId", "CreatedAt")
                         .HasDatabaseName("IX_Messages_Conversation");
 
                     b.ToTable("Messages", (string)null);
@@ -471,12 +471,34 @@ namespace RealEstateApp.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("RealEstateApp.Domain.Entities.FavoriteProperty", b =>
+                {
+                    b.HasOne("RealEstateApp.Domain.Entities.Property", "Property")
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Property");
+                });
+
             modelBuilder.Entity("RealEstateApp.Domain.Entities.Message", b =>
                 {
                     b.HasOne("RealEstateApp.Domain.Entities.Property", "Property")
                         .WithMany()
                         .HasForeignKey("PropertyId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Property");
+                });
+
+            modelBuilder.Entity("RealEstateApp.Domain.Entities.Offer", b =>
+                {
+                    b.HasOne("RealEstateApp.Domain.Entities.Property", "Property")
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Property");
@@ -487,13 +509,13 @@ namespace RealEstateApp.Infrastructure.Persistence.Migrations
                     b.HasOne("RealEstateApp.Domain.Entities.PropertyType", "PropertyType")
                         .WithMany()
                         .HasForeignKey("PropertyTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RealEstateApp.Domain.Entities.SaleType", "SaleType")
                         .WithMany()
                         .HasForeignKey("SaleTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.OwnsOne("RealEstateApp.Domain.ValueObjects.Price", "Price", b1 =>
@@ -513,6 +535,9 @@ namespace RealEstateApp.Infrastructure.Persistence.Migrations
                                 .HasColumnName("PriceCurrency");
 
                             b1.HasKey("PropertyId");
+
+                            b1.HasIndex("Amount")
+                                .HasDatabaseName("IX_Properties_PriceAmount");
 
                             b1.ToTable("Properties");
 
@@ -537,6 +562,9 @@ namespace RealEstateApp.Infrastructure.Persistence.Migrations
                                 .HasColumnName("SizeUnit");
 
                             b1.HasKey("PropertyId");
+
+                            b1.HasIndex("Area")
+                                .HasDatabaseName("IX_Properties_SizeArea");
 
                             b1.ToTable("Properties");
 

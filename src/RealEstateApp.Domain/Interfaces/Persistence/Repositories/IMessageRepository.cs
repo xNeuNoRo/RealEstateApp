@@ -10,6 +10,11 @@ public interface IMessageRepository : IGenericRepository<Message>
         QueryOptions<Message>? options = null,
         CancellationToken ct = default
     );
+    Task<IReadOnlyList<Message>> GetByClientAsync(
+        string clientId,
+        QueryOptions<Message>? options = null,
+        CancellationToken ct = default
+    );
     Task<IReadOnlyList<Message>> GetConversationAsync(
         int propertyId,
         string clientId,

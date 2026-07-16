@@ -36,6 +36,9 @@ public sealed class PropertyConfiguration : IEntityTypeConfiguration<Property>
                     .HasColumnName("PriceCurrency")
                     .HasMaxLength(3)
                     .IsRequired();
+
+                price.HasIndex(p => p.Amount)
+                    .HasDatabaseName("IX_Properties_PriceAmount");
             }
         );
 
@@ -48,6 +51,9 @@ public sealed class PropertyConfiguration : IEntityTypeConfiguration<Property>
                     .HasPrecision(18, 2)
                     .IsRequired();
                 size.Property(s => s.Unit).HasColumnName("SizeUnit").HasMaxLength(10).IsRequired();
+
+                size.HasIndex(s => s.Area)
+                    .HasDatabaseName("IX_Properties_SizeArea");
             }
         );
 
@@ -62,7 +68,7 @@ public sealed class PropertyConfiguration : IEntityTypeConfiguration<Property>
             .HasOne(x => x.PropertyType)
             .WithMany()
             .HasForeignKey(x => x.PropertyTypeId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(x => x.SaleTypeId).IsRequired();
 
@@ -70,7 +76,7 @@ public sealed class PropertyConfiguration : IEntityTypeConfiguration<Property>
             .HasOne(x => x.SaleType)
             .WithMany()
             .HasForeignKey(x => x.SaleTypeId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         // FK logica a Identity
         builder.Property(x => x.AgentId).IsRequired().HasMaxLength(128);
@@ -84,7 +90,5 @@ public sealed class PropertyConfiguration : IEntityTypeConfiguration<Property>
         builder.HasIndex(x => x.AgentId);
         builder.HasIndex(x => x.Status);
         builder.HasIndex(x => new { x.Status, x.PropertyTypeId });
-        builder.HasIndex("PriceAmount").HasDatabaseName("IX_Properties_PriceAmount");
-        builder.HasIndex("SizeArea").HasDatabaseName("IX_Properties_SizeArea");
     }
 }

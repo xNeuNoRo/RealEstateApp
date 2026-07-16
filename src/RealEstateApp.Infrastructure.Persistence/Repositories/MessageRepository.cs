@@ -22,6 +22,17 @@ public sealed class MessageRepository : GenericRepository<Message>, IMessageRepo
         return await query.ToListAsync(ct);
     }
 
+    public async Task<IReadOnlyList<Message>> GetByClientAsync(
+        string clientId,
+        QueryOptions<Message>? options = null,
+        CancellationToken ct = default
+    )
+    {
+        var query = Query().Where(x => x.ClientId == clientId);
+        query = ApplyOptionsToQuery(query, options);
+        return await query.ToListAsync(ct);
+    }
+
     public async Task<IReadOnlyList<Message>> GetConversationAsync(
         int propertyId,
         string clientId,

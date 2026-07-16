@@ -19,6 +19,8 @@ public readonly struct Result
 
     public static Result Failure(Error error) => new(false, error);
 
+    public Error GetError() => IsFailure ? Error! : throw new InvalidOperationException("No error on success.");
+
     public static Result<T> Success<T>(T value) => Result<T>.Success(value);
 
     public static Result<T> Failure<T>(Error error) => Result<T>.Failure(error);
@@ -45,6 +47,10 @@ public readonly struct Result<T>
     public static Result<T> Success(T value) => new(true, value, null);
 
     public static Result<T> Failure(Error error) => new(false, default, error);
+
+    public Error GetError() => IsFailure ? Error! : throw new InvalidOperationException("No error on success.");
+
+    public T GetValue() => IsSuccess ? Value! : throw new InvalidOperationException("No value on failure.");
 
     public TResult Match<TResult>(Func<T, TResult> onSuccess, Func<Error, TResult> onFailure) =>
         IsSuccess ? onSuccess(Value!) : onFailure(Error!);

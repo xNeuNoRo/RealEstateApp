@@ -8,14 +8,23 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Application.Interfaces;
+using RealEstateApp.Application.Interfaces.UseCases.Admin;
+using RealEstateApp.Application.Interfaces.UseCases.Agent;
 using RealEstateApp.Application.Interfaces.UseCases.Auth;
+using RealEstateApp.Application.Interfaces.UseCases.Client;
+using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
 using RealEstateApp.Domain.Settings;
 using RealEstateApp.Infrastructure.Identity.Contexts;
 using RealEstateApp.Infrastructure.Identity.Entities;
+using RealEstateApp.Infrastructure.Identity.Repositories;
 using RealEstateApp.Infrastructure.Identity.Seeds;
 using RealEstateApp.Infrastructure.Identity.Services;
+using RealEstateApp.Infrastructure.Identity.UseCases.Admin;
+using RealEstateApp.Infrastructure.Identity.UseCases.Agent;
 using RealEstateApp.Infrastructure.Identity.UseCases.Auth;
+using RealEstateApp.Infrastructure.Identity.UseCases.Client;
 
 namespace RealEstateApp.Infrastructure.Identity;
 
@@ -131,9 +140,25 @@ public static class ServicesRegistration
 
         // --- Servicios ---
         services.AddScoped<IAccountServiceForWebApi, AccountServiceForWebApi>();
+        services.AddScoped<IAccountServiceForWebApp, AccountServiceForWebApp>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         // --- AutoMapper ---
         services.AddAutoMapper(cfg => { }, typeof(ServicesRegistration).Assembly);
+
+        // --- Identity Use Cases ---
+        services.AddAllIdentityUseCases();
+
+        return services;
+    }
+
+    internal static IServiceCollection AddAllIdentityUseCases(this IServiceCollection services)
+    {
+        services.AddAuthUseCases();
+        services.AddAdminUseCases();
+        services.AddIdentityClientUseCases();
+        services.AddIdentityAgentUseCases();
 
         return services;
     }
@@ -141,7 +166,7 @@ public static class ServicesRegistration
     /// <summary>
     /// Registra los Use Cases de autenticación para la WebApp (cookies, no JWT).
     /// </summary>
-    public static IServiceCollection AddAuthUseCases(this IServiceCollection services)
+    internal static IServiceCollection AddAuthUseCases(this IServiceCollection services)
     {
         services.AddScoped<ILoginUseCase, LoginUseCase>();
         services.AddScoped<IRegisterClientUseCase, RegisterClientUseCase>();
@@ -151,6 +176,44 @@ public static class ServicesRegistration
         services.AddScoped<IForgotPasswordUseCase, ForgotPasswordUseCase>();
         services.AddScoped<IResetPasswordUseCase, ResetPasswordUseCase>();
         services.AddScoped<IChangePasswordUseCase, ChangePasswordUseCase>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registra los Use Cases del módulo Admin
+    /// </summary>
+    internal static IServiceCollection AddAdminUseCases(this IServiceCollection services)
+    {
+        services.AddScoped<IGetAdminDashboardUseCase, GetAdminDashboardUseCase>();
+        services.AddScoped<IGetAgentsListUseCase, GetAgentsListUseCase>();
+        services.AddScoped<IToggleAgentActiveUseCase, ToggleAgentActiveUseCase>();
+        services.AddScoped<IDeleteAgentUseCase, DeleteAgentUseCase>();
+        services.AddScoped<IGetAdminsListUseCase, GetAdminsListUseCase>();
+        services.AddScoped<ICreateAdminUseCase, CreateAdminUseCase>();
+        services.AddScoped<IUpdateAdminUseCase, UpdateAdminUseCase>();
+        services.AddScoped<IToggleAdminActiveUseCase, ToggleAdminActiveUseCase>();
+        services.AddScoped<IGetDevelopersListUseCase, GetDevelopersListUseCase>();
+        services.AddScoped<ICreateDeveloperUseCase, CreateDeveloperUseCase>();
+        services.AddScoped<IUpdateDeveloperUseCase, UpdateDeveloperUseCase>();
+        services.AddScoped<IToggleDeveloperActiveUseCase, ToggleDeveloperActiveUseCase>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registra los Use Cases de cliente que requieren UserManager (Identity).
+    /// </summary>
+    internal static IServiceCollection AddIdentityClientUseCases(this IServiceCollection services)
+    {
+        services.AddScoped<IUpdateClientProfileUseCase, UpdateClientProfileUseCase>();
+
+        return services;
+    }
+
+    internal static IServiceCollection AddIdentityAgentUseCases(this IServiceCollection services)
+    {
+        services.AddScoped<IUpdateAgentProfileUseCase, UpdateAgentProfileUseCase>();
 
         return services;
     }
@@ -178,6 +241,16 @@ public static class ServicesRegistration
             userManager,
             configuration,
             loggerFactory?.CreateLogger("DefaultDeveloperUser")
+        );
+        await DefaultClientUser.SeedAsync(
+            userManager,
+            configuration,
+            loggerFactory?.CreateLogger("DefaultClientUser")
+        );
+        await DefaultAgentUser.SeedAsync(
+            userManager,
+            configuration,
+            loggerFactory?.CreateLogger("DefaultAgentUser")
         );
     }
 }

@@ -14,8 +14,15 @@ public sealed class OfferConfiguration : IEntityTypeConfiguration<Offer>
         builder.Property(x => x.Id).ValueGeneratedOnAdd();
         builder.Property(x => x.PropertyId).IsRequired();
 
-        // FK lógica a Identity
+        // FK a Identity
         builder.Property(x => x.ClientId).IsRequired().HasMaxLength(128);
+
+        // FK a Property
+        builder
+            .HasOne(x => x.Property)
+            .WithMany()
+            .HasForeignKey(x => x.PropertyId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(x => x.Amount).HasPrecision(18, 2).IsRequired();
         builder.Property(x => x.Status).IsRequired().HasConversion<string>().HasMaxLength(20);

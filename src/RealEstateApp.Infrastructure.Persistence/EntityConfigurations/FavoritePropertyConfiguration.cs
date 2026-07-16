@@ -19,6 +19,12 @@ public sealed class FavoritePropertyConfiguration : IEntityTypeConfiguration<Fav
         // FK a Property
         builder.Property(x => x.PropertyId).IsRequired();
 
+        builder
+            .HasOne(x => x.Property)
+            .WithMany()
+            .HasForeignKey(x => x.PropertyId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.Property(x => x.CreatedAt).IsRequired();
         builder.Property(x => x.UpdatedAt).IsRequired(false);
 

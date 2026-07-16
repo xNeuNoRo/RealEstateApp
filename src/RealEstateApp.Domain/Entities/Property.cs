@@ -118,6 +118,67 @@ public class Property : AggregateRoot
         return Result.Success();
     }
 
+    public Result UpdateDetails(
+        string? description,
+        Price? price,
+        Size? size,
+        int? bedrooms,
+        int? bathrooms,
+        int? propertyTypeId,
+        int? saleTypeId
+    )
+    {
+        if (description is not null)
+        {
+            if (string.IsNullOrWhiteSpace(description))
+                return Result.Failure(
+                    Error.Validation("Property.Desc", "La descripción no puede estar vacía.")
+                );
+            Description = description.Trim();
+        }
+        if (price is not null)
+            Price = price;
+        if (size is not null)
+            Size = size;
+        if (bedrooms.HasValue)
+        {
+            if (bedrooms.Value < 0)
+                return Result.Failure(
+                    Error.Validation(
+                        "Property.Bedrooms",
+                        "Las habitaciones no pueden ser negativas."
+                    )
+                );
+            Bedrooms = bedrooms.Value;
+        }
+        if (bathrooms.HasValue)
+        {
+            if (bathrooms.Value < 0)
+                return Result.Failure(
+                    Error.Validation("Property.Bathrooms", "Los baños no pueden ser negativos.")
+                );
+            Bathrooms = bathrooms.Value;
+        }
+        if (propertyTypeId.HasValue)
+        {
+            if (propertyTypeId.Value <= 0)
+                return Result.Failure(
+                    Error.Validation("Property.PropertyType", "El tipo de propiedad no es válido.")
+                );
+            PropertyTypeId = propertyTypeId.Value;
+        }
+        if (saleTypeId.HasValue)
+        {
+            if (saleTypeId.Value <= 0)
+                return Result.Failure(
+                    Error.Validation("Property.SaleType", "El tipo de venta no es válido.")
+                );
+            SaleTypeId = saleTypeId.Value;
+        }
+        Touch();
+        return Result.Success();
+    }
+
     public Result AddImage(string url)
     {
         if (string.IsNullOrWhiteSpace(url))

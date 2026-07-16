@@ -58,6 +58,9 @@ public sealed class FavoritePropertyRepository
         if (options is null)
             return query;
 
+        if (options.Filter is not null)
+            query = query.Where(options.Filter);
+
         foreach (var include in options.Includes)
             query = query.Include(include);
 

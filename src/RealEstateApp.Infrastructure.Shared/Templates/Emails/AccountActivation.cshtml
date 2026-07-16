@@ -1,134 +1,36 @@
-@using System
 @model RealEstateApp.Application.Models.Emails.AccountActivationModel
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8" />
-    <style>
-            body {
-                font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-                background-color: #F1F5F9;
-                padding: 20px;
-                color: #334155;
-                margin: 0;
-            }
-
-            .inner {
-                background: #fff;
-                max-width: 500px;
-                margin: 0 auto;
-                border-radius: 24px;
-                overflow: hidden;
-                box-shadow: 0 30px 60px -12px rgba(0, 0, 100, 0.1);
-                border: 1px solid rgba(0, 0, 0, 0.05);
-            }
-
-            .branding {
-                padding: 30px 40px 10px;
-                font-weight: 800;
-                font-size: 20px;
-                color: #0F766E;
-                letter-spacing: -0.5px;
-            }
-
-            .branding span {
-                color: #D4A017;
-            }
-
-            .header {
-                padding: 45px 40px;
-                background: linear-gradient(135deg, #0F766E 0%, #115E59 100%);
-                color: #fff;
-                position: relative;
-            }
-
-            .h-title {
-                font-size: 26px;
-                font-weight: 800;
-                margin: 0;
-                line-height: 1.2;
-            }
-
-            .h-subtitle {
-                font-size: 13px;
-                font-weight: 600;
-                opacity: 0.9;
-                margin-bottom: 8px;
-                text-transform: uppercase;
-                letter-spacing: 1.5px;
-                display: block;
-            }
-
-            .content {
-                padding: 45px 40px;
-            }
-
-            .greeting {
-                font-size: 18px;
-                font-weight: 700;
-                color: #0F766E;
-                margin-bottom: 18px;
-            }
-
-            .action-button {
-                display: inline-block;
-                padding: 18px 36px;
-                border-radius: 14px;
-                font-weight: 700;
-                text-decoration: none;
-                font-size: 15px;
-                background-color: #0F766E;
-                color: #fff !important;
-                box-shadow: 0 10px 15px -3px rgba(15, 118, 110, 0.3);
-            }
-
-            .security-banner {
-                background: #FEF2F2;
-                border-radius: 12px;
-                padding: 16px;
-                margin-top: 30px;
-                border: 1px solid #FEE2E2;
-                text-align: center;
-                font-size: 13px;
-                color: #DC2626;
-                font-weight: 600;
-            }
-
-            .footer {
-                padding: 35px 40px;
-                background: #F8FAFC;
-                text-align: center;
-                border-top: 1px solid #F1F5F9;
-                font-size: 12px;
-                color: #94A3B8;
-                line-height: 1.6;
-            }
-    </style>
+    <title>Activación de Cuenta</title>
 </head>
-
-<body>
-    <div class="inner">
-        <div class="branding">RealEstate<span>.</span>App</div>
-        <div class="header">
-            <span class="h-subtitle">Gestion Inmobiliaria</span>
-            <div class="h-title">Activa tu Cuenta</div>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+    <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="background-color: #2563eb; color: white; padding: 24px; border-radius: 8px 8px 0 0; text-align: center;">
+            <h1 style="margin: 0; font-size: 22px;">RealEstateApp</h1>
         </div>
-        <div class="content">
-            <div class="greeting">Hola, @Model.UserName</div>
-            <p style="font-size: 15px; line-height: 1.8; color: #475569; margin-bottom: 25px;">Su cuenta ha sido
-                registrada correctamente en RealEstateApp. Para activar su usuario y poder iniciar sesion, utilice el
-                siguiente enlace:</p>
-                <div style="text-align: center;">
-                    <a href="@Model.ActivationUrl" class="action-button">Activar mi Cuenta</a>
-                </div>
-                <p style="font-size: 13px; color: #64748b; text-align: center; margin-top: 25px;">O copia este enlace en tu
-                    navegador:<br><span
-                    style="word-break: break-all; color: #0F766E; font-weight: 600;">@Model.ActivationUrl</span></p>
-                    <div class="security-banner">Si usted no realizo este registro, puede ignorar este mensaje.</div>
-                </div>
-                <div class="footer">Para soporte: @Model.SupportEmail<br>&copy; @DateTime.UtcNow.Year RealEstateApp</div>
+        <div style="padding: 32px 24px;">
+            <h2 style="color: #1f2937; font-size: 18px;">Hola @Model.UserName,</h2>
+            <p style="color: #4b5563; line-height: 1.6;">
+                Su cuenta ha sido registrada correctamente en <strong>RealEstateApp</strong>.
+                Para activar su usuario y poder iniciar sesión, utilice el siguiente enlace:
+            </p>
+            <div style="text-align: center; margin: 28px 0;">
+                <a href="@Model.ActivationUrl"
+                   style="background-color: #2563eb; color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; display: inline-block;">
+                    Activar mi cuenta
+                </a>
             </div>
-        </body>
-
-    </html>
+            <p style="color: #9ca3af; font-size: 14px; text-align: center;">
+                Si usted no realizó este registro, puede ignorar este mensaje.
+            </p>
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
+            <p style="color: #6b7280; font-size: 13px; text-align: center;">
+                RealEstateApp &copy; @DateTime.Now.Year &mdash;
+                <a href="mailto:@Model.SupportEmail" style="color: #2563eb;">@Model.SupportEmail</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
