@@ -1,6 +1,7 @@
 using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Application.Interfaces.UseCases.Agent;
 using RealEstateApp.Application.Interfaces.UseCases.Catalog;
 using RealEstateApp.Application.Interfaces.UseCases.Chat;
@@ -8,6 +9,7 @@ using RealEstateApp.Application.Interfaces.UseCases.Client;
 using RealEstateApp.Application.Interfaces.UseCases.Favorites;
 using RealEstateApp.Application.Interfaces.UseCases.Offers;
 using RealEstateApp.Application.Interfaces.UseCases.Property;
+using RealEstateApp.Application.Services;
 using RealEstateApp.Application.UseCases.Agent;
 using RealEstateApp.Application.UseCases.Catalog;
 using RealEstateApp.Application.UseCases.Chat;
@@ -37,6 +39,9 @@ public static class ServicesRegistration
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         // Todos los Use Cases
         services.AddAllUseCases();
+
+        // Application Services (wrappers para MVC)
+        services.AddApplicationServices();
 
         return services;
     }
@@ -129,6 +134,16 @@ public static class ServicesRegistration
         services.AddScoped<IUpdateSaleTypeUseCase, UpdateSaleTypeUseCase>();
         services.AddScoped<IGetAllSaleTypesUseCase, GetAllSaleTypesUseCase>();
         services.AddScoped<IDeleteSaleTypeUseCase, DeleteSaleTypeUseCase>();
+
+        return services;
+    }
+
+    internal static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    {
+        services.AddScoped<IPropertyService, PropertyService>();
+        services.AddScoped<IAgentService, AgentService>();
+        services.AddScoped<IClientService, ClientService>();
+        services.AddScoped<IAdminService, AdminService>();
 
         return services;
     }
