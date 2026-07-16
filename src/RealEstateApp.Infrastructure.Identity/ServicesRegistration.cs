@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using RealEstateApp.Application.Interfaces;
 using RealEstateApp.Application.Interfaces.UseCases.Admin;
+using RealEstateApp.Application.Interfaces.UseCases.Agent;
 using RealEstateApp.Application.Interfaces.UseCases.Auth;
 using RealEstateApp.Application.Interfaces.UseCases.Client;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
@@ -20,6 +21,7 @@ using RealEstateApp.Infrastructure.Identity.Repositories;
 using RealEstateApp.Infrastructure.Identity.Seeds;
 using RealEstateApp.Infrastructure.Identity.Services;
 using RealEstateApp.Infrastructure.Identity.UseCases.Admin;
+using RealEstateApp.Infrastructure.Identity.UseCases.Agent;
 using RealEstateApp.Infrastructure.Identity.UseCases.Auth;
 using RealEstateApp.Infrastructure.Identity.UseCases.Client;
 
@@ -189,6 +191,13 @@ public static class ServicesRegistration
     public static IServiceCollection AddIdentityClientUseCases(this IServiceCollection services)
     {
         services.AddScoped<IUpdateClientProfileUseCase, UpdateClientProfileUseCase>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddIdentityAgentUseCases(this IServiceCollection services)
+    {
+        services.AddScoped<IUpdateAgentProfileUseCase, UpdateAgentProfileUseCase>();
 
         return services;
     }

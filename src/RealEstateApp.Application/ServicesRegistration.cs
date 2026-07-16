@@ -1,12 +1,14 @@
 using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using RealEstateApp.Application.Interfaces.UseCases.Agent;
 using RealEstateApp.Application.Interfaces.UseCases.Catalog;
 using RealEstateApp.Application.Interfaces.UseCases.Chat;
 using RealEstateApp.Application.Interfaces.UseCases.Client;
 using RealEstateApp.Application.Interfaces.UseCases.Favorites;
 using RealEstateApp.Application.Interfaces.UseCases.Offers;
 using RealEstateApp.Application.Interfaces.UseCases.Property;
+using RealEstateApp.Application.UseCases.Agent;
 using RealEstateApp.Application.UseCases.Catalog;
 using RealEstateApp.Application.UseCases.Chat;
 using RealEstateApp.Application.UseCases.Client;
@@ -84,6 +86,13 @@ public static class ServicesRegistration
     {
         services.AddScoped<IGetClientDashboardUseCase, GetClientDashboardUseCase>();
         services.AddScoped<IGetClientProfileUseCase, GetClientProfileUseCase>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddAgentUseCases(this IServiceCollection services)
+    {
+        services.AddScoped<IGetAgentProfileUseCase, GetAgentProfileUseCase>();
 
         return services;
     }
