@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Application.Interfaces;
 using RealEstateApp.Application.Interfaces.UseCases.Admin;
 using RealEstateApp.Application.Interfaces.UseCases.Agent;
@@ -139,6 +140,8 @@ public static class ServicesRegistration
 
         // --- Servicios ---
         services.AddScoped<IAccountServiceForWebApi, AccountServiceForWebApi>();
+        services.AddScoped<IAccountServiceForWebApp, AccountServiceForWebApp>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IUserRepository, UserRepository>();
 
         // --- AutoMapper ---
@@ -238,6 +241,16 @@ public static class ServicesRegistration
             userManager,
             configuration,
             loggerFactory?.CreateLogger("DefaultDeveloperUser")
+        );
+        await DefaultClientUser.SeedAsync(
+            userManager,
+            configuration,
+            loggerFactory?.CreateLogger("DefaultClientUser")
+        );
+        await DefaultAgentUser.SeedAsync(
+            userManager,
+            configuration,
+            loggerFactory?.CreateLogger("DefaultAgentUser")
         );
     }
 }
