@@ -60,7 +60,10 @@ public sealed class UpdatePropertyTypeUseCase : IUpdatePropertyTypeUseCase
         var entity = await _repository.GetByIdAsync(request.Id, cancellationToken);
         if (entity is null)
             return Result<PropertyTypeResponse>.Failure(
-                Error.NotFound("PropertyType.NotFound", "No se encontró el tipo de propiedad especificado.")
+                Error.NotFound(
+                    "PropertyType.NotFound",
+                    "No se encontró el tipo de propiedad especificado."
+                )
             );
 
         var nameExists = await _repository.ExistsAsync(
@@ -69,7 +72,10 @@ public sealed class UpdatePropertyTypeUseCase : IUpdatePropertyTypeUseCase
         );
         if (nameExists)
             return Result<PropertyTypeResponse>.Failure(
-                Error.Validation("PropertyType.NameDuplicate", "Ya existe un tipo de propiedad con ese nombre.")
+                Error.Validation(
+                    "PropertyType.NameDuplicate",
+                    "Ya existe un tipo de propiedad con ese nombre."
+                )
             );
 
         var updateResult = entity.Update(request.Name, request.Description);

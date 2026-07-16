@@ -4,11 +4,10 @@ using RealEstateApp.Application.Dtos.Catalog.Requests;
 using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Application.Interfaces.UseCases.Catalog;
 using RealEstateApp.Domain.Common;
-using RealEstateApp.Domain.Entities;
-using ImprovementEntity = RealEstateApp.Domain.Entities.Improvement;
 using RealEstateApp.Domain.Enums;
 using RealEstateApp.Domain.Interfaces.Persistence;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
+using ImprovementEntity = RealEstateApp.Domain.Entities.Improvement;
 
 namespace RealEstateApp.Application.UseCases.Improvement;
 
@@ -48,10 +47,7 @@ public sealed class UpdateImprovementUseCase : IUpdateImprovementUseCase
 
         if (!_currentUser.IsInRole(nameof(Roles.Admin)))
             return Result.Failure(
-                Error.Forbidden(
-                    "Auth.AdminOnly",
-                    "Solo administradores pueden gestionar mejoras."
-                )
+                Error.Forbidden("Auth.AdminOnly", "Solo administradores pueden gestionar mejoras.")
             );
 
         var entity = await _repository.GetByIdAsync(request.Id, cancellationToken);
@@ -67,7 +63,10 @@ public sealed class UpdateImprovementUseCase : IUpdateImprovementUseCase
         );
         if (nameExists)
             return Result.Failure(
-                Error.Validation("Improvement.NameDuplicate", "Ya existe una mejora con ese nombre.")
+                Error.Validation(
+                    "Improvement.NameDuplicate",
+                    "Ya existe una mejora con ese nombre."
+                )
             );
 
         var updateResult = entity.Update(request.Name, request.Description);

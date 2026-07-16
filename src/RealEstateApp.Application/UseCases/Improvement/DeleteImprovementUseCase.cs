@@ -2,11 +2,9 @@ using FluentValidation;
 using Microsoft.Extensions.Logging;
 using RealEstateApp.Application.Common.Validation;
 using RealEstateApp.Application.Dtos.Catalog.Requests;
-using RealEstateApp.Application.Interfaces;
 using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Application.Interfaces.UseCases.Catalog;
 using RealEstateApp.Domain.Common;
-using RealEstateApp.Domain.Entities;
 using RealEstateApp.Domain.Enums;
 using RealEstateApp.Domain.Interfaces.Persistence;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
@@ -56,10 +54,7 @@ public sealed class DeleteImprovementUseCase : IDeleteImprovementUseCase
 
         if (!_currentUser.IsInRole(nameof(Roles.Admin)))
             return Result.Failure(
-                Error.Forbidden(
-                    "Auth.AdminOnly",
-                    "Solo administradores pueden eliminar mejoras."
-                )
+                Error.Forbidden("Auth.AdminOnly", "Solo administradores pueden eliminar mejoras.")
             );
 
         var improvement = await _improvementRepo.GetByIdAsync(request.Id, cancellationToken);

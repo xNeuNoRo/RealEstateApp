@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentValidation;
 using RealEstateApp.Application.Common.Validation;
 using RealEstateApp.Application.Dtos.Favorites.Requests;
@@ -18,6 +19,7 @@ public sealed class AddFavoriteUseCase : IAddFavoriteUseCase
     private readonly IPropertyRepository _propertyRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUser;
+    private readonly IMapper _mapper;
     private readonly IValidator<AddFavoriteRequest> _validator;
 
     public AddFavoriteUseCase(
@@ -25,6 +27,7 @@ public sealed class AddFavoriteUseCase : IAddFavoriteUseCase
         IPropertyRepository propertyRepository,
         IUnitOfWork unitOfWork,
         ICurrentUserService currentUser,
+        IMapper mapper,
         IValidator<AddFavoriteRequest> validator
     )
     {
@@ -32,6 +35,7 @@ public sealed class AddFavoriteUseCase : IAddFavoriteUseCase
         _propertyRepository = propertyRepository;
         _unitOfWork = unitOfWork;
         _currentUser = currentUser;
+        _mapper = mapper;
         _validator = validator;
     }
 
@@ -54,7 +58,10 @@ public sealed class AddFavoriteUseCase : IAddFavoriteUseCase
                 Error.Forbidden("Auth.ClientOnly", "Solo los clientes pueden agregar favoritos.")
             );
 
-        var property = await _propertyRepository.GetByIdAsync(request.PropertyId, cancellationToken);
+        var property = await _propertyRepository.GetByIdAsync(
+            request.PropertyId,
+            cancellationToken
+        );
         if (property is null)
             return Result<FavoriteResponse>.Failure(
                 Error.NotFound("Property.NotFound", "La propiedad no existe.")
@@ -62,11 +69,18 @@ public sealed class AddFavoriteUseCase : IAddFavoriteUseCase
 
         if (property.Status != PropertyStatus.Available)
             return Result<FavoriteResponse>.Failure(
-                Error.Conflict("Property.NotAvailable", "La propiedad debe estar disponible para agregarla a favoritos.")
+                Error.Conflict(
+                    "Property.NotAvailable",
+                    "La propiedad debe estar disponible para agregarla a favoritos."
+                )
             );
 
         var clientId = _currentUser.UserId;
-        var isFavorited = await _favoriteRepository.IsFavoritedAsync(clientId, request.PropertyId, cancellationToken);
+        var isFavorited = await _favoriteRepository.IsFavoritedAsync(
+            clientId,
+            request.PropertyId,
+            cancellationToken
+        );
         if (isFavorited)
             return Result<FavoriteResponse>.Failure(
                 Error.Conflict("Favorite.Duplicate", "La propiedad ya está en sus favoritos.")
@@ -80,19 +94,9 @@ public sealed class AddFavoriteUseCase : IAddFavoriteUseCase
         await _favoriteRepository.AddAsync(favorite, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var response = new FavoriteResponse
-        {
-            Id = favorite.Id,
-            PropertyId = property.Id,
-            Code = property.Code.Value,
-            Description = property.Description,
-            Price = property.Price.Amount,
-            Currency = property.Price.Currency,
-            MainImageUrl = property.Images.FirstOrDefault(i => i.IsMain)?.Url,
-            PropertyTypeName = property.PropertyType?.Name,
-            SaleTypeName = property.SaleType?.Name,
-            FavoritedAt = favorite.CreatedAt,
-        };
+        var response = _mapper.Map<FavoriteResponse>(property);
+        response.Id = favorite.Id;
+        response.FavoritedAt = favorite.CreatedAt;
 
         return Result<FavoriteResponse>.Success(response);
     }

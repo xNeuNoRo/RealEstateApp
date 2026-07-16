@@ -46,11 +46,14 @@ public sealed class GetAllPropertyTypesUseCase : IGetAllPropertyTypesUseCase
                 Error.Unauthorized("Auth.NotAuthenticated", "Debe iniciar sesión.")
             );
 
-        if (!_currentUser.IsInRole(nameof(Roles.Admin)))
+        if (
+            !_currentUser.IsInRole(nameof(Roles.Admin))
+            && !_currentUser.IsInRole(nameof(Roles.Agent))
+        )
             return Result<PagedResult<PropertyTypeResponse>>.Failure(
                 Error.Forbidden(
-                    "Auth.AdminOnly",
-                    "Solo administradores pueden listar tipos de propiedad."
+                    "Auth.AdminOrAgent",
+                    "Solo administradores o agentes pueden listar tipos de propiedad."
                 )
             );
 
@@ -77,8 +80,7 @@ public sealed class GetAllPropertyTypesUseCase : IGetAllPropertyTypesUseCase
 
         var totalCount = term is not null
             ? await _repository.CountAsync(
-                pt =>
-                    pt.Name.ToLower().Contains(term) || pt.Description.ToLower().Contains(term),
+                pt => pt.Name.ToLower().Contains(term) || pt.Description.ToLower().Contains(term),
                 cancellationToken
             )
             : await _repository.CountAsync(null, cancellationToken);

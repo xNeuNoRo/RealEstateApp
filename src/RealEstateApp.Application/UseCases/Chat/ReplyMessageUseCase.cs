@@ -31,7 +31,8 @@ public sealed class ReplyMessageUseCase : IReplyMessageUseCase
         ICurrentUserService currentUser,
         IMapper mapper,
         IValidator<ReplyMessageRequest> validator,
-        ILogger<ReplyMessageUseCase> logger)
+        ILogger<ReplyMessageUseCase> logger
+    )
     {
         _messageRepository = messageRepository;
         _propertyRepository = propertyRepository;
@@ -44,7 +45,8 @@ public sealed class ReplyMessageUseCase : IReplyMessageUseCase
 
     public async Task<Result<MessageResponse>> ExecuteAsync(
         ReplyMessageRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -52,7 +54,10 @@ public sealed class ReplyMessageUseCase : IReplyMessageUseCase
 
         if (!_currentUser.IsAuthenticated || _currentUser.UserId is null)
             return Result<MessageResponse>.Failure(
-                Error.Unauthorized("Auth.NotAuthenticated", "Debe iniciar sesión para enviar un mensaje.")
+                Error.Unauthorized(
+                    "Auth.NotAuthenticated",
+                    "Debe iniciar sesión para enviar un mensaje."
+                )
             );
 
         if (!_currentUser.IsInRole(nameof(Roles.Agent)))
@@ -60,13 +65,22 @@ public sealed class ReplyMessageUseCase : IReplyMessageUseCase
                 Error.Forbidden("Auth.AgentOnly", "Solo los agentes pueden responder mensajes.")
             );
 
-        var originalMessage = await _messageRepository.GetByIdAsync(request.MessageId, cancellationToken);
+        var originalMessage = await _messageRepository.GetByIdAsync(
+            request.MessageId,
+            cancellationToken
+        );
         if (originalMessage is null)
             return Result<MessageResponse>.Failure(
-                Error.NotFound("Message.NotFound", "No se encontró el mensaje original para responder.")
+                Error.NotFound(
+                    "Message.NotFound",
+                    "No se encontró el mensaje original para responder."
+                )
             );
 
-        var property = await _propertyRepository.GetByIdAsync(originalMessage.PropertyId, cancellationToken);
+        var property = await _propertyRepository.GetByIdAsync(
+            originalMessage.PropertyId,
+            cancellationToken
+        );
         if (property is null)
             return Result<MessageResponse>.Failure(
                 Error.NotFound("Property.NotFound", "No se encontró la propiedad asociada.")
@@ -74,7 +88,10 @@ public sealed class ReplyMessageUseCase : IReplyMessageUseCase
 
         if (property.AgentId != _currentUser.UserId)
             return Result<MessageResponse>.Failure(
-                Error.Forbidden("Property.NotOwner", "Solo el agente propietario puede responder mensajes de esta propiedad.")
+                Error.Forbidden(
+                    "Property.NotOwner",
+                    "Solo el agente propietario puede responder mensajes de esta propiedad."
+                )
             );
 
         var conversation = await _messageRepository.GetConversationAsync(
@@ -86,12 +103,18 @@ public sealed class ReplyMessageUseCase : IReplyMessageUseCase
 
         if (conversation.Count == 0)
             return Result<MessageResponse>.Failure(
-                Error.NotFound("Conversation.NotFound", "No se encontró la conversación para responder.")
+                Error.NotFound(
+                    "Conversation.NotFound",
+                    "No se encontró la conversación para responder."
+                )
             );
 
         if (string.IsNullOrWhiteSpace(request.Content))
             return Result<MessageResponse>.Failure(
-                Error.Validation("Message.ContentEmpty", "Debe escribir un mensaje antes de enviarlo.")
+                Error.Validation(
+                    "Message.ContentEmpty",
+                    "Debe escribir un mensaje antes de enviarlo."
+                )
             );
 
         var createResult = Message.Create(
@@ -123,5 +146,3 @@ public sealed class ReplyMessageUseCase : IReplyMessageUseCase
         return Result<MessageResponse>.Success(response);
     }
 }
-
-        

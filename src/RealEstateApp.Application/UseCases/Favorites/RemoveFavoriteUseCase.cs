@@ -55,11 +55,13 @@ public sealed class RemoveFavoriteUseCase : IRemoveFavoriteUseCase
 
         var clientId = _currentUser.UserId;
 
-        var favorite = await _favoriteRepository.GetAsync(clientId, request.PropertyId, cancellationToken);
+        var favorite = await _favoriteRepository.GetAsync(
+            clientId,
+            request.PropertyId,
+            cancellationToken
+        );
         if (favorite is null)
-            return Result.Failure(
-                Error.NotFound("Favorites.NotFound", "El favorito no existe.")
-            );
+            return Result.Failure(Error.NotFound("Favorites.NotFound", "El favorito no existe."));
 
         _favoriteRepository.Delete(favorite);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

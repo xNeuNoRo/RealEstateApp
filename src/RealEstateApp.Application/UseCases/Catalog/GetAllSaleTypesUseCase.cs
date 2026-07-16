@@ -3,9 +3,11 @@ using FluentValidation;
 using RealEstateApp.Application.Common.Validation;
 using RealEstateApp.Application.Dtos.Catalog.Requests;
 using RealEstateApp.Application.Dtos.Catalog.Responses;
+using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Application.Interfaces.UseCases.Catalog;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Entities;
+using RealEstateApp.Domain.Enums;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
 
 namespace RealEstateApp.Application.UseCases.Catalog;
@@ -14,16 +16,19 @@ public sealed class GetAllSaleTypesUseCase : IGetAllSaleTypesUseCase
 {
     private readonly IGenericRepository<SaleType> _repository;
     private readonly IMapper _mapper;
+    private readonly ICurrentUserService _currentUser;
     private readonly IValidator<GetAllSaleTypesRequest> _validator;
 
     public GetAllSaleTypesUseCase(
         IGenericRepository<SaleType> repository,
         IMapper mapper,
+        ICurrentUserService currentUser,
         IValidator<GetAllSaleTypesRequest> validator
     )
     {
         _repository = repository;
         _mapper = mapper;
+        _currentUser = currentUser;
         _validator = validator;
     }
 
@@ -35,6 +40,22 @@ public sealed class GetAllSaleTypesUseCase : IGetAllSaleTypesUseCase
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
             return validationResult.ToResult<PagedResult<SaleTypeResponse>>();
+
+        if (!_currentUser.IsAuthenticated || _currentUser.UserId is null)
+            return Result<PagedResult<SaleTypeResponse>>.Failure(
+                Error.Unauthorized("Auth.NotAuthenticated", "Debe iniciar sesión.")
+            );
+
+        if (
+            !_currentUser.IsInRole(nameof(Roles.Admin))
+            && !_currentUser.IsInRole(nameof(Roles.Agent))
+        )
+            return Result<PagedResult<SaleTypeResponse>>.Failure(
+                Error.Forbidden(
+                    "Auth.AdminOrAgent",
+                    "Solo administradores o agentes pueden listar tipos de venta."
+                )
+            );
 
         var options = new QueryOptions<SaleType>
         {

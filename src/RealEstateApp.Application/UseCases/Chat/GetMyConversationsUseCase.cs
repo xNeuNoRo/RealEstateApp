@@ -27,7 +27,8 @@ public sealed class GetMyConversationsUseCase : IGetMyConversationsUseCase
         IUserRepository userRepository,
         ICurrentUserService currentUser,
         IMapper mapper,
-        IValidator<GetMyConversationsRequest> validator)
+        IValidator<GetMyConversationsRequest> validator
+    )
     {
         _messageRepository = messageRepository;
         _propertyRepository = propertyRepository;
@@ -39,7 +40,8 @@ public sealed class GetMyConversationsUseCase : IGetMyConversationsUseCase
 
     public async Task<Result<PagedResult<ConversationSummaryResponse>>> ExecuteAsync(
         GetMyConversationsRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -47,14 +49,19 @@ public sealed class GetMyConversationsUseCase : IGetMyConversationsUseCase
 
         if (!_currentUser.IsAuthenticated || _currentUser.UserId is null)
             return Result<PagedResult<ConversationSummaryResponse>>.Failure(
-                Error.Unauthorized("Auth.NotAuthenticated", "Debe iniciar sesión para ver conversaciones.")
+                Error.Unauthorized(
+                    "Auth.NotAuthenticated",
+                    "Debe iniciar sesión para ver conversaciones."
+                )
             );
 
-        if (!_currentUser.IsInRole(nameof(Roles.Client)) && !_currentUser.IsInRole(nameof(Roles.Agent)))
+        if (
+            !_currentUser.IsInRole(nameof(Roles.Client))
+            && !_currentUser.IsInRole(nameof(Roles.Agent))
+        )
             return Result<PagedResult<ConversationSummaryResponse>>.Failure(
                 Error.Forbidden("Auth.NotAllowed", "No tienes permiso para ver conversaciones.")
             );
-
 
         IReadOnlyList<Message> allMessages;
         int totalConversations;
@@ -65,7 +72,7 @@ public sealed class GetMyConversationsUseCase : IGetMyConversationsUseCase
                 new QueryOptions<Message>
                 {
                     Filter = m => m.ClientId == _currentUser.UserId,
-                    Includes = { m => m.Property },
+                    Includes = [m => m.Property],
                     OrderBy = q => q.OrderByDescending(m => m.CreatedAt),
                 },
                 cancellationToken
@@ -74,7 +81,7 @@ public sealed class GetMyConversationsUseCase : IGetMyConversationsUseCase
             var grouped = allMessages
                 .GroupBy(m => (m.PropertyId, m.AgentId))
                 .Select(g => g.First())
-                .ToList();
+                .ToList(); // ponytail: in-memory grouping, migrate to DB GROUP BY if >1000 messages/client
 
             totalConversations = grouped.Count;
             var page = grouped
@@ -82,27 +89,35 @@ public sealed class GetMyConversationsUseCase : IGetMyConversationsUseCase
                 .Take(request.PageSize)
                 .ToList();
 
-            var agentIds = page.Select(m => m.AgentId).Distinct().ToList();
-            var agents = agentIds.Count > 0
-                ? await _userRepository.GetByIdsAsync(agentIds, cancellationToken)
-                : [];
-            var agentMap = agents.ToDictionary(u => u.Id, u => $"{u.FirstName} {u.LastName}".Trim());
+            var otherUserIds = page.Select(m => m.AgentId).Distinct().ToList();
+            var otherUsers =
+                otherUserIds.Count > 0
+                    ? await _userRepository.GetByIdsAsync(otherUserIds, cancellationToken)
+                    : [];
+            var otherUserMap = otherUsers.ToDictionary(
+                u => u.Id,
+                u => $"{u.FirstName} {u.LastName}".Trim()
+            );
 
-            var items = page.Select(m => new ConversationSummaryResponse
-            {
-                PropertyId = m.PropertyId,
-                PropertyCode = m.Property?.Code.Value ?? string.Empty,
-                PropertyDescription = m.Property?.Description ?? string.Empty,
-                OtherUserId = m.AgentId,
-                OtherUserName = agentMap.TryGetValue(m.AgentId, out var name) ? name : string.Empty,
-                OtherUserRole = nameof(Roles.Agent),
-                LastMessageContent = m.Content,
-                LastMessageSenderType = m.SenderType.ToString(),
-                LastMessageAt = m.CreatedAt,
-            }).ToList();
+            var items = page.Select(m =>
+                {
+                    var response = _mapper.Map<ConversationSummaryResponse>(m);
+                    response.OtherUserId = m.AgentId;
+                    response.OtherUserRole = nameof(Roles.Agent);
+                    response.OtherUserName = otherUserMap.TryGetValue(m.AgentId, out var name)
+                        ? name
+                        : string.Empty;
+                    return response;
+                })
+                .ToList();
 
             return Result<PagedResult<ConversationSummaryResponse>>.Success(
-                new PagedResult<ConversationSummaryResponse>(items, totalConversations, request.Page, request.PageSize)
+                new PagedResult<ConversationSummaryResponse>(
+                    items,
+                    totalConversations,
+                    request.Page,
+                    request.PageSize
+                )
             );
         }
         else
@@ -110,20 +125,24 @@ public sealed class GetMyConversationsUseCase : IGetMyConversationsUseCase
             var properties = await _propertyRepository.GetByAgentAsync(
                 _currentUser.UserId,
                 ct: cancellationToken
-                
             );
             var propertyIds = properties.Select(p => p.Id).ToList();
 
             if (propertyIds.Count == 0)
                 return Result<PagedResult<ConversationSummaryResponse>>.Success(
-                    new PagedResult<ConversationSummaryResponse>([], 0, request.Page, request.PageSize)
+                    new PagedResult<ConversationSummaryResponse>(
+                        [],
+                        0,
+                        request.Page,
+                        request.PageSize
+                    )
                 );
 
             allMessages = await _messageRepository.GetAllAsync(
                 new QueryOptions<Message>
                 {
                     Filter = m => propertyIds.Contains(m.PropertyId),
-                    Includes = { m => m.Property },
+                    Includes = [m => m.Property],
                     OrderBy = q => q.OrderByDescending(m => m.CreatedAt),
                 },
                 cancellationToken
@@ -140,27 +159,35 @@ public sealed class GetMyConversationsUseCase : IGetMyConversationsUseCase
                 .Take(request.PageSize)
                 .ToList();
 
-            var clientIds = page.Select(m => m.ClientId).Distinct().ToList();
-            var clients = clientIds.Count > 0
-                ? await _userRepository.GetByIdsAsync(clientIds, cancellationToken)
-                : [];
-            var clientMap = clients.ToDictionary(u => u.Id, u => $"{u.FirstName} {u.LastName}".Trim());
+            var otherUserIds = page.Select(m => m.ClientId).Distinct().ToList();
+            var otherUsers =
+                otherUserIds.Count > 0
+                    ? await _userRepository.GetByIdsAsync(otherUserIds, cancellationToken)
+                    : [];
+            var otherUserMap = otherUsers.ToDictionary(
+                u => u.Id,
+                u => $"{u.FirstName} {u.LastName}".Trim()
+            );
 
-            var items = page.Select(m => new ConversationSummaryResponse
-            {
-                PropertyId = m.PropertyId,
-                PropertyCode = m.Property?.Code.Value ?? string.Empty,
-                PropertyDescription = m.Property?.Description ?? string.Empty,
-                OtherUserId = m.ClientId,
-                OtherUserName = clientMap.TryGetValue(m.ClientId, out var name) ? name : string.Empty,
-                OtherUserRole = nameof(Roles.Client),
-                LastMessageContent = m.Content,
-                LastMessageSenderType = m.SenderType.ToString(),
-                LastMessageAt = m.CreatedAt,
-            }).ToList();
+            var items = page.Select(m =>
+                {
+                    var response = _mapper.Map<ConversationSummaryResponse>(m);
+                    response.OtherUserId = m.ClientId;
+                    response.OtherUserRole = nameof(Roles.Client);
+                    response.OtherUserName = otherUserMap.TryGetValue(m.ClientId, out var name)
+                        ? name
+                        : string.Empty;
+                    return response;
+                })
+                .ToList();
 
             return Result<PagedResult<ConversationSummaryResponse>>.Success(
-                new PagedResult<ConversationSummaryResponse>(items, totalConversations, request.Page, request.PageSize)
+                new PagedResult<ConversationSummaryResponse>(
+                    items,
+                    totalConversations,
+                    request.Page,
+                    request.PageSize
+                )
             );
         }
     }

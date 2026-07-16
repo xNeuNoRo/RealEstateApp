@@ -2,7 +2,7 @@ namespace RealEstateApp.Application.Dtos.Favorites.Responses;
 
 public sealed class FavoriteResponse
 {
-    public int Id { get; init; }
+    public int Id { get; set; }
     public int PropertyId { get; init; }
     public string Code { get; init; } = null!;
     public string Description { get; init; } = null!;

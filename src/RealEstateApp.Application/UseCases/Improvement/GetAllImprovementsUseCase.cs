@@ -1,16 +1,14 @@
 using AutoMapper;
 using FluentValidation;
-using RealEstateApp.Domain.Common;
-using RealEstateApp.Domain.Entities;
-using ImprovementEntity = RealEstateApp.Domain.Entities.Improvement;
+using RealEstateApp.Application.Common.Validation;
 using RealEstateApp.Application.Dtos.Catalog.Requests;
+using RealEstateApp.Application.Dtos.Catalog.Responses;
 using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Application.Interfaces.UseCases.Catalog;
-using RealEstateApp.Domain.Interfaces.Persistence;
-using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
-using RealEstateApp.Application.Common.Validation;
-using RealEstateApp.Application.Dtos.Catalog.Responses;
+using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Enums;
+using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
+using ImprovementEntity = RealEstateApp.Domain.Entities.Improvement;
 
 namespace RealEstateApp.Application.UseCases.Improvement;
 
@@ -18,16 +16,19 @@ public sealed class GetAllImprovementsUseCase : IGetAllImprovementsUseCase
 {
     private readonly IGenericRepository<ImprovementEntity> _repository;
     private readonly IMapper _mapper;
+    private readonly ICurrentUserService _currentUser;
     private readonly IValidator<GetAllImprovementsRequest> _validator;
 
     public GetAllImprovementsUseCase(
         IGenericRepository<ImprovementEntity> repository,
         IMapper mapper,
+        ICurrentUserService currentUser,
         IValidator<GetAllImprovementsRequest> validator
     )
     {
         _repository = repository;
         _mapper = mapper;
+        _currentUser = currentUser;
         _validator = validator;
     }
 
@@ -39,6 +40,22 @@ public sealed class GetAllImprovementsUseCase : IGetAllImprovementsUseCase
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
             return validationResult.ToResult<PagedResult<ImprovementResponse>>();
+
+        if (!_currentUser.IsAuthenticated || _currentUser.UserId is null)
+            return Result<PagedResult<ImprovementResponse>>.Failure(
+                Error.Unauthorized("Auth.NotAuthenticated", "Debe iniciar sesión.")
+            );
+
+        if (
+            !_currentUser.IsInRole(nameof(Roles.Admin))
+            && !_currentUser.IsInRole(nameof(Roles.Agent))
+        )
+            return Result<PagedResult<ImprovementResponse>>.Failure(
+                Error.Forbidden(
+                    "Auth.AdminOrAgent",
+                    "Solo administradores o agentes pueden listar mejoras."
+                )
+            );
 
         string? term = null;
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
@@ -63,9 +80,7 @@ public sealed class GetAllImprovementsUseCase : IGetAllImprovementsUseCase
 
         var totalCount = term is not null
             ? await _repository.CountAsync(
-                i =>
-                    i.Name.ToLower().Contains(term)
-                    || i.Description.ToLower().Contains(term),
+                i => i.Name.ToLower().Contains(term) || i.Description.ToLower().Contains(term),
                 cancellationToken
             )
             : await _repository.CountAsync(null, cancellationToken);

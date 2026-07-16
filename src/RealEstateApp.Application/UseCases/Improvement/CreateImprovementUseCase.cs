@@ -1,16 +1,15 @@
 using AutoMapper;
 using FluentValidation;
-using RealEstateApp.Domain.Common;
-using RealEstateApp.Domain.Entities;
-using ImprovementEntity = RealEstateApp.Domain.Entities.Improvement;
+using RealEstateApp.Application.Common.Validation;
 using RealEstateApp.Application.Dtos.Catalog.Requests;
+using RealEstateApp.Application.Dtos.Catalog.Responses;
 using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Application.Interfaces.UseCases.Catalog;
+using RealEstateApp.Domain.Common;
+using RealEstateApp.Domain.Enums;
 using RealEstateApp.Domain.Interfaces.Persistence;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
-using RealEstateApp.Application.Common.Validation;
-using RealEstateApp.Application.Dtos.Catalog.Responses;
-using RealEstateApp.Domain.Enums;
+using ImprovementEntity = RealEstateApp.Domain.Entities.Improvement;
 
 namespace RealEstateApp.Application.UseCases.Improvement;
 
@@ -21,7 +20,6 @@ public sealed class CreateImprovementUseCase : ICreateImprovementUseCase
     private readonly ICurrentUserService _currentUser;
     private readonly IMapper _mapper;
     private readonly IValidator<CreateImprovementRequest> _validator;
-
 
     public CreateImprovementUseCase(
         IGenericRepository<ImprovementEntity> repository,
@@ -54,10 +52,7 @@ public sealed class CreateImprovementUseCase : ICreateImprovementUseCase
 
         if (!_currentUser.IsInRole(nameof(Roles.Admin)))
             return Result<ImprovementResponse>.Failure(
-                Error.Forbidden(
-                    "Auth.AdminOnly",
-                    "Solo administradores pueden gestionar mejoras."
-                )
+                Error.Forbidden("Auth.AdminOnly", "Solo administradores pueden gestionar mejoras.")
             );
 
         var createResult = ImprovementEntity.Create(request.Name, request.Description);

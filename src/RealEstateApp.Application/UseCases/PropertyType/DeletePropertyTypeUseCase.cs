@@ -2,7 +2,6 @@ using FluentValidation;
 using Microsoft.Extensions.Logging;
 using RealEstateApp.Application.Common.Validation;
 using RealEstateApp.Application.Dtos.Catalog.Requests;
-using RealEstateApp.Application.Interfaces;
 using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Application.Interfaces.UseCases.Catalog;
 using RealEstateApp.Domain.Common;
@@ -64,7 +63,10 @@ public sealed class DeletePropertyTypeUseCase : IDeletePropertyTypeUseCase
         var propertyType = await _propertyTypeRepo.GetByIdAsync(request.Id, cancellationToken);
         if (propertyType is null)
             return Result.Failure(
-                Error.NotFound("PropertyType.NotFound", "No se encontró el tipo de propiedad especificado.")
+                Error.NotFound(
+                    "PropertyType.NotFound",
+                    "No se encontró el tipo de propiedad especificado."
+                )
             );
 
         var inUse = await _propertyRepo.ExistsAsync(

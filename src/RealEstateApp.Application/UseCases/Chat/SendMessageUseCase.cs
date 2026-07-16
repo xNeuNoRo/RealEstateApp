@@ -31,7 +31,8 @@ public sealed class SendMessageUseCase : ISendMessageUseCase
         ICurrentUserService currentUser,
         IMapper mapper,
         IValidator<SendMessageRequest> validator,
-        ILogger<SendMessageUseCase> logger)
+        ILogger<SendMessageUseCase> logger
+    )
     {
         _messageRepository = messageRepository;
         _propertyRepository = propertyRepository;
@@ -44,7 +45,8 @@ public sealed class SendMessageUseCase : ISendMessageUseCase
 
     public async Task<Result<MessageResponse>> ExecuteAsync(
         SendMessageRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -52,10 +54,24 @@ public sealed class SendMessageUseCase : ISendMessageUseCase
 
         if (!_currentUser.IsAuthenticated || _currentUser.UserId is null)
             return Result<MessageResponse>.Failure(
-                Error.Unauthorized("Auth.NotAuthenticated", "Debe iniciar sesión para enviar un mensaje.")
+                Error.Unauthorized(
+                    "Auth.NotAuthenticated",
+                    "Debe iniciar sesión para enviar un mensaje."
+                )
             );
 
-        var property = await _propertyRepository.GetByIdAsync(request.PropertyId, cancellationToken);
+        if (!_currentUser.IsInRole(nameof(Roles.Client)))
+            return Result<MessageResponse>.Failure(
+                Error.Forbidden(
+                    "Auth.ClientOnly",
+                    "Solo los clientes pueden iniciar conversaciones."
+                )
+            );
+
+        var property = await _propertyRepository.GetByIdAsync(
+            request.PropertyId,
+            cancellationToken
+        );
         if (property is null)
             return Result<MessageResponse>.Failure(
                 Error.NotFound("Property.NotFound", "No se encontró la propiedad especificada.")

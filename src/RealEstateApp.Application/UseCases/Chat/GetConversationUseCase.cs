@@ -12,7 +12,6 @@ using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
 
 namespace RealEstateApp.Application.UseCases.Chat;
 
-// Traer la Interface de cada UseCase y su implementación en el contenedor de DI (ServicesRegistration.cs)
 public sealed class GetConversationUseCase : IGetConversationUseCase
 {
     private readonly IMessageRepository _messageRepository;
@@ -22,14 +21,14 @@ public sealed class GetConversationUseCase : IGetConversationUseCase
     private readonly IMapper _mapper;
     private readonly IValidator<GetConversationRequest> _validator;
 
-// Constructor para inyección de dependencias
     public GetConversationUseCase(
         IMessageRepository messageRepository,
         IPropertyRepository propertyRepository,
         IUserRepository userRepository,
         ICurrentUserService currentUser,
         IMapper mapper,
-        IValidator<GetConversationRequest> validator)
+        IValidator<GetConversationRequest> validator
+    )
     {
         _messageRepository = messageRepository;
         _propertyRepository = propertyRepository;
@@ -39,11 +38,10 @@ public sealed class GetConversationUseCase : IGetConversationUseCase
         _validator = validator;
     }
 
-    // Método principal del caso de uso para obtener la conversación
-
     public async Task<Result<PagedResult<MessageResponse>>> ExecuteAsync(
         GetConversationRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -51,10 +49,11 @@ public sealed class GetConversationUseCase : IGetConversationUseCase
 
         if (!_currentUser.IsAuthenticated || _currentUser.UserId is null)
             return Result<PagedResult<MessageResponse>>.Failure(
-                Error.Unauthorized("Auth.NotAuthenticated", "Debe iniciar sesión para ver la conversación.")
+                Error.Unauthorized(
+                    "Auth.NotAuthenticated",
+                    "Debe iniciar sesión para ver la conversación."
+                )
             );
-
-            // Verificar si la propiedad existe y si el usuario tiene permiso para ver la conversación
 
         var property = await _propertyRepository.GetByIdAsync(
             request.PropertyId,
@@ -81,7 +80,7 @@ public sealed class GetConversationUseCase : IGetConversationUseCase
 
         var options = new QueryOptions<Message>
         {
-            Includes = { m => m.Property },
+            Includes = [m => m.Property],
             OrderBy = q => q.OrderBy(m => m.CreatedAt),
             Skip = (request.Page - 1) * request.PageSize,
             Take = request.PageSize,
@@ -123,18 +122,22 @@ public sealed class GetConversationUseCase : IGetConversationUseCase
             .Distinct()
             .ToList();
 
-        var users = userIds.Count > 0
-            ? await _userRepository.GetByIdsAsync(userIds, cancellationToken)
-            : [];
+        var users =
+            userIds.Count > 0
+                ? await _userRepository.GetByIdsAsync(userIds, cancellationToken)
+                : [];
         var userMap = users.ToDictionary(u => u.Id, u => $"{u.FirstName} {u.LastName}".Trim());
 
         var items = _mapper.Map<List<MessageResponse>>(messages);
+        var msgById = messages.ToDictionary(m => m.Id);
         foreach (var item in items)
         {
-            var msg = messages.First(m => m.Id == item.Id);
-            var senderId = msg.SenderType == SenderType.Client ? msg.ClientId : msg.AgentId;
-            if (userMap.TryGetValue(senderId, out var name))
-                item.SenderName = name;
+            if (msgById.TryGetValue(item.Id, out var msg))
+            {
+                var senderId = msg.SenderType == SenderType.Client ? msg.ClientId : msg.AgentId;
+                if (userMap.TryGetValue(senderId, out var name))
+                    item.SenderName = name;
+            }
         }
 
         return Result<PagedResult<MessageResponse>>.Success(

@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentValidation;
 using RealEstateApp.Application.Common.Validation;
 using RealEstateApp.Application.Dtos.Favorites.Requests;
@@ -15,17 +16,19 @@ public sealed class GetMyFavoritesUseCase : IGetMyFavoritesUseCase
 {
     private readonly IFavoritePropertyRepository _favoriteRepository;
     private readonly ICurrentUserService _currentUser;
+    private readonly IMapper _mapper;
     private readonly IValidator<GetMyFavoritesRequest> _validator;
-
 
     public GetMyFavoritesUseCase(
         IFavoritePropertyRepository favoriteRepository,
         ICurrentUserService currentUser,
+        IMapper mapper,
         IValidator<GetMyFavoritesRequest> validator
     )
     {
         _favoriteRepository = favoriteRepository;
         _currentUser = currentUser;
+        _mapper = mapper;
         _validator = validator;
     }
 
@@ -52,34 +55,28 @@ public sealed class GetMyFavoritesUseCase : IGetMyFavoritesUseCase
 
         var options = new QueryOptions<FavoriteProperty>
         {
+            Filter = fp => fp.Property != null && fp.Property.Status == PropertyStatus.Available,
             Includes = [fp => fp.Property],
             OrderBy = q => q.OrderByDescending(fp => fp.CreatedAt),
             Skip = (request.Page - 1) * request.PageSize,
             Take = request.PageSize,
         };
 
-        
-        var favorites = await _favoriteRepository.GetByUserAsync(clientId, options, cancellationToken);
-        var available = favorites.Where(fp => fp.Property?.Status == PropertyStatus.Available).ToList();
-
-        var totalCount = await _favoriteRepository.CountAsync(
-            fp => fp.ClientId == clientId && fp.Property.Status == PropertyStatus.Available,
+        var favorites = await _favoriteRepository.GetByUserAsync(
+            clientId,
+            options,
             cancellationToken
         );
 
-        var items = available.Select(fp => new FavoriteResponse
-        {
-            Id = fp.Id,
-            PropertyId = fp.Property.Id,
-            Code = fp.Property.Code.Value,
-            Description = fp.Property.Description,
-            Price = fp.Property.Price.Amount,
-            Currency = fp.Property.Price.Currency,
-            MainImageUrl = fp.Property.Images.FirstOrDefault(i => i.IsMain)?.Url,
-            PropertyTypeName = fp.Property.PropertyType?.Name,
-            SaleTypeName = fp.Property.SaleType?.Name,
-            FavoritedAt = fp.CreatedAt,
-        }).ToList();
+        var totalCount = await _favoriteRepository.CountAsync(
+            fp =>
+                fp.ClientId == clientId
+                && fp.Property != null
+                && fp.Property.Status == PropertyStatus.Available,
+            cancellationToken
+        );
+
+        var items = favorites.Select(fp => _mapper.Map<FavoriteResponse>(fp)).ToList();
 
         return Result<PagedResult<FavoriteResponse>>.Success(
             new PagedResult<FavoriteResponse>(items, totalCount, request.Page, request.PageSize)

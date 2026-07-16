@@ -17,5 +17,15 @@ public sealed class ChatMappingProfile : Profile
             )
             .ForMember(d => d.SentAt, o => o.MapFrom(s => s.CreatedAt))
             .ForMember(d => d.SenderName, o => o.Ignore());
+
+        CreateMap<Message, ConversationSummaryResponse>()
+            .ForMember(d => d.PropertyCode, o => o.MapFrom(s => s.Property.Code.Value))
+            .ForMember(d => d.PropertyDescription, o => o.MapFrom(s => s.Property.Description))
+            .ForMember(d => d.LastMessageContent, o => o.MapFrom(s => s.Content))
+            .ForMember(d => d.LastMessageSenderType, o => o.MapFrom(s => s.SenderType.ToString()))
+            .ForMember(d => d.LastMessageAt, o => o.MapFrom(s => s.CreatedAt))
+            .ForMember(d => d.OtherUserId, o => o.Ignore())
+            .ForMember(d => d.OtherUserName, o => o.Ignore())
+            .ForMember(d => d.OtherUserRole, o => o.Ignore());
     }
 }
