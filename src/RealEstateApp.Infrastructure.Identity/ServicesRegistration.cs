@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using RealEstateApp.Application.Interfaces;
 using RealEstateApp.Application.Interfaces.UseCases.Admin;
 using RealEstateApp.Application.Interfaces.UseCases.Auth;
+using RealEstateApp.Application.Interfaces.UseCases.Client;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
 using RealEstateApp.Domain.Settings;
 using RealEstateApp.Infrastructure.Identity.Contexts;
@@ -20,6 +21,7 @@ using RealEstateApp.Infrastructure.Identity.Seeds;
 using RealEstateApp.Infrastructure.Identity.Services;
 using RealEstateApp.Infrastructure.Identity.UseCases.Admin;
 using RealEstateApp.Infrastructure.Identity.UseCases.Auth;
+using RealEstateApp.Infrastructure.Identity.UseCases.Client;
 
 namespace RealEstateApp.Infrastructure.Identity;
 
@@ -177,6 +179,16 @@ public static class ServicesRegistration
         services.AddScoped<ICreateDeveloperUseCase, CreateDeveloperUseCase>();
         services.AddScoped<IUpdateDeveloperUseCase, UpdateDeveloperUseCase>();
         services.AddScoped<IToggleDeveloperActiveUseCase, ToggleDeveloperActiveUseCase>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registra los Use Cases de cliente que requieren UserManager (Identity).
+    /// </summary>
+    public static IServiceCollection AddIdentityClientUseCases(this IServiceCollection services)
+    {
+        services.AddScoped<IUpdateClientProfileUseCase, UpdateClientProfileUseCase>();
 
         return services;
     }
