@@ -27,7 +27,7 @@ namespace RealEstateApp.Application;
 public static class ServicesRegistration
 {
     /// <summary>
-    /// Registra AutoMapper y FluentValidation del ensamblado de Application.
+    /// Registra AutoMapper, FluentValidation y todos los Use Cases de Application.
     /// </summary>
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
@@ -35,11 +35,26 @@ public static class ServicesRegistration
         services.AddAutoMapper(_ => { }, Assembly.GetExecutingAssembly());
         // FluentValidation
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        // Todos los Use Cases
+        services.AddAllUseCases();
 
         return services;
     }
 
-    public static IServiceCollection AddPropertyUseCases(this IServiceCollection services)
+    internal static IServiceCollection AddAllUseCases(this IServiceCollection services)
+    {
+        services.AddPropertyUseCases();
+        services.AddOfferUseCases();
+        services.AddFavoriteUseCases();
+        services.AddChatUseCases();
+        services.AddCatalogUseCases();
+        services.AddClientUseCases();
+        services.AddAgentUseCases();
+
+        return services;
+    }
+
+    internal static IServiceCollection AddPropertyUseCases(this IServiceCollection services)
     {
         services.AddScoped<IGetPropertyListUseCase, GetPropertyListUseCase>();
         services.AddScoped<ISearchPropertyByCodeUseCase, SearchPropertyByCodeUseCase>();
@@ -52,7 +67,7 @@ public static class ServicesRegistration
         return services;
     }
 
-    public static IServiceCollection AddFavoriteUseCases(this IServiceCollection services)
+    internal static IServiceCollection AddFavoriteUseCases(this IServiceCollection services)
     {
         services.AddScoped<IAddFavoriteUseCase, AddFavoriteUseCase>();
         services.AddScoped<IGetMyFavoritesUseCase, GetMyFavoritesUseCase>();
@@ -61,7 +76,7 @@ public static class ServicesRegistration
         return services;
     }
 
-    public static IServiceCollection AddChatUseCases(this IServiceCollection services)
+    internal static IServiceCollection AddChatUseCases(this IServiceCollection services)
     {
         services.AddScoped<ISendMessageUseCase, SendMessageUseCase>();
         services.AddScoped<IReplyMessageUseCase, ReplyMessageUseCase>();
@@ -71,7 +86,7 @@ public static class ServicesRegistration
         return services;
     }
 
-    public static IServiceCollection AddOfferUseCases(this IServiceCollection services)
+    internal static IServiceCollection AddOfferUseCases(this IServiceCollection services)
     {
         services.AddScoped<ICreateOfferUseCase, CreateOfferUseCase>();
         services.AddScoped<IAcceptOfferUseCase, AcceptOfferUseCase>();
@@ -82,7 +97,7 @@ public static class ServicesRegistration
         return services;
     }
 
-    public static IServiceCollection AddClientUseCases(this IServiceCollection services)
+    internal static IServiceCollection AddClientUseCases(this IServiceCollection services)
     {
         services.AddScoped<IGetClientDashboardUseCase, GetClientDashboardUseCase>();
         services.AddScoped<IGetClientProfileUseCase, GetClientProfileUseCase>();
@@ -90,14 +105,14 @@ public static class ServicesRegistration
         return services;
     }
 
-    public static IServiceCollection AddAgentUseCases(this IServiceCollection services)
+    internal static IServiceCollection AddAgentUseCases(this IServiceCollection services)
     {
         services.AddScoped<IGetAgentProfileUseCase, GetAgentProfileUseCase>();
 
         return services;
     }
 
-    public static IServiceCollection AddCatalogUseCases(this IServiceCollection services)
+    internal static IServiceCollection AddCatalogUseCases(this IServiceCollection services)
     {
         services.AddScoped<ICreateImprovementUseCase, CreateImprovementUseCase>();
         services.AddScoped<IUpdateImprovementUseCase, UpdateImprovementUseCase>();

@@ -144,13 +144,26 @@ public static class ServicesRegistration
         // --- AutoMapper ---
         services.AddAutoMapper(cfg => { }, typeof(ServicesRegistration).Assembly);
 
+        // --- Identity Use Cases ---
+        services.AddAllIdentityUseCases();
+
+        return services;
+    }
+
+    internal static IServiceCollection AddAllIdentityUseCases(this IServiceCollection services)
+    {
+        services.AddAuthUseCases();
+        services.AddAdminUseCases();
+        services.AddIdentityClientUseCases();
+        services.AddIdentityAgentUseCases();
+
         return services;
     }
 
     /// <summary>
     /// Registra los Use Cases de autenticación para la WebApp (cookies, no JWT).
     /// </summary>
-    public static IServiceCollection AddAuthUseCases(this IServiceCollection services)
+    internal static IServiceCollection AddAuthUseCases(this IServiceCollection services)
     {
         services.AddScoped<ILoginUseCase, LoginUseCase>();
         services.AddScoped<IRegisterClientUseCase, RegisterClientUseCase>();
@@ -167,7 +180,7 @@ public static class ServicesRegistration
     /// <summary>
     /// Registra los Use Cases del módulo Admin
     /// </summary>
-    public static IServiceCollection AddAdminUseCases(this IServiceCollection services)
+    internal static IServiceCollection AddAdminUseCases(this IServiceCollection services)
     {
         services.AddScoped<IGetAdminDashboardUseCase, GetAdminDashboardUseCase>();
         services.AddScoped<IGetAgentsListUseCase, GetAgentsListUseCase>();
@@ -188,14 +201,14 @@ public static class ServicesRegistration
     /// <summary>
     /// Registra los Use Cases de cliente que requieren UserManager (Identity).
     /// </summary>
-    public static IServiceCollection AddIdentityClientUseCases(this IServiceCollection services)
+    internal static IServiceCollection AddIdentityClientUseCases(this IServiceCollection services)
     {
         services.AddScoped<IUpdateClientProfileUseCase, UpdateClientProfileUseCase>();
 
         return services;
     }
 
-    public static IServiceCollection AddIdentityAgentUseCases(this IServiceCollection services)
+    internal static IServiceCollection AddIdentityAgentUseCases(this IServiceCollection services)
     {
         services.AddScoped<IUpdateAgentProfileUseCase, UpdateAgentProfileUseCase>();
 
