@@ -1,0 +1,44 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace RealEstateApp.Application.ViewModels.Admin;
+
+public sealed class EditDeveloperViewModel
+{
+    [Required]
+    public string Id { get; set; } = null!;
+
+    [Required(ErrorMessage = "El nombre es requerido.")]
+    [StringLength(100, ErrorMessage = "El nombre no puede exceder los 100 caracteres.")]
+    [Display(Name = "Nombre")]
+    public string FirstName { get; set; } = null!;
+
+    [Required(ErrorMessage = "El apellido es requerido.")]
+    [StringLength(100, ErrorMessage = "El apellido no puede exceder los 100 caracteres.")]
+    [Display(Name = "Apellido")]
+    public string LastName { get; set; } = null!;
+
+    [Required(ErrorMessage = "La cédula es requerida.")]
+    [StringLength(20, MinimumLength = 11, ErrorMessage = "La cédula debe tener entre 11 y 20 caracteres.")]
+    [Display(Name = "Cédula")]
+    public string IdentityDocument { get; set; } = null!;
+
+    [Required(ErrorMessage = "El correo electrónico es requerido.")]
+    [EmailAddress(ErrorMessage = "Debe ingresar un correo electrónico válido.")]
+    [Display(Name = "Correo electrónico")]
+    public string Email { get; set; } = null!;
+
+    [Required(ErrorMessage = "El nombre de usuario es requerido.")]
+    [StringLength(50, MinimumLength = 4, ErrorMessage = "El nombre de usuario debe tener entre 4 y 50 caracteres.")]
+    [Display(Name = "Nombre de usuario")]
+    public string UserName { get; set; } = null!;
+
+    [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]
+    [DataType(DataType.Password)]
+    [Display(Name = "Nueva contraseña (dejar vacía para mantener la actual)")]
+    public string? NewPassword { get; set; }
+
+    [Compare("NewPassword", ErrorMessage = "La contraseña y la confirmación no coinciden.")]
+    [DataType(DataType.Password)]
+    [Display(Name = "Confirmar nueva contraseña")]
+    public string? ConfirmPassword { get; set; }
+}
