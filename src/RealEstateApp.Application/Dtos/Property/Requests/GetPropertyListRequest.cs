@@ -13,5 +13,6 @@ public sealed record GetPropertyListRequest(
     int? PropertyTypeId = null,
     int? SaleTypeId = null,
     string? AgentId = null,
-    string? Code = null
+    string? Code = null,
+    bool IncludeAllStatuses = false
 );
