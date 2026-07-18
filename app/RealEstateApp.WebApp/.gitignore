@@ -1,5 +1,3 @@
-wwwroot/css/*.css
-wwwroot/css/*.css.map
 node_modules/
 .vscode/
 .idea/
