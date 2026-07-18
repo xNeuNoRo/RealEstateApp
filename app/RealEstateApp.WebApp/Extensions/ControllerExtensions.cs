@@ -22,4 +22,29 @@ public static class ControllerExtensions
             controller.ViewBag.UnreadNotificationsCount = vm.UnreadNotificationsCount;
         }
     }
+
+    public static void SetSweetAlert(
+        this Controller controller,
+        string message,
+        string type = "success"
+    )
+    {
+        controller.TempData["SweetAlertMessage"] = message;
+        controller.TempData["SweetAlertType"] = type;
+    }
+
+    public static void SetErrorMessage(this Controller controller, string message)
+    {
+        controller.TempData["ErrorMessage"] = message;
+    }
+
+    public static void SetSuccessMessage(this Controller controller, string message)
+    {
+        controller.SetSweetAlert(message, "success");
+    }
+
+    public static void SetWarningMessage(this Controller controller, string message)
+    {
+        controller.SetSweetAlert(message, "warning");
+    }
 }
