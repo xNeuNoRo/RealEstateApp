@@ -1,0 +1,22 @@
+{
+  "name": "realestateapp.webapp",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "css:build": "bunx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/css/site.css",
+    "css:watch": "bunx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/css/site.css --watch",
+    "dev": "concurrently -n css,dotnet -c cyan,magenta \"bun css:watch\" \"dotnet watch --project ../RealEstateApp.WebApp\"",
+    "dev:backend": "dotnet watch --project ../RealEstateApp.WebApp",
+    "dev:css": "bun css:watch"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@tailwindcss/cli": "^4.3.0",
+    "concurrently": "^9.1.2",
+    "tailwindcss": "^4.3.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
