@@ -14,6 +14,15 @@ public interface IAdminService
         CancellationToken ct = default
     );
     Task<Result> ToggleAgentStatusAsync(string agentId, CancellationToken ct = default);
+    Task<Result> ChangeAgentStatusAsync(
+        string agentId,
+        bool status,
+        CancellationToken ct = default
+    );
+    Task<Result<AgentListItemResponse>> GetAgentByIdAsync(
+        string agentId,
+        CancellationToken ct = default
+    );
     Task<Result> DeleteAgentAsync(string agentId, CancellationToken ct = default);
     Task<Result<PagedResult<AdminListItemResponse>>> GetAdminsAsync(
         GetAdminsListRequest request,
@@ -45,6 +54,7 @@ public interface IAdminService
         GetAllPropertyTypesRequest request,
         CancellationToken ct = default
     );
+    Task<Result<PropertyTypeResponse>> GetPropertyTypeByIdAsync(int id, CancellationToken ct = default);
     Task<Result<PropertyTypeResponse>> CreatePropertyTypeAsync(
         CreatePropertyTypeRequest request,
         CancellationToken ct = default
@@ -58,6 +68,7 @@ public interface IAdminService
         GetAllSaleTypesRequest request,
         CancellationToken ct = default
     );
+    Task<Result<SaleTypeResponse>> GetSaleTypeByIdAsync(int id, CancellationToken ct = default);
     Task<Result<SaleTypeResponse>> CreateSaleTypeAsync(
         CreateSaleTypeRequest request,
         CancellationToken ct = default
@@ -68,6 +79,7 @@ public interface IAdminService
         GetAllImprovementsRequest request,
         CancellationToken ct = default
     );
+    Task<Result<ImprovementResponse>> GetImprovementByIdAsync(int id, CancellationToken ct = default);
     Task<Result<ImprovementResponse>> CreateImprovementAsync(
         CreateImprovementRequest request,
         CancellationToken ct = default

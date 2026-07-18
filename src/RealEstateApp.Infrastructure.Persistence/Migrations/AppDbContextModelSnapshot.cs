@@ -464,10 +464,10 @@ namespace RealEstateApp.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 3,
-                            Code = "Transfer",
+                            Code = "RentToOwn",
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Description = "Cesion de contrato a terceros.",
-                            Name = "Traspaso"
+                            Description = "Alquiler con derecho a compra futura.",
+                            Name = "Alquiler con opción a compra"
                         });
                 });
 

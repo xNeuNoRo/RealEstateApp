@@ -3,29 +3,25 @@ namespace RealEstateApp.Domain.Exceptions;
 /// <summary>
 /// Se lanza cuando se viola un invariante o regla de negocio dentro del dominio.
 /// </summary>
-public class DomainException : Exception
+public class DomainException : AppException
 {
-    public string Code { get; }
     public IEnumerable<string> Errors { get; }
 
     public DomainException(string code, string message)
-        : base(message)
+        : base(400, code, message)
     {
-        Code = code;
         Errors = Enumerable.Empty<string>();
     }
 
     public DomainException(string code, string message, IEnumerable<string> errors)
-        : base(message)
+        : base(400, code, message)
     {
-        Code = code;
         Errors = errors;
     }
 
     public DomainException(string code, string message, Exception inner)
-        : base(message, inner)
+        : base(400, code, message, inner)
     {
-        Code = code;
         Errors = Enumerable.Empty<string>();
     }
 }

@@ -79,9 +79,9 @@ public static class CatalogSeeds
                 new
                 {
                     Id = 3,
-                    Code = Domain.Enums.SaleTypeCode.Transfer,
-                    Name = "Traspaso",
-                    Description = "Cesion de contrato a terceros.",
+                    Code = Domain.Enums.SaleTypeCode.RentToOwn,
+                    Name = "Alquiler con opción a compra",
+                    Description = "Alquiler con derecho a compra futura.",
                     CreatedAt = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
                     UpdatedAt = (DateTimeOffset?)null,
                 }

@@ -80,7 +80,7 @@ public sealed class GetPropertyListUseCase : IGetPropertyListUseCase
     private static Expression<Func<PropertyEntity, bool>> BuildFilter(GetPropertyListRequest req)
     {
         return p =>
-            p.Status == PropertyStatus.Available
+            (req.IncludeAllStatuses || p.Status == PropertyStatus.Available)
             && (
                 string.IsNullOrWhiteSpace(req.SearchTerm)
                 || (p.Description.Contains(req.SearchTerm) || p.Code.Value.Contains(req.SearchTerm))

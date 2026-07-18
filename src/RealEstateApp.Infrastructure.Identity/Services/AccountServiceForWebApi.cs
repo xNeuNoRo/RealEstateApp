@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using RealEstateApp.Application.Dtos.Auth;
 using RealEstateApp.Application.Interfaces;
+using RealEstateApp.Domain.Enums;
 using RealEstateApp.Domain.Exceptions;
 using RealEstateApp.Domain.Settings;
 using RealEstateApp.Infrastructure.Identity.Contexts;
@@ -61,10 +62,7 @@ public class AccountServiceForWebApi : BaseAccountService, IAccountServiceForWeb
 
         if (!user.Active)
         {
-            Logger.LogWarning(
-                "Intento de login de usuario inactivo: {UserId}.",
-                user.Id
-            );
+            Logger.LogWarning("Intento de login de usuario inactivo: {UserId}.", user.Id);
             throw new DomainException(
                 "Auth.UserInactive",
                 "El usuario se encuentra inactivo y no puede autenticarse."
@@ -79,10 +77,7 @@ public class AccountServiceForWebApi : BaseAccountService, IAccountServiceForWeb
 
         if (result.IsLockedOut)
         {
-            Logger.LogWarning(
-                "Cuenta bloqueada por intentos fallidos: {UserId}.",
-                user.Id
-            );
+            Logger.LogWarning("Cuenta bloqueada por intentos fallidos: {UserId}.", user.Id);
             throw new DomainException(
                 "Auth.LockedOut",
                 "La cuenta se encuentra bloqueada temporalmente debido a múltiples intentos fallidos."
@@ -91,10 +86,7 @@ public class AccountServiceForWebApi : BaseAccountService, IAccountServiceForWeb
 
         if (!result.Succeeded)
         {
-            Logger.LogWarning(
-                "Credenciales inválidas para {UserId}.",
-                user.Id
-            );
+            Logger.LogWarning("Credenciales inválidas para {UserId}.", user.Id);
             throw new DomainException(
                 "Auth.InvalidCredentials",
                 "Los datos de acceso son inválidos."
@@ -102,6 +94,26 @@ public class AccountServiceForWebApi : BaseAccountService, IAccountServiceForWeb
         }
 
         var roles = await UserManager.GetRolesAsync(user);
+
+        var allowedRoles = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            nameof(Roles.Admin),
+            nameof(Roles.Developer),
+        };
+
+        if (!roles.Any(r => allowedRoles.Contains(r)))
+        {
+            Logger.LogWarning(
+                "Acceso API denegado para {UserId}. Roles no permitidos: {Roles}.",
+                user.Id,
+                string.Join(", ", roles)
+            );
+            throw new DomainException(
+                "Auth.ApiAccessDenied",
+                "Acceso denegado. La API solo está disponible para Administradores y Desarrolladores."
+            );
+        }
+
         var (token, expiration) = GenerateJwtToken(user, roles);
 
         Logger.LogInformation(
@@ -135,7 +147,9 @@ public class AccountServiceForWebApi : BaseAccountService, IAccountServiceForWeb
         foreach (var role in roles)
             claims.Add(new Claim(ClaimTypes.Role, role));
 
-        var expiration = _timeProvider.GetUtcNow().UtcDateTime.AddMinutes(_jwtSettings.DurationInMinutes);
+        var expiration = _timeProvider
+            .GetUtcNow()
+            .UtcDateTime.AddMinutes(_jwtSettings.DurationInMinutes);
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

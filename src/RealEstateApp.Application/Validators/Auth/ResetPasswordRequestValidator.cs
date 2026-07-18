@@ -1,5 +1,6 @@
 using FluentValidation;
 using RealEstateApp.Application.Dtos.Auth.Requests;
+using RealEstateApp.Domain.ValueObjects;
 
 namespace RealEstateApp.Application.Validators.Auth;
 
@@ -10,7 +11,7 @@ public sealed class ResetPasswordRequestValidator : AbstractValidator<ResetPassw
         RuleFor(x => x.Email)
             .NotEmpty()
             .WithMessage("El correo electrónico es requerido.")
-            .EmailAddress()
+            .Must(email => Email.Create(email!).IsSuccess)
             .WithMessage("Debe ingresar un correo electrónico válido.");
 
         RuleFor(x => x.Token).NotEmpty().WithMessage("El token de restablecimiento es requerido.");

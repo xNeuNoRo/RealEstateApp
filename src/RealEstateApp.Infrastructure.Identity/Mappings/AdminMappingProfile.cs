@@ -10,7 +10,8 @@ public class AdminMappingProfile : Profile
     {
         CreateMap<AppUser, AgentListItemResponse>()
             .ForMember(d => d.IsActive, o => o.MapFrom(s => s.Active))
-            .ForMember(d => d.PropertiesCount, o => o.Ignore());
+            .ForMember(d => d.PropertiesCount, o => o.Ignore())
+            .ForMember(d => d.Phone, o => o.MapFrom(s => s.Phone));
 
         CreateMap<AppUser, AdminListItemResponse>()
             .ForMember(d => d.IsActive, o => o.MapFrom(s => s.Active));

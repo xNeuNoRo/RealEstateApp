@@ -7,5 +7,6 @@ public sealed record AgentListItemResponse(
     string? Email,
     string? UserName,
     int PropertiesCount,
-    bool IsActive
+    bool IsActive,
+    string? Phone
 );

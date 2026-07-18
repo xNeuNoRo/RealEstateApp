@@ -75,7 +75,12 @@ public sealed class UpdateDeveloperUseCase : IUpdateDeveloperUseCase
         if (cedulaResult.IsFailure)
             return Result<DeveloperResponse>.Failure(cedulaResult.GetError());
 
+        var emailResult = Email.Create(request.Email);
+        if (emailResult.IsFailure)
+            return Result<DeveloperResponse>.Failure(emailResult.GetError());
+
         var cedula = cedulaResult.GetValue();
+        var email = emailResult.GetValue();
 
         if (
             await _userManager.Users.AnyAsync(
@@ -93,7 +98,7 @@ public sealed class UpdateDeveloperUseCase : IUpdateDeveloperUseCase
         if (
             await _userManager.Users.AnyAsync(
                 u =>
-                    u.NormalizedEmail == request.Email.ToUpperInvariant()
+                    u.NormalizedEmail == email.Value.ToUpperInvariant()
                     && u.Id != request.DeveloperId,
                 ct
             )
@@ -121,7 +126,7 @@ public sealed class UpdateDeveloperUseCase : IUpdateDeveloperUseCase
         user.FirstName = request.FirstName.Trim();
         user.LastName = request.LastName.Trim();
         user.UserName = request.UserName;
-        user.Email = request.Email;
+        user.Email = email.Value;
         user.IdentityDocument = cedula.Value;
 
         var updateResult = await _userManager.UpdateAsync(user);

@@ -11,6 +11,7 @@ using RealEstateApp.Application.Interfaces.UseCases.Client;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Enums;
 using RealEstateApp.Domain.Settings;
+using RealEstateApp.Domain.ValueObjects;
 using RealEstateApp.Infrastructure.Identity.Entities;
 
 namespace RealEstateApp.Infrastructure.Identity.UseCases.Client;
@@ -68,7 +69,11 @@ public sealed class UpdateClientProfileUseCase : IUpdateClientProfileUseCase
 
         user.FirstName = request.FirstName.Trim();
         user.LastName = request.LastName.Trim();
-        user.SetPhone(request.Phone.Trim());
+
+        var phoneResult = PhoneNumber.Create(request.Phone);
+        if (phoneResult.IsFailure)
+            return Result<ClientProfileResponse>.Failure(phoneResult.GetError());
+        user.SetPhone(phoneResult.GetValue().Value);
 
         if (request.PhotoFile is not null)
         {

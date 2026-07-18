@@ -65,7 +65,12 @@ public sealed class CreateAdminUseCase : ICreateAdminUseCase
         if (cedulaResult.IsFailure)
             return Result<AdminResponse>.Failure(cedulaResult.GetError());
 
+        var emailResult = Email.Create(request.Email);
+        if (emailResult.IsFailure)
+            return Result<AdminResponse>.Failure(emailResult.GetError());
+
         var cedula = cedulaResult.GetValue();
+        var email = emailResult.GetValue();
 
         if (await _userManager.FindByNameAsync(request.UserName) is not null)
             return Result<AdminResponse>.Failure(
@@ -75,7 +80,7 @@ public sealed class CreateAdminUseCase : ICreateAdminUseCase
                 )
             );
 
-        if (await _userManager.FindByEmailAsync(request.Email) is not null)
+        if (await _userManager.FindByEmailAsync(email.Value) is not null)
             return Result<AdminResponse>.Failure(
                 Error.Conflict(
                     "Auth.EmailTaken",
@@ -96,7 +101,7 @@ public sealed class CreateAdminUseCase : ICreateAdminUseCase
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
             UserName = request.UserName,
-            Email = request.Email,
+            Email = email.Value,
             IdentityDocument = cedula.Value,
             Active = true,
             EmailConfirmed = true,

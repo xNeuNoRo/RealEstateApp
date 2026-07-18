@@ -52,9 +52,15 @@ public sealed class GetAgentsListUseCase : IGetAgentsListUseCase
                 Error.Unauthorized("Auth.NotAuthenticated", "Debe iniciar sesión.")
             );
 
-        if (!_currentUser.IsInRole(nameof(Roles.Admin)))
+        if (
+            !_currentUser.IsInRole(nameof(Roles.Admin))
+            && !_currentUser.IsInRole(nameof(Roles.Developer))
+        )
             return Result<PagedResult<AgentListItemResponse>>.Failure(
-                Error.Forbidden("Auth.AdminOnly", "Solo administradores pueden gestionar agentes.")
+                Error.Forbidden(
+                    "Auth.AdminOrDeveloperOnly",
+                    "Solo administradores o desarrolladores pueden ver el listado de agentes."
+                )
             );
 
         var paged = await _userRepo.GetByRoleAsync(

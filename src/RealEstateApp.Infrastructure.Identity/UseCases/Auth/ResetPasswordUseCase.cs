@@ -5,6 +5,7 @@ using RealEstateApp.Application.Common.Validation;
 using RealEstateApp.Application.Dtos.Auth.Requests;
 using RealEstateApp.Application.Interfaces.UseCases.Auth;
 using RealEstateApp.Domain.Common;
+using RealEstateApp.Domain.ValueObjects;
 using RealEstateApp.Infrastructure.Identity.Entities;
 
 namespace RealEstateApp.Infrastructure.Identity.UseCases.Auth;
@@ -35,12 +36,18 @@ public sealed class ResetPasswordUseCase : IResetPasswordUseCase
         if (!validationResult.IsValid)
             return validationResult.ToResult();
 
-        var user = await _userManager.FindByEmailAsync(request.Email);
+        var emailResult = Email.Create(request.Email);
+        if (emailResult.IsFailure)
+            return Result.Failure(emailResult.GetError());
+
+        var email = emailResult.GetValue();
+
+        var user = await _userManager.FindByEmailAsync(email.Value);
         if (user is null)
         {
             _logger.LogWarning(
                 "ResetPassword: usuario con email {Email} no encontrado.",
-                request.Email
+                email.Value
             );
             return Result.Failure(
                 Error.NotFound(

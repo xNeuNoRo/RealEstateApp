@@ -1,5 +1,6 @@
 using FluentValidation;
 using RealEstateApp.Application.Dtos.Admin.Requests;
+using RealEstateApp.Domain.ValueObjects;
 
 namespace RealEstateApp.Application.Validators.Admin;
 
@@ -21,12 +22,16 @@ public sealed class UpdateDeveloperRequestValidator : AbstractValidator<UpdateDe
             .MaximumLength(100)
             .WithMessage("El apellido no debe exceder 100 caracteres.");
 
-        RuleFor(x => x.IdentityDocument).NotEmpty().WithMessage("La cédula es requerida.");
+        RuleFor(x => x.IdentityDocument)
+            .NotEmpty()
+            .WithMessage("La cédula es requerida.")
+            .Must(cedula => IdentityDocument.Create(cedula!).IsSuccess)
+            .WithMessage("La cédula no es válida.");
 
         RuleFor(x => x.Email)
             .NotEmpty()
             .WithMessage("El correo electrónico es requerido.")
-            .EmailAddress()
+            .Must(email => Email.Create(email!).IsSuccess)
             .WithMessage("Debe ingresar un correo electrónico válido.");
 
         RuleFor(x => x.UserName).NotEmpty().WithMessage("El nombre de usuario es requerido.");

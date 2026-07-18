@@ -1,6 +1,7 @@
 using FluentValidation;
 using RealEstateApp.Application.Dtos.Auth.Requests;
 using RealEstateApp.Domain.Settings;
+using RealEstateApp.Domain.ValueObjects;
 
 namespace RealEstateApp.Application.Validators.Auth;
 
@@ -30,9 +31,11 @@ public sealed class RegisterClientRequestValidator : AbstractValidator<RegisterC
         RuleFor(x => x.Phone)
             .NotEmpty()
             .WithMessage("El teléfono es requerido.")
+            .Must(phone => PhoneNumber.Create(phone!).IsSuccess)
+            .WithMessage("Debe ingresar un número telefónico válido.")
             .Matches(@"^(809|829|849)-\d{3}-\d{4}$")
             .WithMessage(
-                "Debe ingresar un número telefónico válido de República Dominicana (ej. 809-555-1234)."
+                "Debe ingresar un número telefónico de República Dominicana (ej. 809-555-1234)."
             );
 
         RuleFor(x => x.PhotoFile)
@@ -59,7 +62,7 @@ public sealed class RegisterClientRequestValidator : AbstractValidator<RegisterC
         RuleFor(x => x.Email)
             .NotEmpty()
             .WithMessage("El correo electrónico es requerido.")
-            .EmailAddress()
+            .Must(email => Email.Create(email!).IsSuccess)
             .WithMessage("Debe ingresar un correo electrónico válido.");
 
         RuleFor(x => x.Password)

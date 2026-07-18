@@ -65,7 +65,12 @@ public sealed class CreateDeveloperUseCase : ICreateDeveloperUseCase
         if (cedulaResult.IsFailure)
             return Result<DeveloperResponse>.Failure(cedulaResult.GetError());
 
+        var emailResult = Email.Create(request.Email);
+        if (emailResult.IsFailure)
+            return Result<DeveloperResponse>.Failure(emailResult.GetError());
+
         var cedula = cedulaResult.GetValue();
+        var email = emailResult.GetValue();
 
         if (await _userManager.FindByNameAsync(request.UserName) is not null)
             return Result<DeveloperResponse>.Failure(
@@ -75,7 +80,7 @@ public sealed class CreateDeveloperUseCase : ICreateDeveloperUseCase
                 )
             );
 
-        if (await _userManager.FindByEmailAsync(request.Email) is not null)
+        if (await _userManager.FindByEmailAsync(email.Value) is not null)
             return Result<DeveloperResponse>.Failure(
                 Error.Conflict(
                     "Auth.EmailTaken",
@@ -96,7 +101,7 @@ public sealed class CreateDeveloperUseCase : ICreateDeveloperUseCase
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
             UserName = request.UserName,
-            Email = request.Email,
+            Email = email.Value,
             IdentityDocument = cedula.Value,
             Active = true,
             EmailConfirmed = true,

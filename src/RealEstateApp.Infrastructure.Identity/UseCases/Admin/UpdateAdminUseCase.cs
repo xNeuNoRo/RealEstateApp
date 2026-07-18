@@ -83,7 +83,12 @@ public sealed class UpdateAdminUseCase : IUpdateAdminUseCase
         if (cedulaResult.IsFailure)
             return Result<AdminResponse>.Failure(cedulaResult.GetError());
 
+        var emailResult = Email.Create(request.Email);
+        if (emailResult.IsFailure)
+            return Result<AdminResponse>.Failure(emailResult.GetError());
+
         var cedula = cedulaResult.GetValue();
+        var email = emailResult.GetValue();
 
         if (
             await _userManager.Users.AnyAsync(
@@ -101,7 +106,7 @@ public sealed class UpdateAdminUseCase : IUpdateAdminUseCase
         if (
             await _userManager.Users.AnyAsync(
                 u =>
-                    u.NormalizedEmail == request.Email.ToUpperInvariant()
+                    u.NormalizedEmail == email.Value.ToUpperInvariant()
                     && u.Id != request.AdminId,
                 ct
             )
@@ -129,7 +134,7 @@ public sealed class UpdateAdminUseCase : IUpdateAdminUseCase
         user.FirstName = request.FirstName.Trim();
         user.LastName = request.LastName.Trim();
         user.UserName = request.UserName;
-        user.Email = request.Email;
+        user.Email = email.Value;
         user.IdentityDocument = cedula.Value;
 
         var updateResult = await _userManager.UpdateAsync(user);

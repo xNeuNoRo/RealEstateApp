@@ -51,8 +51,14 @@ public abstract class BaseAccountService
                 "Ya existe un usuario registrado con este nombre de usuario."
             );
 
+        // Validamos el email con VO Email del Domain (antes de la consulta de unicidad)
+        var emailResult = Email.Create(dto.Email);
+        if (emailResult.IsFailure)
+            throw new DomainException(emailResult.Error!.Code, emailResult.Error.Message);
+        var email = emailResult.Value!;
+
         // Validamos que el email sea único
-        if (await UserManager.FindByEmailAsync(dto.Email) is not null)
+        if (await UserManager.FindByEmailAsync(email.Value) is not null)
             throw new DomainException(
                 "Auth.EmailTaken",
                 "Ya existe un usuario registrado con este correo electrónico."
@@ -71,8 +77,9 @@ public abstract class BaseAccountService
             throw new DomainException(error.Code, error.Message);
         }
 
-        // Validamos que la cédula no esté registrada
         var identityDocument = identityResult.Value!.Value;
+
+        // Validamos que la cédula no esté registrada
         if (await UserManager.Users.AnyAsync(u => u.IdentityDocument == identityDocument))
             throw new DomainException(
                 "Auth.IdentityDocumentTaken",
@@ -91,7 +98,7 @@ public abstract class BaseAccountService
             FirstName = dto.FirstName.Trim(),
             LastName = dto.LastName.Trim(),
             UserName = dto.UserName,
-            Email = dto.Email,
+            Email = email.Value,
             IdentityDocument = identityDocument,
             Active = true,
             EmailConfirmed = true,
@@ -134,11 +141,7 @@ public abstract class BaseAccountService
         var response = Mapper.Map<RegisterResponseDto>(user);
         response.Roles = roles.ToList().AsReadOnly();
 
-        Logger.LogInformation(
-            "Usuario {User} registrado con rol {Role}",
-            dto.UserName,
-            dto.Role
-        );
+        Logger.LogInformation("Usuario {User} registrado con rol {Role}", dto.UserName, dto.Role);
 
         return response;
     }
@@ -149,9 +152,14 @@ public abstract class BaseAccountService
         var dtos = new List<UserDto>(users.Count);
 
         var userIds = users.Select(u => u.Id).ToList();
-        var rolesByUserId = await IdentityContext.UserRoles
-            .Where(ur => userIds.Contains(ur.UserId))
-            .Join(IdentityContext.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { ur.UserId, r.Name })
+        var rolesByUserId = await IdentityContext
+            .UserRoles.Where(ur => userIds.Contains(ur.UserId))
+            .Join(
+                IdentityContext.Roles,
+                ur => ur.RoleId,
+                r => r.Id,
+                (ur, r) => new { ur.UserId, r.Name }
+            )
             .GroupBy(x => x.UserId)
             .ToDictionaryAsync(g => g.Key, g => g.Select(x => x.Name!).ToList());
 
@@ -222,10 +230,24 @@ public abstract class BaseAccountService
                 "Ya existe un usuario registrado con este nombre de usuario."
             );
 
+        // Validamos email, teléfono y cédula con VOs del Domain
+        var emailResult = Email.Create(dto.Email);
+        if (emailResult.IsFailure)
+            throw new DomainException(emailResult.Error!.Code, emailResult.Error.Message);
+        var email = emailResult.Value!;
+
+        if (!string.IsNullOrEmpty(dto.Phone))
+        {
+            var phoneResult = PhoneNumber.Create(dto.Phone);
+            if (phoneResult.IsFailure)
+                throw new DomainException(phoneResult.Error!.Code, phoneResult.Error.Message);
+            dto.Phone = phoneResult.Value!.Value;
+        }
+
         // Validamos que el email sea único (excluyendo el propio usuario)
         if (
             await UserManager.Users.AnyAsync(u =>
-                u.NormalizedEmail == dto.Email.ToUpperInvariant() && u.Id != dto.Id
+                u.NormalizedEmail == email.Value.ToUpperInvariant() && u.Id != dto.Id
             )
         )
             throw new DomainException(
@@ -236,7 +258,7 @@ public abstract class BaseAccountService
         user.FirstName = dto.FirstName.Trim();
         user.LastName = dto.LastName.Trim();
         user.UserName = dto.UserName;
-        user.Email = dto.Email;
+        user.Email = email.Value;
         user.SetPhone(dto.Phone);
         user.ProfileImage = dto.ProfileImage;
 
