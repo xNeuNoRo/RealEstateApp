@@ -102,6 +102,10 @@ public sealed class AdminService : IAdminService
     private Result Forbidden(string detail = "Acceso denegado.") =>
         Result.Failure(Error.Forbidden("Auth.Forbidden", detail));
 
+    private bool RequireAdminOrDeveloper() =>
+        _currentUser.IsInRole(nameof(Roles.Admin))
+        || _currentUser.IsInRole(nameof(Roles.Developer));
+
     private bool RequireAdmin() => _currentUser.IsInRole(nameof(Roles.Admin));
 
     public async Task<Result<AdminDashboardResponse>> GetDashboardAsync(
@@ -116,9 +120,9 @@ public sealed class AdminService : IAdminService
         CancellationToken ct = default
     )
     {
-        if (!RequireAdmin())
+        if (!RequireAdminOrDeveloper())
             return Forbidden<PagedResult<AgentListItemResponse>>(
-                "Solo administradores pueden ver el listado de agentes."
+                "Solo administradores o desarrolladores pueden ver el listado de agentes."
             );
 
         return await _getAgentsUC.ExecuteAsync(request, ct);

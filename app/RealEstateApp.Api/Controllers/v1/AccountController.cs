@@ -27,6 +27,7 @@ public class AccountController : BaseApiController
     }
 
     [HttpPost("register/developer")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> RegisterDeveloper([FromBody] RegisterUserDto dto)
     {
         dto.Role = "Developer";
@@ -35,6 +36,7 @@ public class AccountController : BaseApiController
     }
 
     [HttpPost("register/admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> RegisterAdmin([FromBody] RegisterUserDto dto)
     {
         dto.Role = "Admin";

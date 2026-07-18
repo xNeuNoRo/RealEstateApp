@@ -81,7 +81,7 @@ public sealed class GetMyConversationsUseCase : IGetMyConversationsUseCase
             var grouped = allMessages
                 .GroupBy(m => (m.PropertyId, m.AgentId))
                 .Select(g => g.First())
-                .ToList(); // ponytail: in-memory grouping, migrate to DB GROUP BY if >1000 messages/client
+                .ToList();
 
             totalConversations = grouped.Count;
             var page = grouped
