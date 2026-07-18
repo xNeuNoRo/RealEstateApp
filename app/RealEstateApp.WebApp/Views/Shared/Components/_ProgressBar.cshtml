@@ -1,0 +1,22 @@
+@model (string Label, int Current, int Total, string? Color)
+@{
+    var percent = Model.Total > 0 ? (int)((Model.Current * 100.0) / Model.Total) : 0;
+    var color = Model.Color ?? "brand";
+    var colorClass = color switch
+    {
+        "green" => "bg-success-500",
+        "red" => "bg-danger-500",
+        "amber" => "bg-warning-500",
+        "blue" => "bg-brand-500",
+        _ => "bg-gradient-to-r from-brand-from to-brand-to"
+    };
+}
+<div class="space-y-1.5">
+    <div class="flex items-center justify-between text-xs">
+        <span class="font-bold text-muted">@Model.Label</span>
+        <span class="text-subtle font-medium">@Model.Current / @Model.Total</span>
+    </div>
+    <div class="h-2 bg-muted rounded-full overflow-hidden">
+        <div class="h-full @colorClass rounded-full transition-all duration-500" style="width: @percent%"></div>
+    </div>
+</div>
