@@ -1,6 +1,8 @@
 namespace RealEstateApp.Application.ViewModels.Offers;
 
-public sealed class OfferListItemViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class OfferListItemViewModel : BaseViewModel
 {
     public int Id { get; init; }
     public int PropertyId { get; init; }
@@ -11,12 +13,13 @@ public sealed class OfferListItemViewModel
     public string Status { get; init; } = null!;
     public DateTimeOffset CreatedAt { get; init; }
     public DateTimeOffset? RespondedAt { get; init; }
-    public string StatusLabel => Status switch
-    {
-        "Pendiente" => "Pendiente",
-        "Aceptada" => "Aceptada",
-        "Rechazada" => "Rechazada",
-        _ => Status
-    };
+    public string StatusLabel =>
+        Status switch
+        {
+            "Pendiente" => "Pendiente",
+            "Aceptada" => "Aceptada",
+            "Rechazada" => "Rechazada",
+            _ => Status,
+        };
     public bool IsPending => Status == "Pendiente";
 }

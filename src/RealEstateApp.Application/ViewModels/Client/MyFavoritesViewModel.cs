@@ -1,11 +1,13 @@
 namespace RealEstateApp.Application.ViewModels.Client;
 
-public sealed class MyFavoritesViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class MyFavoritesViewModel : BaseViewModel
 {
     public IReadOnlyList<FavoriteListItemViewModel> Favorites { get; init; } = [];
 }
 
-public sealed class FavoriteListItemViewModel
+public sealed class FavoriteListItemViewModel : BaseViewModel
 {
     public int Id { get; init; }
     public int PropertyId { get; init; }

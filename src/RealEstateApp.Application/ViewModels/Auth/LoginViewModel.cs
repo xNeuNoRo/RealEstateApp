@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RealEstateApp.Application.ViewModels.Auth;
 
-public sealed class LoginViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class LoginViewModel : BaseViewModel
 {
     [Required(ErrorMessage = "Debe ingresar su correo o nombre de usuario.")]
     [Display(Name = "Correo o nombre de usuario")]

@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RealEstateApp.Application.ViewModels.Agent;
 
-public sealed class EditPropertyViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class EditPropertyViewModel : BaseViewModel
 {
     public int Id { get; set; }
 
@@ -22,7 +24,11 @@ public sealed class EditPropertyViewModel
     public decimal Price { get; set; }
 
     [Required(ErrorMessage = "La descripción es requerida.")]
-    [StringLength(2000, MinimumLength = 5, ErrorMessage = "La descripción debe tener entre 5 y 2000 caracteres.")]
+    [StringLength(
+        2000,
+        MinimumLength = 5,
+        ErrorMessage = "La descripción debe tener entre 5 y 2000 caracteres."
+    )]
     [Display(Name = "Descripción")]
     public string Description { get; set; } = null!;
 
@@ -42,7 +48,11 @@ public sealed class EditPropertyViewModel
     public int Bathrooms { get; set; }
 
     [Required(ErrorMessage = "La moneda es requerida.")]
-    [StringLength(3, MinimumLength = 3, ErrorMessage = "La moneda debe tener 3 caracteres (ej. DOP, USD).")]
+    [StringLength(
+        3,
+        MinimumLength = 3,
+        ErrorMessage = "La moneda debe tener 3 caracteres (ej. DOP, USD)."
+    )]
     [Display(Name = "Moneda")]
     public string Currency { get; set; } = "DOP";
 

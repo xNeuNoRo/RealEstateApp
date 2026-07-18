@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RealEstateApp.Application.ViewModels.Auth;
 
-public sealed class ResetPasswordViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class ResetPasswordViewModel : BaseViewModel
 {
     [Required(ErrorMessage = "El correo electrónico es requerido.")]
     [EmailAddress(ErrorMessage = "Debe ingresar un correo electrónico válido.")]
@@ -13,7 +15,11 @@ public sealed class ResetPasswordViewModel
     public string Token { get; set; } = null!;
 
     [Required(ErrorMessage = "La nueva contraseña es requerida.")]
-    [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]
+    [StringLength(
+        100,
+        MinimumLength = 8,
+        ErrorMessage = "La contraseña debe tener al menos 8 caracteres."
+    )]
     [DataType(DataType.Password)]
     [Display(Name = "Nueva contraseña")]
     public string NewPassword { get; set; } = null!;

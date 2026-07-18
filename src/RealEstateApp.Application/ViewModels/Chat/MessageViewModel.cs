@@ -2,7 +2,9 @@ using RealEstateApp.Domain.Enums;
 
 namespace RealEstateApp.Application.ViewModels.Chat;
 
-public sealed class MessageViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class MessageViewModel : BaseViewModel
 {
     public int Id { get; init; }
     public int PropertyId { get; init; }

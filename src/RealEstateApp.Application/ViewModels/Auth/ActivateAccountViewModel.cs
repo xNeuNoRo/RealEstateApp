@@ -1,6 +1,8 @@
 namespace RealEstateApp.Application.ViewModels.Auth;
 
-public sealed class ActivateAccountViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class ActivateAccountViewModel : BaseViewModel
 {
     public string UserId { get; init; } = null!;
     public string Token { get; init; } = null!;

@@ -1,6 +1,8 @@
 namespace RealEstateApp.Application.ViewModels.Admin;
 
-public sealed class SaleTypeListItemViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class SaleTypeListItemViewModel : BaseViewModel
 {
     public int Id { get; init; }
     public string Code { get; init; } = null!;

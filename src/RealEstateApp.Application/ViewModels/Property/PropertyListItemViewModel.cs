@@ -1,6 +1,8 @@
 namespace RealEstateApp.Application.ViewModels.Property;
 
-public sealed class PropertyListItemViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class PropertyListItemViewModel : BaseViewModel
 {
     public int Id { get; init; }
     public string Code { get; init; } = null!;

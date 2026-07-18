@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RealEstateApp.Application.ViewModels.Property;
 
-public sealed class PropertySearchByCodeViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class PropertySearchByCodeViewModel : BaseViewModel
 {
     [Display(Name = "Código de propiedad")]
     [Required(ErrorMessage = "El código de propiedad es requerido.")]

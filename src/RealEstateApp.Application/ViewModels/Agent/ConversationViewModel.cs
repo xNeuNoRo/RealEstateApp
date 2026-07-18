@@ -1,6 +1,8 @@
 namespace RealEstateApp.Application.ViewModels.Agent;
 
-public sealed class ConversationViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class ConversationViewModel : BaseViewModel
 {
     public int PropertyId { get; init; }
     public string PropertyCode { get; init; } = null!;

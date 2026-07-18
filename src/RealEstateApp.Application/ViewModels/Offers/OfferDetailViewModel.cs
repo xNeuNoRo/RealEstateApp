@@ -1,6 +1,8 @@
 namespace RealEstateApp.Application.ViewModels.Offers;
 
-public sealed class OfferDetailViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class OfferDetailViewModel : BaseViewModel
 {
     public int Id { get; init; }
     public int PropertyId { get; init; }

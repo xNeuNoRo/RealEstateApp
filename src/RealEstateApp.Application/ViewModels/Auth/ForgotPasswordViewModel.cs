@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RealEstateApp.Application.ViewModels.Auth;
 
-public sealed class ForgotPasswordViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class ForgotPasswordViewModel : BaseViewModel
 {
     [Required(ErrorMessage = "El correo electrónico es requerido.")]
     [EmailAddress(ErrorMessage = "Debe ingresar un correo electrónico válido.")]

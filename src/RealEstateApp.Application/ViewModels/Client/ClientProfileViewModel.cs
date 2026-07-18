@@ -1,6 +1,8 @@
 namespace RealEstateApp.Application.ViewModels.Client;
 
-public sealed class ClientProfileViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class ClientProfileViewModel : BaseViewModel
 {
     public string Id { get; init; } = null!;
     public string UserName { get; init; } = null!;

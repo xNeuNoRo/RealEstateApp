@@ -1,6 +1,8 @@
 namespace RealEstateApp.Application.ViewModels.Agent;
 
-public sealed class PropertyMaintenanceViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class PropertyMaintenanceViewModel : BaseViewModel
 {
     public IReadOnlyList<AgentPropertyListItemViewModel> Properties { get; init; } = [];
 }

@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RealEstateApp.Application.ViewModels.Client;
 
-public sealed class UpdateClientProfileViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class UpdateClientProfileViewModel : BaseViewModel
 {
     [Required(ErrorMessage = "El nombre es requerido.")]
     [StringLength(100, ErrorMessage = "El nombre no puede exceder los 100 caracteres.")]
@@ -15,7 +17,10 @@ public sealed class UpdateClientProfileViewModel
     public string LastName { get; set; } = null!;
 
     [Required(ErrorMessage = "El teléfono es requerido.")]
-    [RegularExpression(@"^(809|829|849)-\d{3}-\d{4}$", ErrorMessage = "Debe ingresar un número telefónico válido de República Dominicana (ej. 809-555-1234).")]
+    [RegularExpression(
+        @"^(809|829|849)-\d{3}-\d{4}$",
+        ErrorMessage = "Debe ingresar un número telefónico válido de República Dominicana (ej. 809-555-1234)."
+    )]
     [Display(Name = "Teléfono")]
     public string Phone { get; set; } = null!;
 }

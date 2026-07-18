@@ -1,6 +1,8 @@
 namespace RealEstateApp.Application.ViewModels.Agent;
 
-public sealed class ChatListViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class ChatListViewModel : BaseViewModel
 {
     public int PropertyId { get; init; }
     public string PropertyCode { get; init; } = null!;

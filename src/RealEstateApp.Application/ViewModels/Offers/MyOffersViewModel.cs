@@ -1,6 +1,8 @@
 namespace RealEstateApp.Application.ViewModels.Offers;
 
-public sealed class MyOffersViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class MyOffersViewModel : BaseViewModel
 {
     public IReadOnlyList<OfferListItemViewModel> Offers { get; init; } = [];
 }

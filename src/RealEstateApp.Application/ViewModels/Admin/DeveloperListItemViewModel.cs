@@ -1,6 +1,8 @@
 namespace RealEstateApp.Application.ViewModels.Admin;
 
-public sealed class DeveloperListItemViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class DeveloperListItemViewModel : BaseViewModel
 {
     public string Id { get; init; } = null!;
     public string FirstName { get; init; } = null!;

@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RealEstateApp.Application.ViewModels.Agent;
 
-public sealed class ReplyMessageViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class ReplyMessageViewModel : BaseViewModel
 {
     [Required(ErrorMessage = "Debe escribir un mensaje antes de enviarlo.")]
     [Display(Name = "Mensaje")]

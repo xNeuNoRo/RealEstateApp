@@ -1,6 +1,8 @@
 namespace RealEstateApp.Application.ViewModels.Admin;
 
-public sealed class DeleteImprovementViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class DeleteImprovementViewModel : BaseViewModel
 {
     public int Id { get; init; }
     public string Name { get; init; } = null!;
