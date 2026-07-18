@@ -14,6 +14,11 @@ public interface IAdminService
         CancellationToken ct = default
     );
     Task<Result> ToggleAgentStatusAsync(string agentId, CancellationToken ct = default);
+    Task<Result> ChangeAgentStatusAsync(
+        string agentId,
+        bool status,
+        CancellationToken ct = default
+    );
     Task<Result> DeleteAgentAsync(string agentId, CancellationToken ct = default);
     Task<Result<PagedResult<AdminListItemResponse>>> GetAdminsAsync(
         GetAdminsListRequest request,

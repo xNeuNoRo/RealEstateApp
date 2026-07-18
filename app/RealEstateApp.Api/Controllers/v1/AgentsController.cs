@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RealEstateApp.Api.Controllers.Base;
 using RealEstateApp.Api.Dtos.Api.Responses;
+using RealEstateApp.Api.Dtos.Requests;
 using RealEstateApp.Application.Dtos.Admin.Requests;
 using RealEstateApp.Application.Dtos.Admin.Responses;
 using RealEstateApp.Application.Dtos.Property.Requests;
@@ -96,11 +97,23 @@ public class AgentsController : BaseApiController
         return MapServiceError(result.GetError());
     }
 
+    [HttpPatch("{id}/toggle")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ToggleStatus(string id)
+    {
+        var result = await _adminService.ToggleAgentStatusAsync(id);
+
+        if (result.IsSuccess)
+            return NoContent();
+
+        return MapServiceError(result.GetError());
+    }
+
     [HttpPatch("{id}/status")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> ChangeStatus(string id, [FromBody] AgentStatusRequest body)
     {
-        var result = await _adminService.ToggleAgentStatusAsync(id);
+        var result = await _adminService.ChangeAgentStatusAsync(id, body.Status);
 
         if (result.IsSuccess)
             return NoContent();
@@ -133,7 +146,7 @@ public class AgentsController : BaseApiController
             LastName = a.LastName,
             PropertiesCount = a.PropertiesCount,
             Email = a.Email,
-            Phone = null,
+            Phone = a.Phone,
             Status = a.IsActive,
         };
     }
@@ -169,5 +182,3 @@ public class AgentsController : BaseApiController
         };
     }
 }
-
-public sealed record AgentStatusRequest(bool Status);

@@ -8,8 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Application.Interfaces;
+using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Application.Interfaces.UseCases.Admin;
 using RealEstateApp.Application.Interfaces.UseCases.Agent;
 using RealEstateApp.Application.Interfaces.UseCases.Auth;
@@ -188,6 +188,7 @@ public static class ServicesRegistration
         services.AddScoped<IGetAdminDashboardUseCase, GetAdminDashboardUseCase>();
         services.AddScoped<IGetAgentsListUseCase, GetAgentsListUseCase>();
         services.AddScoped<IToggleAgentActiveUseCase, ToggleAgentActiveUseCase>();
+        services.AddScoped<IChangeAgentStatusUseCase, ChangeAgentStatusUseCase>();
         services.AddScoped<IDeleteAgentUseCase, DeleteAgentUseCase>();
         services.AddScoped<IGetAdminsListUseCase, GetAdminsListUseCase>();
         services.AddScoped<ICreateAdminUseCase, CreateAdminUseCase>();

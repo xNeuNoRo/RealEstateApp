@@ -15,6 +15,7 @@ public sealed class AdminService : IAdminService
     private readonly IGetAdminDashboardUseCase _dashboardUC;
     private readonly IGetAgentsListUseCase _getAgentsUC;
     private readonly IToggleAgentActiveUseCase _toggleAgentUC;
+    private readonly IChangeAgentStatusUseCase _changeAgentStatusUC;
     private readonly IDeleteAgentUseCase _deleteAgentUC;
     private readonly IGetAdminsListUseCase _getAdminsUC;
     private readonly ICreateAdminUseCase _createAdminUC;
@@ -42,6 +43,7 @@ public sealed class AdminService : IAdminService
         IGetAdminDashboardUseCase dashboardUC,
         IGetAgentsListUseCase getAgentsUC,
         IToggleAgentActiveUseCase toggleAgentUC,
+        IChangeAgentStatusUseCase changeAgentStatusUC,
         IDeleteAgentUseCase deleteAgentUC,
         IGetAdminsListUseCase getAdminsUC,
         ICreateAdminUseCase createAdminUC,
@@ -69,6 +71,7 @@ public sealed class AdminService : IAdminService
         _dashboardUC = dashboardUC;
         _getAgentsUC = getAgentsUC;
         _toggleAgentUC = toggleAgentUC;
+        _changeAgentStatusUC = changeAgentStatusUC;
         _deleteAgentUC = deleteAgentUC;
         _getAdminsUC = getAdminsUC;
         _createAdminUC = createAdminUC;
@@ -127,6 +130,21 @@ public sealed class AdminService : IAdminService
             return Forbidden("Solo administradores pueden cambiar el estado de un agente.");
 
         return await _toggleAgentUC.ExecuteAsync(new ToggleAgentActiveRequest(agentId), ct);
+    }
+
+    public async Task<Result> ChangeAgentStatusAsync(
+        string agentId,
+        bool status,
+        CancellationToken ct = default
+    )
+    {
+        if (!RequireAdmin())
+            return Forbidden("Solo administradores pueden cambiar el estado de un agente.");
+
+        return await _changeAgentStatusUC.ExecuteAsync(
+            new ChangeAgentStatusRequest(agentId, status),
+            ct
+        );
     }
 
     public async Task<Result> DeleteAgentAsync(string agentId, CancellationToken ct = default)
