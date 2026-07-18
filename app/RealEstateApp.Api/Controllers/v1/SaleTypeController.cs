@@ -39,20 +39,12 @@ public class SaleTypeController : BaseApiController
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var result = await _adminService.GetSaleTypesAsync(
-            new GetAllSaleTypesRequest(PageSize: 1000)
-        );
+        var result = await _adminService.GetSaleTypeByIdAsync(id);
 
-        if (result.IsFailure)
-            return FromResult(result);
+        if (result.IsSuccess)
+            return Success(MapSingleToResponse(result.GetValue()));
 
-        var item = result.GetValue().Items.FirstOrDefault(i => i.Id == id);
-        if (item is null)
-            return NotFound(
-                ApiResponse.Failure(ErrorCodes.NotFound, "El tipo de venta solicitado no existe.")
-            );
-
-        return Success(MapSingleToResponse(item));
+        return FromResult(result);
     }
 
     [HttpPost]

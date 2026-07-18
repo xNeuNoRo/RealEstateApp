@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using RealEstateApp.Api.Controllers.Base;
 using RealEstateApp.Application.Dtos.Auth;
 using RealEstateApp.Application.Interfaces;
+using RealEstateApp.Domain.Common;
 
 namespace RealEstateApp.Api.Controllers.v1;
 
@@ -32,7 +33,7 @@ public class AccountController : BaseApiController
     {
         dto.Role = "Developer";
         var result = await _accountService.RegisterUserAsync(dto);
-        return Success(result);
+        return StatusCode(201, ApiResponse<RegisterResponseDto>.Success(result));
     }
 
     [HttpPost("register/admin")]
@@ -41,6 +42,6 @@ public class AccountController : BaseApiController
     {
         dto.Role = "Admin";
         var result = await _accountService.RegisterUserAsync(dto);
-        return Success(result);
+        return StatusCode(201, ApiResponse<RegisterResponseDto>.Success(result));
     }
 }

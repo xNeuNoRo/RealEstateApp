@@ -187,6 +187,7 @@ public static class ServicesRegistration
     {
         services.AddScoped<IGetAdminDashboardUseCase, GetAdminDashboardUseCase>();
         services.AddScoped<IGetAgentsListUseCase, GetAgentsListUseCase>();
+        services.AddScoped<IGetAgentByIdUseCase, GetAgentByIdUseCase>();
         services.AddScoped<IToggleAgentActiveUseCase, ToggleAgentActiveUseCase>();
         services.AddScoped<IChangeAgentStatusUseCase, ChangeAgentStatusUseCase>();
         services.AddScoped<IDeleteAgentUseCase, DeleteAgentUseCase>();

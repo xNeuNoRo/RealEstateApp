@@ -37,6 +37,10 @@ public sealed class AdminService : IAdminService
     private readonly IUpdateImprovementUseCase _updateImpUC;
     private readonly IDeleteImprovementUseCase _deleteImpUC;
     private readonly IGetAllImprovementsUseCase _getImpsUC;
+    private readonly IGetPropertyTypeByIdUseCase _getPropTypeByIdUC;
+    private readonly IGetSaleTypeByIdUseCase _getSaleTypeByIdUC;
+    private readonly IGetImprovementByIdUseCase _getImpByIdUC;
+    private readonly IGetAgentByIdUseCase _getAgentByIdUC;
     private readonly ICurrentUserService _currentUser;
 
     public AdminService(
@@ -65,6 +69,10 @@ public sealed class AdminService : IAdminService
         IUpdateImprovementUseCase updateImpUC,
         IDeleteImprovementUseCase deleteImpUC,
         IGetAllImprovementsUseCase getImpsUC,
+        IGetPropertyTypeByIdUseCase getPropTypeByIdUC,
+        IGetSaleTypeByIdUseCase getSaleTypeByIdUC,
+        IGetImprovementByIdUseCase getImpByIdUC,
+        IGetAgentByIdUseCase getAgentByIdUC,
         ICurrentUserService currentUser
     )
     {
@@ -93,6 +101,10 @@ public sealed class AdminService : IAdminService
         _updateImpUC = updateImpUC;
         _deleteImpUC = deleteImpUC;
         _getImpsUC = getImpsUC;
+        _getPropTypeByIdUC = getPropTypeByIdUC;
+        _getSaleTypeByIdUC = getSaleTypeByIdUC;
+        _getImpByIdUC = getImpByIdUC;
+        _getAgentByIdUC = getAgentByIdUC;
         _currentUser = currentUser;
     }
 
@@ -149,6 +161,17 @@ public sealed class AdminService : IAdminService
             new ChangeAgentStatusRequest(agentId, status),
             ct
         );
+    }
+
+    public async Task<Result<AgentListItemResponse>> GetAgentByIdAsync(
+        string agentId,
+        CancellationToken ct = default
+    )
+    {
+        if (!RequireAdminOrDeveloper())
+            return Forbidden<AgentListItemResponse>("Acceso denegado.");
+
+        return await _getAgentByIdUC.ExecuteAsync(new GetAgentByIdRequest(agentId), ct);
     }
 
     public async Task<Result> DeleteAgentAsync(string agentId, CancellationToken ct = default)
@@ -267,6 +290,17 @@ public sealed class AdminService : IAdminService
         return await _getPropTypesUC.ExecuteAsync(request, ct);
     }
 
+    public async Task<Result<PropertyTypeResponse>> GetPropertyTypeByIdAsync(
+        int id,
+        CancellationToken ct = default
+    )
+    {
+        if (!RequireAdminOrDeveloper())
+            return Forbidden<PropertyTypeResponse>("Acceso denegado.");
+
+        return await _getPropTypeByIdUC.ExecuteAsync(new GetPropertyTypeByIdRequest(id), ct);
+    }
+
     public async Task<Result<PropertyTypeResponse>> CreatePropertyTypeAsync(
         CreatePropertyTypeRequest request,
         CancellationToken ct = default
@@ -314,6 +348,17 @@ public sealed class AdminService : IAdminService
         return await _getSaleTypesUC.ExecuteAsync(request, ct);
     }
 
+    public async Task<Result<SaleTypeResponse>> GetSaleTypeByIdAsync(
+        int id,
+        CancellationToken ct = default
+    )
+    {
+        if (!RequireAdminOrDeveloper())
+            return Forbidden<SaleTypeResponse>("Acceso denegado.");
+
+        return await _getSaleTypeByIdUC.ExecuteAsync(new GetSaleTypeByIdRequest(id), ct);
+    }
+
     public async Task<Result<SaleTypeResponse>> CreateSaleTypeAsync(
         CreateSaleTypeRequest request,
         CancellationToken ct = default
@@ -355,6 +400,17 @@ public sealed class AdminService : IAdminService
             );
 
         return await _getImpsUC.ExecuteAsync(request, ct);
+    }
+
+    public async Task<Result<ImprovementResponse>> GetImprovementByIdAsync(
+        int id,
+        CancellationToken ct = default
+    )
+    {
+        if (!RequireAdminOrDeveloper())
+            return Forbidden<ImprovementResponse>("Acceso denegado.");
+
+        return await _getImpByIdUC.ExecuteAsync(new GetImprovementByIdRequest(id), ct);
     }
 
     public async Task<Result<ImprovementResponse>> CreateImprovementAsync(

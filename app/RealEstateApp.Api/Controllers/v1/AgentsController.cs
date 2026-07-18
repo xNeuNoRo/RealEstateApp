@@ -44,18 +44,12 @@ public class AgentsController : BaseApiController
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
-        var result = await _adminService.GetAgentsAsync(new GetAgentsListRequest(PageSize: 1000));
+        var result = await _adminService.GetAgentByIdAsync(id);
 
-        if (result.IsFailure)
-            return MapServiceError(result.GetError());
+        if (result.IsSuccess)
+            return Success(MapSingleToResponse(result.GetValue()));
 
-        var agent = result.GetValue().Items.FirstOrDefault(a => a.Id == id);
-        if (agent is null)
-            return NotFound(
-                ApiResponse.Failure(ErrorCodes.NotFound, "El agente solicitado no existe.")
-            );
-
-        return Success(MapSingleToResponse(agent));
+        return MapServiceError(result.GetError());
     }
 
     [HttpGet("{id}/properties")]

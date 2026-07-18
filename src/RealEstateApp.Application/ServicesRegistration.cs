@@ -123,17 +123,20 @@ public static class ServicesRegistration
         services.AddScoped<IUpdateImprovementUseCase, UpdateImprovementUseCase>();
         services.AddScoped<IGetAllImprovementsUseCase, GetAllImprovementsUseCase>();
         services.AddScoped<IDeleteImprovementUseCase, DeleteImprovementUseCase>();
+        services.AddScoped<IGetImprovementByIdUseCase, GetImprovementByIdUseCase>();
 
         services.AddScoped<ICreatePropertyTypeUseCase, CreatePropertyTypeUseCase>();
         services.AddScoped<IUpdatePropertyTypeUseCase, UpdatePropertyTypeUseCase>();
         services.AddScoped<IGetAllPropertyTypesUseCase, GetAllPropertyTypesUseCase>();
         services.AddScoped<IDeletePropertyTypeUseCase, DeletePropertyTypeUseCase>();
+        services.AddScoped<IGetPropertyTypeByIdUseCase, GetPropertyTypeByIdUseCase>();
 
         // SaleType
         services.AddScoped<ICreateSaleTypeUseCase, CreateSaleTypeUseCase>();
         services.AddScoped<IUpdateSaleTypeUseCase, UpdateSaleTypeUseCase>();
         services.AddScoped<IGetAllSaleTypesUseCase, GetAllSaleTypesUseCase>();
         services.AddScoped<IDeleteSaleTypeUseCase, DeleteSaleTypeUseCase>();
+        services.AddScoped<IGetSaleTypeByIdUseCase, GetSaleTypeByIdUseCase>();
 
         return services;
     }
