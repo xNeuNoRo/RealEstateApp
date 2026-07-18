@@ -4,17 +4,24 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "css:build": "bunx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/css/site.css",
+    "css:build": "bunx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/css/site.css --minify",
     "css:watch": "bunx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/css/site.css --watch",
+    "css:components": "bunx @tailwindcss/cli -i ./Styles/components.css -o ./wwwroot/css/components.css --minify",
+    "css:components:watch": "bunx @tailwindcss/cli -i ./Styles/components.css -o ./wwwroot/css/components.css --watch",
     "dev": "concurrently -n css,dotnet -c cyan,magenta \"bun css:watch\" \"dotnet watch --project ../RealEstateApp.WebApp\"",
     "dev:backend": "dotnet watch --project ../RealEstateApp.WebApp",
-    "dev:css": "bun css:watch"
+    "dev:css": "bun css:watch",
+    "build": "bun css:build && bun css:components && dotnet publish --project ../RealEstateApp.WebApp -c Release -o ../../publish",
+    "lint": "bunx eslint wwwroot/js --ext .js,.ts 2>/dev/null || echo 'ESLint not configured yet'",
+    "typecheck": "bunx tsc --noEmit 2>/dev/null || echo 'tsc not configured yet'"
   },
   "devDependencies": {
-    "@types/bun": "latest",
     "@tailwindcss/cli": "^4.3.0",
+    "@tailwindcss/typography": "^0.5.15",
+    "@types/bun": "latest",
     "concurrently": "^9.1.2",
-    "tailwindcss": "^4.3.0"
+    "tailwindcss": "^4.3.0",
+    "typescript": "^5.5.0"
   },
   "peerDependencies": {
     "typescript": "^5"
