@@ -9,6 +9,7 @@ using RealEstateApp.Application.Interfaces.UseCases.Auth;
 using RealEstateApp.Application.Models.Emails;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Settings;
+using RealEstateApp.Domain.ValueObjects;
 using RealEstateApp.Infrastructure.Identity.Entities;
 using RealEstateApp.Infrastructure.Identity.Seeds;
 
@@ -46,6 +47,17 @@ public sealed class RegisterClientUseCase : IRegisterClientUseCase
         if (!validationResult.IsValid)
             return validationResult.ToResult<AuthResponse>();
 
+        var emailResult = Email.Create(request.Email);
+        if (emailResult.IsFailure)
+            return Result<AuthResponse>.Failure(emailResult.GetError());
+
+        var phoneResult = PhoneNumber.Create(request.Phone);
+        if (phoneResult.IsFailure)
+            return Result<AuthResponse>.Failure(phoneResult.GetError());
+
+        var email = emailResult.GetValue();
+        var phone = phoneResult.GetValue();
+
         if (await _userManager.FindByNameAsync(request.UserName) is not null)
             return Result<AuthResponse>.Failure(
                 Error.Conflict(
@@ -67,11 +79,11 @@ public sealed class RegisterClientUseCase : IRegisterClientUseCase
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
             UserName = request.UserName,
-            Email = request.Email,
+            Email = email.Value,
             Active = false,
             EmailConfirmed = false,
         };
-        user.SetPhone(request.Phone);
+        user.SetPhone(phone.Value);
 
         if (request.PhotoFile is not null)
         {

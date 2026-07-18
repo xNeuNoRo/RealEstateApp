@@ -7,6 +7,7 @@ using RealEstateApp.Application.Interfaces;
 using RealEstateApp.Application.Interfaces.UseCases.Auth;
 using RealEstateApp.Application.Models.Emails;
 using RealEstateApp.Domain.Common;
+using RealEstateApp.Domain.ValueObjects;
 using RealEstateApp.Infrastructure.Identity.Entities;
 
 namespace RealEstateApp.Infrastructure.Identity.UseCases.Auth;
@@ -40,12 +41,18 @@ public sealed class ForgotPasswordUseCase : IForgotPasswordUseCase
         if (!validationResult.IsValid)
             return validationResult.ToResult();
 
-        var user = await _userManager.FindByEmailAsync(request.Email);
+        var emailResult = Email.Create(request.Email);
+        if (emailResult.IsFailure)
+            return Result.Failure(emailResult.GetError());
+
+        var email = emailResult.GetValue();
+
+        var user = await _userManager.FindByEmailAsync(email.Value);
         if (user is null || !user.Active)
         {
             _logger.LogInformation(
                 "ForgotPassword ignorado para {Email}: usuario no encontrado o inactivo.",
-                request.Email
+                email.Value
             );
             return Result.Success();
         }
