@@ -20,6 +20,10 @@ public sealed class ResetPasswordViewModel : BaseViewModel
         MinimumLength = 8,
         ErrorMessage = "La contraseña debe tener al menos 8 caracteres."
     )]
+    [RegularExpression(
+        @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$",
+        ErrorMessage = "Incluye mayúscula, minúscula, número y símbolo."
+    )]
     [DataType(DataType.Password)]
     [Display(Name = "Nueva contraseña")]
     public string NewPassword { get; set; } = null!;

@@ -14,4 +14,7 @@ public sealed class LoginViewModel : BaseViewModel
     [DataType(DataType.Password)]
     [Display(Name = "Contraseña")]
     public string Password { get; set; } = null!;
+
+    [Display(Name = "Mantener sesión iniciada")]
+    public bool RememberMe { get; set; }
 }

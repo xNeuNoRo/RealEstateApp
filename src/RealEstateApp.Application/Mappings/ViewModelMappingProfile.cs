@@ -44,9 +44,8 @@ public sealed class ViewModelMappingProfile : Profile
     private void MapAuth()
     {
         CreateMap<LoginViewModel, LoginRequest>();
-        CreateMap<RegisterClientViewModel, RegisterClientRequest>();
-        CreateMap<RegisterAgentViewModel, RegisterAgentRequest>();
-        CreateMap<ForgotPasswordViewModel, ForgotPasswordRequest>();
+        CreateMap<ForgotPasswordViewModel, ForgotPasswordRequest>()
+            .ForMember(d => d.Origin, opt => opt.Ignore());
         CreateMap<ResetPasswordViewModel, ResetPasswordRequest>();
         CreateMap<ChangePasswordViewModel, ChangePasswordRequest>();
     }

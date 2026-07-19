@@ -69,12 +69,22 @@ public sealed class RegisterClientRequestValidator : AbstractValidator<RegisterC
             .NotEmpty()
             .WithMessage("La contraseña es requerida.")
             .MinimumLength(8)
-            .WithMessage("La contraseña debe tener al menos 8 caracteres.");
+            .WithMessage("La contraseña debe tener al menos 8 caracteres.")
+            .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$")
+            .WithMessage("La contraseña debe incluir mayúscula, minúscula, número y símbolo.");
 
         RuleFor(x => x.ConfirmPassword)
             .NotEmpty()
             .WithMessage("La confirmación de contraseña es requerida.")
             .Equal(x => x.Password)
             .WithMessage("La contraseña y la confirmación de contraseña no coinciden.");
+
+        RuleFor(x => x.Origin)
+            .Must(IsHttpOrigin)
+            .WithMessage("El origen de la aplicación no es válido.");
     }
+
+    private static bool IsHttpOrigin(string origin) =>
+        Uri.TryCreate(origin, UriKind.Absolute, out var uri)
+        && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
 }

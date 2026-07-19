@@ -13,5 +13,6 @@ public sealed record RegisterClientRequest(
     string UserName,
     string Email,
     string Password,
-    string ConfirmPassword
+    string ConfirmPassword,
+    string Origin
 );
