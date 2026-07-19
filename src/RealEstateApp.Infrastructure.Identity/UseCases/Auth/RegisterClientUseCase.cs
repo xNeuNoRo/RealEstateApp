@@ -135,7 +135,7 @@ public sealed class RegisterClientUseCase : IRegisterClientUseCase
             "AccountActivation",
             new AccountActivationModel(
                 user.GetDisplayName(),
-                $"Por favor confirme su cuenta haciendo clic en el siguiente enlace: /account/activate?userId={user.Id}&token={Uri.EscapeDataString(token)}"
+                $"{request.Origin.TrimEnd('/')}/Auth/ActivateAccount?userId={Uri.EscapeDataString(user.Id)}&token={Uri.EscapeDataString(token)}"
             ),
             cancellationToken
         );

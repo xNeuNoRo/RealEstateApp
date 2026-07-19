@@ -13,18 +13,21 @@ namespace RealEstateApp.Infrastructure.Identity.UseCases.Auth;
 public sealed class ChangePasswordUseCase : IChangePasswordUseCase
 {
     private readonly UserManager<AppUser> _userManager;
+    private readonly SignInManager<AppUser> _signInManager;
     private readonly ICurrentUserService _currentUser;
     private readonly IValidator<ChangePasswordRequest> _validator;
     private readonly ILogger<ChangePasswordUseCase> _logger;
 
     public ChangePasswordUseCase(
         UserManager<AppUser> userManager,
+        SignInManager<AppUser> signInManager,
         ICurrentUserService currentUser,
         IValidator<ChangePasswordRequest> validator,
         ILogger<ChangePasswordUseCase> logger
     )
     {
         _userManager = userManager;
+        _signInManager = signInManager;
         _currentUser = currentUser;
         _validator = validator;
         _logger = logger;
@@ -68,6 +71,7 @@ public sealed class ChangePasswordUseCase : IChangePasswordUseCase
             );
         }
 
+        await _signInManager.RefreshSignInAsync(user);
         _logger.LogInformation("Contraseña cambiada exitosamente para {UserId}.", user.Id);
 
         return Result.Success();

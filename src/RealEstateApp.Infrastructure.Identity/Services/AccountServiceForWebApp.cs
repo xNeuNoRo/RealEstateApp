@@ -1,393 +1,99 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using RealEstateApp.Application.Dtos.Auth;
+using RealEstateApp.Application.Dtos.Auth.Requests;
+using RealEstateApp.Application.Dtos.Auth.Responses;
 using RealEstateApp.Application.Interfaces;
+using RealEstateApp.Application.Interfaces.UseCases.Auth;
 using RealEstateApp.Domain.Common;
-using RealEstateApp.Infrastructure.Identity.Contexts;
 using RealEstateApp.Infrastructure.Identity.Entities;
-using RealEstateApp.Infrastructure.Identity.Seeds;
 
 namespace RealEstateApp.Infrastructure.Identity.Services;
 
 /// <summary>
-/// Servicio de autenticación para la WebApp. Usa SignInManager para cookies de ASP.NET Identity.
+/// Fachada de Auth para MVC. Mantiene el controlador desacoplado de la composición
+/// interna de casos de uso y concentra el cierre de sesión de Identity.
 /// </summary>
-public class AccountServiceForWebApp : BaseAccountService, IAccountServiceForWebApp
+public sealed class AccountServiceForWebApp : IAccountServiceForWebApp
 {
+    private readonly ILoginUseCase _loginUseCase;
+    private readonly IRegisterClientUseCase _registerClientUseCase;
+    private readonly IRegisterAgentUseCase _registerAgentUseCase;
+    private readonly IActivateAccountUseCase _activateAccountUseCase;
+    private readonly IResendActivationUseCase _resendActivationUseCase;
+    private readonly IForgotPasswordUseCase _forgotPasswordUseCase;
+    private readonly IResetPasswordUseCase _resetPasswordUseCase;
+    private readonly IChangePasswordUseCase _changePasswordUseCase;
     private readonly SignInManager<AppUser> _signInManager;
-    private readonly IEmailService _emailService;
+    private readonly ILogger<AccountServiceForWebApp> _logger;
 
     public AccountServiceForWebApp(
-        UserManager<AppUser> userManager,
+        ILoginUseCase loginUseCase,
+        IRegisterClientUseCase registerClientUseCase,
+        IRegisterAgentUseCase registerAgentUseCase,
+        IActivateAccountUseCase activateAccountUseCase,
+        IResendActivationUseCase resendActivationUseCase,
+        IForgotPasswordUseCase forgotPasswordUseCase,
+        IResetPasswordUseCase resetPasswordUseCase,
+        IChangePasswordUseCase changePasswordUseCase,
         SignInManager<AppUser> signInManager,
-        IMapper mapper,
-        ILogger<AccountServiceForWebApp> logger,
-        IdentityContext identityContext,
-        IEmailService emailService
+        ILogger<AccountServiceForWebApp> logger
     )
-        : base(userManager, mapper, logger, identityContext)
     {
+        _loginUseCase = loginUseCase;
+        _registerClientUseCase = registerClientUseCase;
+        _registerAgentUseCase = registerAgentUseCase;
+        _activateAccountUseCase = activateAccountUseCase;
+        _resendActivationUseCase = resendActivationUseCase;
+        _forgotPasswordUseCase = forgotPasswordUseCase;
+        _resetPasswordUseCase = resetPasswordUseCase;
+        _changePasswordUseCase = changePasswordUseCase;
         _signInManager = signInManager;
-        _emailService = emailService;
+        _logger = logger;
     }
 
-    public async Task<Result> LoginAsync(LoginDto login)
-    {
-        var user =
-            await UserManager.FindByNameAsync(login.UserNameOrEmail)
-            ?? await UserManager.FindByEmailAsync(login.UserNameOrEmail);
+    public Task<Result<AuthResponse>> LoginAsync(
+        LoginRequest request,
+        CancellationToken cancellationToken = default
+    ) => _loginUseCase.ExecuteAsync(request, cancellationToken);
 
-        if (user is null)
-        {
-            Logger.LogWarning(
-                "Intento de login fallido WebApp: usuario {UserNameOrEmail} no encontrado.",
-                login.UserNameOrEmail
-            );
-            return Result.Failure(
-                Error.Unauthorized("Auth.InvalidCredentials", "Los datos de acceso son inválidos.")
-            );
-        }
+    public Task<Result<AuthResponse>> RegisterClientAsync(
+        RegisterClientRequest request,
+        CancellationToken cancellationToken = default
+    ) => _registerClientUseCase.ExecuteAsync(request, cancellationToken);
 
-        if (!user.Active)
-        {
-            Logger.LogWarning("Intento de login WebApp de usuario inactivo: {UserId}.", user.Id);
-            return Result.Failure(
-                Error.Unauthorized(
-                    "Auth.UserInactive",
-                    "El usuario se encuentra inactivo y no puede iniciar sesión."
-                )
-            );
-        }
+    public Task<Result<AuthResponse>> RegisterAgentAsync(
+        RegisterAgentRequest request,
+        CancellationToken cancellationToken = default
+    ) => _registerAgentUseCase.ExecuteAsync(request, cancellationToken);
 
-        var roles = await UserManager.GetRolesAsync(user);
-        if (roles.Count == 0)
-        {
-            Logger.LogWarning("Usuario {UserId} sin rol válido WebApp.", user.Id);
-            return Result.Failure(
-                Error.Unauthorized(
-                    "Auth.NoRole",
-                    "El usuario no tiene un rol válido asignado. Póngase en contacto con un administrador."
-                )
-            );
-        }
+    public Task<Result> ActivateAccountAsync(
+        ActivateAccountRequest request,
+        CancellationToken cancellationToken = default
+    ) => _activateAccountUseCase.ExecuteAsync(request, cancellationToken);
 
-        var validWebAppRoles = new[]
-        {
-            DefaultRoles.Client,
-            DefaultRoles.Agent,
-            DefaultRoles.Admin,
-        };
-        if (!roles.Any(r => validWebAppRoles.Contains(r)))
-        {
-            Logger.LogWarning(
-                "Usuario {UserId} con rol no válido para WebApp: {Roles}.",
-                user.Id,
-                string.Join(", ", roles)
-            );
-            return Result.Failure(
-                Error.Unauthorized(
-                    "Auth.InvalidRole",
-                    "El usuario no tiene un rol válido asignado. Póngase en contacto con un administrador."
-                )
-            );
-        }
+    public Task<Result> ResendActivationAsync(
+        ResendActivationRequest request,
+        CancellationToken cancellationToken = default
+    ) => _resendActivationUseCase.ExecuteAsync(request, cancellationToken);
 
-        var result = await _signInManager.PasswordSignInAsync(
-            user,
-            login.Password,
-            isPersistent: false,
-            lockoutOnFailure: true
-        );
+    public Task<Result> ForgotPasswordAsync(
+        ForgotPasswordRequest request,
+        CancellationToken cancellationToken = default
+    ) => _forgotPasswordUseCase.ExecuteAsync(request, cancellationToken);
 
-        if (result.IsLockedOut)
-        {
-            Logger.LogWarning("Cuenta bloqueada WebApp: {UserId}.", user.Id);
-            return Result.Failure(
-                Error.Unauthorized(
-                    "Auth.LockedOut",
-                    "La cuenta se encuentra bloqueada temporalmente debido a múltiples intentos fallidos."
-                )
-            );
-        }
+    public Task<Result> ResetPasswordAsync(
+        ResetPasswordRequest request,
+        CancellationToken cancellationToken = default
+    ) => _resetPasswordUseCase.ExecuteAsync(request, cancellationToken);
 
-        if (!result.Succeeded)
-        {
-            Logger.LogWarning("Credenciales inválidas WebApp para {UserId}.", user.Id);
-            return Result.Failure(
-                Error.Unauthorized("Auth.InvalidCredentials", "Los datos de acceso son inválidos.")
-            );
-        }
-
-        Logger.LogInformation(
-            "Inicio de sesión WebApp exitoso: {UserId}, roles: {Roles}.",
-            user.Id,
-            string.Join(", ", roles)
-        );
-
-        return Result.Success();
-    }
-
-    /// <summary>
-    /// Registra un cliente con estado Inactivo y envía correo de activación.
-    /// </summary>
-    public async Task<Result> RegisterClientAsync(RegisterUserDto register)
-    {
-        if (register.Role != DefaultRoles.Client)
-            return Result.Failure(
-                Error.Validation("Auth.InvalidRole", "El rol seleccionado no es Cliente.")
-            );
-
-        await RegisterUserAsync(register);
-
-        var user = await UserManager.FindByNameAsync(register.UserName);
-        if (user is null)
-            return Result.Failure(
-                Error.Failure("Auth.RegistrationFailed", "No se pudo verificar el registro.")
-            );
-
-        user.Active = false;
-        user.EmailConfirmed = false;
-        await UserManager.UpdateAsync(user);
-
-        var token = await UserManager.GenerateEmailConfirmationTokenAsync(user);
-        var encodedToken = Uri.EscapeDataString(token);
-
-        try
-        {
-            await _emailService.SendEmailAsync(
-                user.Email!,
-                "Activación de cuenta en RealEstateApp",
-                "AccountActivation",
-                new Application.Models.Emails.AccountActivationModel(
-                    UserName: user.GetDisplayName(),
-                    ActivationUrl: encodedToken
-                ),
-                CancellationToken.None
-            );
-        }
-        catch (Exception ex)
-        {
-            Logger.LogWarning(
-                ex,
-                "No se pudo enviar correo de activación a {Email}. Usuario {UserId} creado pero inactivo.",
-                user.Email,
-                user.Id
-            );
-        }
-
-        Logger.LogInformation(
-            "Cliente {UserName} registrado en WebApp (inactivo, email activación enviado).",
-            register.UserName
-        );
-
-        return Result.Success();
-    }
-
-    /// <summary>
-    /// Registra un agente con estado Inactivo. Sin email de activación (admin activa manualmente).
-    /// </summary>
-    public async Task<Result> RegisterAgentAsync(RegisterUserDto register)
-    {
-        if (register.Role != DefaultRoles.Agent)
-            return Result.Failure(
-                Error.Validation("Auth.InvalidRole", "El rol seleccionado no es Agente.")
-            );
-
-        await RegisterUserAsync(register);
-
-        var user = await UserManager.FindByNameAsync(register.UserName);
-        if (user is null)
-            return Result.Failure(
-                Error.Failure("Auth.RegistrationFailed", "No se pudo verificar el registro.")
-            );
-
-        user.Active = false;
-        user.EmailConfirmed = false;
-        await UserManager.UpdateAsync(user);
-
-        Logger.LogInformation(
-            "Agente {UserName} registrado en WebApp (inactivo, pendiente de activación por admin).",
-            register.UserName
-        );
-
-        return Result.Success();
-    }
-
-    public async Task<Result> ActivateAccountAsync(string userId, string token)
-    {
-        var user = await UserManager.FindByIdAsync(userId);
-        if (user is null)
-            return Result.Failure(Error.NotFound("Auth.UserNotFound", "El usuario no existe."));
-
-        var decodedToken = Uri.UnescapeDataString(token);
-        var result = await UserManager.ConfirmEmailAsync(user, decodedToken);
-
-        if (!result.Succeeded)
-        {
-            var errors = result.Errors.Select(e => e.Description).ToList();
-            Logger.LogWarning(
-                "Fallo activación de cuenta {UserId}: {Errors}.",
-                userId,
-                string.Join(", ", errors)
-            );
-            return Result.Failure(
-                Error.Validation("Auth.ActivationFailed", "No se pudo activar la cuenta.")
-            );
-        }
-
-        user.Active = true;
-        await UserManager.UpdateAsync(user);
-
-        Logger.LogInformation("Cuenta {UserId} activada correctamente.", userId);
-        return Result.Success();
-    }
-
-    public async Task<Result> ResendActivationAsync(string email)
-    {
-        var user = await UserManager.FindByEmailAsync(email);
-        if (user is null)
-            return Result.Failure(
-                Error.NotFound("Auth.UserNotFound", "No existe un usuario con ese correo.")
-            );
-
-        if (user.Active)
-            return Result.Failure(
-                Error.Conflict("Auth.AlreadyActive", "La cuenta ya está activa.")
-            );
-
-        var token = await UserManager.GenerateEmailConfirmationTokenAsync(user);
-        var encodedToken = Uri.EscapeDataString(token);
-
-        try
-        {
-            await _emailService.SendEmailAsync(
-                user.Email!,
-                "Activación de cuenta en RealEstateApp",
-                "AccountActivation",
-                new Application.Models.Emails.AccountActivationModel(
-                    UserName: user.GetDisplayName(),
-                    ActivationUrl: encodedToken
-                ),
-                CancellationToken.None
-            );
-        }
-        catch (Exception ex)
-        {
-            Logger.LogWarning(ex, "No se pudo reenviar correo de activación a {Email}.", email);
-            return Result.Failure(
-                Error.Failure(
-                    "Email.SendFailed",
-                    "No se pudo enviar el correo de activación. Intente nuevamente."
-                )
-            );
-        }
-
-        Logger.LogInformation("Correo de activación reenviado a {Email}.", email);
-        return Result.Success();
-    }
-
-    public async Task<Result> ForgotPasswordAsync(string email)
-    {
-        var user = await UserManager.FindByEmailAsync(email);
-        if (user is null || !user.Active)
-        {
-            Logger.LogInformation(
-                "Solicitud de reset password para email no válido o inactivo: {Email}.",
-                email
-            );
-            return Result.Success();
-        }
-
-        var token = await UserManager.GeneratePasswordResetTokenAsync(user);
-        var encodedToken = Uri.EscapeDataString(token);
-
-        try
-        {
-            await _emailService.SendEmailAsync(
-                user.Email!,
-                "Restablecimiento de contraseña - RealEstateApp",
-                "PasswordReset",
-                new Application.Models.Emails.PasswordResetModel(
-                    FullName: user.GetDisplayName(),
-                    ResetLink: encodedToken
-                ),
-                CancellationToken.None
-            );
-        }
-        catch (Exception ex)
-        {
-            Logger.LogWarning(ex, "No se pudo enviar correo de reset password a {Email}.", email);
-        }
-
-        return Result.Success();
-    }
-
-    public async Task<Result> ResetPasswordAsync(string email, string token, string newPassword)
-    {
-        var user = await UserManager.FindByEmailAsync(email);
-        if (user is null)
-            return Result.Failure(
-                Error.NotFound("Auth.UserNotFound", "No existe un usuario con ese correo.")
-            );
-
-        var decodedToken = Uri.UnescapeDataString(token);
-        var result = await UserManager.ResetPasswordAsync(user, decodedToken, newPassword);
-
-        if (!result.Succeeded)
-        {
-            var errors = result.Errors.Select(e => e.Description).ToList();
-            Logger.LogWarning(
-                "Fallo reset password {UserId}: {Errors}.",
-                user.Id,
-                string.Join(", ", errors)
-            );
-            return Result.Failure(
-                Error.Validation(
-                    "Auth.ResetPasswordFailed",
-                    "No se pudo restablecer la contraseña."
-                )
-            );
-        }
-
-        Logger.LogInformation("Contraseña restablecida para {UserId}.", user.Id);
-        return Result.Success();
-    }
-
-    public async Task<Result> ChangePasswordAsync(
-        string userId,
-        string currentPassword,
-        string newPassword
-    )
-    {
-        var user = await UserManager.FindByIdAsync(userId);
-        if (user is null)
-            return Result.Failure(Error.NotFound("Auth.UserNotFound", "El usuario no existe."));
-
-        var result = await UserManager.ChangePasswordAsync(user, currentPassword, newPassword);
-
-        if (!result.Succeeded)
-        {
-            var errors = result.Errors.Select(e => e.Description).ToList();
-            Logger.LogWarning(
-                "Fallo cambio contraseña {UserId}: {Errors}.",
-                userId,
-                string.Join(", ", errors)
-            );
-            return Result.Failure(
-                Error.Validation("Auth.ChangePasswordFailed", "No se pudo cambiar la contraseña.")
-            );
-        }
-
-        await _signInManager.RefreshSignInAsync(user);
-
-        Logger.LogInformation("Contraseña cambiada para {UserId}.", userId);
-        return Result.Success();
-    }
+    public Task<Result> ChangePasswordAsync(
+        ChangePasswordRequest request,
+        CancellationToken cancellationToken = default
+    ) => _changePasswordUseCase.ExecuteAsync(request, cancellationToken);
 
     public async Task LogoutAsync()
     {
         await _signInManager.SignOutAsync();
-        Logger.LogInformation("Sesión WebApp cerrada.");
+        _logger.LogInformation("Sesión WebApp cerrada.");
     }
 }

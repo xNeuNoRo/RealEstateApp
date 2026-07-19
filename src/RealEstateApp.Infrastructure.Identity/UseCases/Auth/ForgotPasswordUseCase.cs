@@ -64,7 +64,7 @@ public sealed class ForgotPasswordUseCase : IForgotPasswordUseCase
             "PasswordReset",
             new PasswordResetModel(
                 user.GetDisplayName(),
-                $"Para restablecer su contraseña haga clic en: /account/reset-password?email={Uri.EscapeDataString(user.Email!)}&token={Uri.EscapeDataString(token)}"
+                $"{request.Origin.TrimEnd('/')}/Auth/ResetPassword?email={Uri.EscapeDataString(user.Email!)}&token={Uri.EscapeDataString(token)}"
             ),
             cancellationToken
         );

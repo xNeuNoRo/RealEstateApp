@@ -50,9 +50,9 @@ public sealed class ResetPasswordUseCase : IResetPasswordUseCase
                 email.Value
             );
             return Result.Failure(
-                Error.NotFound(
-                    "Auth.UserNotFound",
-                    "No existe un usuario registrado con este correo electrónico."
+                Error.Validation(
+                    "Auth.InvalidResetRequest",
+                    "El enlace de restablecimiento no es válido o ya ha expirado."
                 )
             );
         }

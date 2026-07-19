@@ -1,6 +1,5 @@
 using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -101,17 +100,8 @@ public static class ServicesRegistration
 
         services.AddAuthorization();
 
-        // --- Servicios ---
+        // Servicio legado exclusivo de la API JWT.
         services.AddScoped<IAccountServiceForWebApi, AccountServiceForWebApi>();
-        services.AddScoped<IAccountServiceForWebApp, AccountServiceForWebApp>();
-        services.AddScoped<ICurrentUserService, CurrentUserService>();
-        services.AddScoped<IUserRepository, UserRepository>();
-
-        // --- AutoMapper ---
-        services.AddAutoMapper(cfg => { }, typeof(ServicesRegistration).Assembly);
-
-        // --- Identity Use Cases ---
-        services.AddAllIdentityUseCases();
 
         return services;
     }
@@ -159,18 +149,17 @@ public static class ServicesRegistration
                 opt.User.RequireUniqueEmail = true;
             })
             .AddRoles<IdentityRole>()
-            .AddSignInManager<AppUser>()
+            .AddSignInManager()
+            .AddClaimsPrincipalFactory<AppUserClaimsPrincipalFactory>()
             .AddEntityFrameworkStores<IdentityContext>()
             .AddDefaultTokenProviders();
 
         services.AddAuthorization();
 
-        services.AddScoped<IAccountServiceForWebApp, AccountServiceForWebApp>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IUserRepository, UserRepository>();
 
         services.AddAutoMapper(cfg => { }, typeof(ServicesRegistration).Assembly);
-        services.AddAllIdentityUseCases();
 
         return services;
     }
@@ -184,24 +173,28 @@ public static class ServicesRegistration
     )
     {
         services.AddIdentityCommon(configuration);
+        services.AddScoped<IAccountServiceForWebApp, AccountServiceForWebApp>();
+        services.AddAllIdentityUseCases();
 
         services
             .AddAuthentication(opt =>
             {
-                opt.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                opt.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                opt.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                opt.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+                opt.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+                opt.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
             })
-            .AddCookie(opt =>
-            {
-                opt.LoginPath = "/Auth/Login";
-                opt.AccessDeniedPath = "/Auth/AccessDenied";
-                opt.SlidingExpiration = true;
-                opt.ExpireTimeSpan = TimeSpan.FromDays(7);
-                opt.Cookie.HttpOnly = true;
-                opt.Cookie.SameSite = SameSiteMode.Lax;
-                opt.Cookie.Name = ".RealEstateApp.Auth";
-            });
+            .AddIdentityCookies();
+
+        services.ConfigureApplicationCookie(opt =>
+        {
+            opt.LoginPath = "/Auth/Login";
+            opt.AccessDeniedPath = "/Auth/AccessDenied";
+            opt.SlidingExpiration = true;
+            opt.ExpireTimeSpan = TimeSpan.FromDays(7);
+            opt.Cookie.HttpOnly = true;
+            opt.Cookie.SameSite = SameSiteMode.Lax;
+            opt.Cookie.Name = ".RealEstateApp.Auth";
+        });
 
         return services;
     }
