@@ -21,7 +21,7 @@
         </form>
     }
 
-    <a asp-action="Detail" asp-route-id="@Model.Id" class="block h-full focus:outline-none" aria-label="Ver detalle de @Model.PropertyTypeName, código @Model.Code">
+    <a asp-controller="@(isClient ? "Property" : "Home")" asp-action="Detail" asp-route-id="@Model.Id" class="block h-full" aria-label="Ver detalle de @Model.PropertyTypeName, código @Model.Code">
         <div class="relative aspect-[16/10] overflow-hidden bg-brand-50 dark:bg-brand-100/20">
             @if (!string.IsNullOrWhiteSpace(imageUrl))
             {

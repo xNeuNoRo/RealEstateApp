@@ -210,14 +210,17 @@ StringComparison.OrdinalIgnoreCase);
                             </div>
                         </div>
                     }
-                    else if (isAgent)
-                    {
-                        <div>
-                            <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Mis
-                                Propiedades</p>
-                                <div class="space-y-1">
-                                    <a asp-controller="Property" asp-action="MyProperties"
-                                       class="@GetActiveClass("Property","MyProperties")">
+                     else if (isAgent)
+                     {
+                         <div>
+                             <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Operación</p>
+                                 <div class="space-y-1">
+                                     <a asp-controller="Agent" asp-action="Index" class="@GetActiveClass("Agent","Index")">
+                                         <i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Panel</span>
+                                     </a>
+                                     <a asp-controller="Property" asp-action="MyProperties"
+                                        class="@GetActiveClass("Property","MyProperties")">
                                         <i data-lucide="building-2" class="w-5 h-5 shrink-0"></i>
                                         <span class="text-sm flex-1">Mis Propiedades</span>
                                     </a>
@@ -228,29 +231,21 @@ StringComparison.OrdinalIgnoreCase);
                                 </div>
                             </div>
 
-                            <div class="my-3 mx-3 h-px bg-gray-200 dark:bg-gray-700"></div>
-
-                            <div>
-                                <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Comunicación
-                                </p>
-                                <div class="space-y-1">
-                                    <a asp-controller="Message" asp-action="Index" class="@GetActiveClass("Message")">
-                                        <i data-lucide="message-square" class="w-5 h-5 shrink-0"></i>
-                                        <span class="text-sm flex-1">Mensajes</span>
-                                    </a>
-                                </div>
-                            </div>
                         }
-                         else if (isClient)
-                         {
-                            <div>
-                                <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Explorar</p>
-                                <div class="space-y-1">
-                                    <a asp-controller="Property" asp-action="Index" class="@GetActiveClass("Property")">
+                          else if (isClient)
+                          {
+                             <div>
+                                 <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Explorar</p>
+                                 <div class="space-y-1">
+                                     <a asp-controller="Client" asp-action="Index" class="@GetActiveClass("Client","Index")">
+                                         <i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Mi espacio</span>
+                                     </a>
+                                     <a asp-controller="Property" asp-action="Index" class="@GetActiveClass("Property")">
                                         <i data-lucide="search" class="w-5 h-5 shrink-0"></i>
                                         <span class="text-sm flex-1">Buscar</span>
                                     </a>
-                                    <a asp-controller="Favorite" asp-action="Index" class="@GetActiveClass("Favorite")">
+                                     <a asp-controller="Client" asp-action="Favorites" class="@GetActiveClass("Client","Favorites")">
                                         <i data-lucide="heart" class="w-5 h-5 shrink-0"></i>
                                         <span class="text-sm flex-1">Favoritos</span>
                                     </a>
@@ -265,10 +260,6 @@ StringComparison.OrdinalIgnoreCase);
                                     <a asp-controller="Offer" asp-action="MyOffers" class="@GetActiveClass("Offer","MyOffers")">
                                         <i data-lucide="file-text" class="w-5 h-5 shrink-0"></i>
                                         <span class="text-sm flex-1">Mis Ofertas</span>
-                                    </a>
-                                    <a asp-controller="Message" asp-action="Index" class="@GetActiveClass("Message")">
-                                        <i data-lucide="message-square" class="w-5 h-5 shrink-0"></i>
-                                        <span class="text-sm flex-1">Mensajes</span>
                                     </a>
                                 </div>
                              </div>
@@ -308,11 +299,25 @@ StringComparison.OrdinalIgnoreCase);
                                     <i data-lucide="moon" id="dark-mode-icon" class="w-5 h-5 shrink-0"></i>
                                     <span class="text-sm flex-1 text-left" id="dark-mode-text">Modo Oscuro</span>
                                 </button>
-                                @if (isAuthenticated)
+                                @if (isClient)
                                 {
-                                    <a asp-controller="Profile" asp-action="Index" class="@GetActiveClass("Profile")">
+                                    <a asp-controller="Client" asp-action="Profile" class="@GetActiveClass("Client", "Profile")">
                                         <i data-lucide="user" class="w-5 h-5 shrink-0"></i>
                                         <span class="text-sm flex-1">Mi Perfil</span>
+                                    </a>
+                                }
+                                else if (isAgent)
+                                {
+                                    <a asp-controller="Agent" asp-action="Profile" class="@GetActiveClass("Agent", "Profile")">
+                                        <i data-lucide="user" class="w-5 h-5 shrink-0"></i>
+                                        <span class="text-sm flex-1">Mi Perfil</span>
+                                    </a>
+                                }
+                                @if (isAuthenticated)
+                                {
+                                    <a asp-controller="Auth" asp-action="ChangePassword" class="@GetActiveClass("Auth", "ChangePassword")">
+                                        <i data-lucide="key-round" class="w-5 h-5 shrink-0"></i>
+                                        <span class="text-sm flex-1">Contraseña</span>
                                     </a>
                                 }
                             </div>
@@ -372,15 +377,29 @@ StringComparison.OrdinalIgnoreCase);
                                                     <div class="px-4 py-3 border-b border-default">
                                                         <p class="text-[10px] font-black uppercase tracking-wide text-gray-400">Cuenta</p>
                                                     </div>
-                                                    <a asp-controller="Profile" asp-action="Index" class="dropdown-item">
-                                                        <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
-                                                        <span class="text-sm font-medium">Mi Perfil</span>
-                                                    </a>
-                                                    <a asp-controller="Profile" asp-action="Edit" class="dropdown-item">
-                                                        <i data-lucide="settings" class="w-5 h-5 text-gray-400"></i>
-                                                        <span class="text-sm font-medium">Configuración</span>
-                                                    </a>
-                                                    <a asp-controller="Profile" asp-action="ChangePassword" class="dropdown-item">
+                                                    @if (isClient)
+                                                    {
+                                                        <a asp-controller="Client" asp-action="Profile" class="dropdown-item">
+                                                            <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
+                                                            <span class="text-sm font-medium">Mi Perfil</span>
+                                                        </a>
+                                                        <a asp-controller="Client" asp-action="Edit" class="dropdown-item">
+                                                            <i data-lucide="settings" class="w-5 h-5 text-gray-400"></i>
+                                                            <span class="text-sm font-medium">Configuración</span>
+                                                        </a>
+                                                    }
+                                                    else if (isAgent)
+                                                    {
+                                                        <a asp-controller="Agent" asp-action="Profile" class="dropdown-item">
+                                                            <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
+                                                            <span class="text-sm font-medium">Mi Perfil</span>
+                                                        </a>
+                                                        <a asp-controller="Agent" asp-action="Edit" class="dropdown-item">
+                                                            <i data-lucide="settings" class="w-5 h-5 text-gray-400"></i>
+                                                            <span class="text-sm font-medium">Configuración</span>
+                                                        </a>
+                                                    }
+                                                    <a asp-controller="Auth" asp-action="ChangePassword" class="dropdown-item">
                                                         <i data-lucide="key" class="w-5 h-5 text-gray-400"></i>
                                                         <span class="text-sm font-medium">Cambiar Contraseña</span>
                                                     </a>

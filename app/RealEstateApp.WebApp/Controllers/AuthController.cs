@@ -10,6 +10,7 @@ using RealEstateApp.Application.ViewModels.Auth;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Enums;
 using RealEstateApp.WebApp.Extensions;
+using RealEstateApp.WebApp.Filters;
 
 namespace RealEstateApp.WebApp.Controllers;
 
@@ -332,6 +333,36 @@ public sealed class AuthController : BaseController
     [HttpGet]
     public IActionResult AccessDenied() => View("~/Views/Shared/AccessDenied.cshtml");
 
+    [HttpGet]
+    [SessionAuthorize]
+    public IActionResult ChangePassword() => View(new ChangePasswordViewModel());
+
+    [HttpPost]
+    [SessionAuthorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(
+        ChangePasswordViewModel model,
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var result = await _accountService.ChangePasswordAsync(
+            new ChangePasswordRequest(
+                model.CurrentPassword,
+                model.NewPassword,
+                model.ConfirmPassword
+            ),
+            cancellationToken
+        );
+        if (result.IsFailure)
+            return ViewWithError(model, result.GetError());
+
+        this.SetSuccessMessage("Tu contraseña fue actualizada correctamente.");
+        return RedirectByRole(CurrentUser.Roles);
+    }
+
     private IActionResult RegistrationCompleted(string email, string role)
     {
         TempData["RegisteredEmail"] = email;
@@ -346,9 +377,9 @@ public sealed class AuthController : BaseController
         if (roleSet.Contains(nameof(Roles.Admin)))
             return RedirectToAction("Index", "Dashboard");
         if (roleSet.Contains(nameof(Roles.Agent)))
-            return RedirectToAction("MyProperties", "Property");
+            return RedirectToAction("Index", "Agent");
 
-        return RedirectToAction("Index", "Property");
+        return RedirectToAction("Index", "Client");
     }
 
     private ViewResult ViewWithError<TModel>(TModel model, Error error)

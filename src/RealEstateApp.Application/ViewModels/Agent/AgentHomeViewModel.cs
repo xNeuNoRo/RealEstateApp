@@ -6,5 +6,7 @@ public sealed class AgentHomeViewModel : BaseViewModel
 {
     public IReadOnlyList<AgentPropertyListItemViewModel> AvailableProperties { get; init; } = [];
     public IReadOnlyList<AgentPropertyListItemViewModel> SoldProperties { get; init; } = [];
-    public int TotalProperties => AvailableProperties.Count + SoldProperties.Count;
+    public int AvailablePropertiesCount { get; init; }
+    public int SoldPropertiesCount { get; init; }
+    public int TotalProperties => AvailablePropertiesCount + SoldPropertiesCount;
 }
