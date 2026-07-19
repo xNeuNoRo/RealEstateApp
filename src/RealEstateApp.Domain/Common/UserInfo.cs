@@ -9,4 +9,5 @@ public sealed record UserInfo
     public string? Phone { get; init; }
     public string? ProfileImage { get; init; }
     public string? UserName { get; init; }
+    public bool IsActive { get; init; }
 }
