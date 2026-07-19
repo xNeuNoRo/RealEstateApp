@@ -1,0 +1,42 @@
+@{
+    ViewData["Title"] = "Registro completado";
+    Layout = "_LayoutAuth";
+    var email = TempData["RegisteredEmail"]?.ToString() ?? string.Empty;
+    var role = TempData["RegisteredRole"]?.ToString() ?? "Client";
+    var isAgent = string.Equals(role, "Agent", StringComparison.OrdinalIgnoreCase);
+}
+
+<div class="auth-card w-full max-w-lg p-7 text-center sm:p-10">
+    <div class="auth-status-icon @(isAgent ? "bg-warning-50 text-warning-700 dark:text-warning-500" : "auth-status-success")">
+        <i data-lucide="@(isAgent ? "user-round-clock" : "mail-check")" class="h-8 w-8"></i>
+    </div>
+
+    <p class="mt-6 text-xs font-black uppercase tracking-[0.18em] @(isAgent ? "text-warning-700 dark:text-warning-500" : "text-success-700 dark:text-success-500")">Registro completado</p>
+    <h1 class="mt-2 text-3xl font-black tracking-tight text-default">@(isAgent ? "Tu perfil está en revisión" : "Confirma tu correo")</h1>
+
+    @if (isAgent)
+    {
+        <p class="mx-auto mt-3 max-w-md text-sm leading-6 text-muted">Tu cuenta de agente fue creada correctamente. Un administrador verificará y activará tu acceso antes de que puedas iniciar sesión.</p>
+        <div class="mt-6 rounded-2xl border border-warning-500/30 bg-warning-50 p-4 text-left dark:bg-warning-50/30">
+            <div class="flex gap-3"><i data-lucide="clock-3" class="mt-0.5 h-5 w-5 shrink-0 text-warning-700 dark:text-warning-500"></i><div><strong class="block text-sm text-default">No necesitas hacer nada más</strong><span class="text-xs leading-5 text-muted">Te notificaremos al correo registrado cuando tu cuenta esté habilitada.</span></div></div>
+        </div>
+    }
+    else
+    {
+        <p class="mx-auto mt-3 max-w-md text-sm leading-6 text-muted">Enviamos un enlace de activación a:</p>
+        <div class="mx-auto mt-3 inline-flex max-w-full items-center gap-2 rounded-xl bg-brand-50 px-3 py-2 font-mono text-sm font-bold text-brand-700 dark:bg-brand-100/20 dark:text-brand-500"><i data-lucide="mail" class="h-4 w-4 shrink-0"></i><span class="truncate">@email</span></div>
+        <p class="mx-auto mt-4 max-w-md text-xs leading-5 text-muted">Revisa también las carpetas de promociones o correo no deseado. El enlace es personal y no debes compartirlo.</p>
+    }
+
+    <div class="mt-7 grid gap-3 sm:grid-cols-2">
+        <a asp-action="Login" class="btn-primary btn-lg w-full"><i data-lucide="log-in" class="h-4 w-4"></i>Ir al acceso</a>
+        @if (!isAgent)
+        {
+            <a asp-action="ResendActivation" class="btn-secondary btn-lg w-full"><i data-lucide="refresh-cw" class="h-4 w-4"></i>Reenviar enlace</a>
+        }
+        else
+        {
+            <a asp-controller="Home" asp-action="Index" class="btn-secondary btn-lg w-full"><i data-lucide="building-2" class="h-4 w-4"></i>Explorar propiedades</a>
+        }
+    </div>
+</div>

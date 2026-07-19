@@ -1,0 +1,32 @@
+@model ResendActivationViewModel
+@{
+    ViewData["Title"] = "Reenviar activación";
+    Layout = "_LayoutAuth";
+}
+
+<div class="auth-card w-full max-w-md p-6 sm:p-8">
+    <div class="auth-status-icon bg-warning-50 text-warning-700 dark:text-warning-500"><i data-lucide="mail-check" class="h-7 w-7"></i></div>
+    <div class="mt-6 text-center">
+        <p class="text-xs font-black uppercase tracking-[0.18em] text-brand-600 dark:text-brand-500">Activación de cliente</p>
+        <h1 class="mt-2 text-2xl font-black tracking-tight text-default">Solicita un nuevo enlace</h1>
+        <p class="mt-2 text-sm leading-6 text-muted">Si tu cuenta de cliente sigue pendiente, enviaremos un enlace nuevo al correo registrado.</p>
+    </div>
+
+    <form asp-action="ResendActivation" method="post" class="mt-7 space-y-5" data-auth-form>
+        @Html.AntiForgeryToken()
+        <div class="auth-honeypot" aria-hidden="true"><label asp-for="Website">Sitio web</label><input asp-for="Website" tabindex="-1" autocomplete="off" /></div>
+        <div asp-validation-summary="ModelOnly" class="validation-summary" role="alert"></div>
+        <div class="space-y-1.5">
+            <label asp-for="Email" class="label-base"></label>
+            <div class="relative"><i data-lucide="mail" class="auth-input-icon"></i><input asp-for="Email" class="input-base auth-input" placeholder="tu@correo.com" autocomplete="email" autofocus /></div>
+            <span asp-validation-for="Email" class="field-validation"></span>
+        </div>
+        <button type="submit" class="auth-submit btn-primary btn-lg w-full" data-submit-label="Reenviar activación"><span class="auth-submit-content"><i data-lucide="send" class="h-4 w-4"></i>Reenviar activación</span></button>
+    </form>
+
+    <div class="mt-6 border-t border-default pt-5 text-center">
+        <a asp-action="Login" class="inline-flex items-center gap-2 text-sm font-bold text-brand-600 hover:underline dark:text-brand-500"><i data-lucide="arrow-left" class="h-4 w-4"></i>Volver a iniciar sesión</a>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
