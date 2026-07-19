@@ -70,6 +70,33 @@
                         <a asp-controller="Offer" asp-action="MyOffers" asp-route-propertyId="@Model.Id" class="btn-secondary mt-4 w-full"><i data-lucide="history" class="h-4 w-4"></i>Ver historial completo</a>
                     }
                 </section>
+
+                <section class="rounded-3xl border border-default bg-[var(--color-bg-elevated)] p-6 sm:p-8" aria-labelledby="client-chat-title">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <p class="text-xs font-black uppercase tracking-[.16em] text-brand-600">Chat con el agente</p>
+                            <h2 id="client-chat-title" class="mt-2 text-xl font-black text-default">Escribe a @Model.AgentName</h2>
+                            <p class="mt-2 text-sm leading-6 text-muted">Haz preguntas sobre la propiedad o acuerda una visita con el agente inmobiliario.</p>
+                        </div>
+                        <a asp-controller="Message" asp-action="Conversation" asp-route-propertyId="@Model.Id" class="btn-secondary shrink-0">
+                            <i data-lucide="messages-square" class="h-4 w-4"></i>Historial de chat
+                        </a>
+                    </div>
+                    <form asp-controller="Message" asp-action="Send" method="post" class="mt-5 space-y-3">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="propertyId" value="@Model.Id" />
+                        <textarea name="content" rows="3" maxlength="2000" required
+                                  class="block w-full resize-none rounded-2xl border border-default bg-[var(--color-bg-tertiary)] px-4 py-3 text-sm text-default placeholder:text-muted transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+                                  placeholder="Escribe tu mensaje al agente…"
+                                  aria-label="Escribe tu mensaje"></textarea>
+                        <div class="flex items-center justify-between">
+                            <p class="text-[11px] text-muted">Máx. 2000 caracteres. Tu mensaje quedará registrado en la conversación.</p>
+                            <button type="submit" class="btn-primary min-h-11 px-5">
+                                <i data-lucide="send" class="h-4 w-4"></i>Enviar mensaje
+                            </button>
+                        </div>
+                    </form>
+                </section>
             }
         </main>
 

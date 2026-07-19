@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using RealEstateApp.Application.Adapters;
 using RealEstateApp.Application.Dtos.Agent.Requests;
+using RealEstateApp.Application.Dtos.Chat.Requests;
 using RealEstateApp.Application.Dtos.Property.Requests;
 using RealEstateApp.Application.Dtos.Property.Responses;
 using RealEstateApp.Application.Interfaces.Services;
@@ -55,6 +56,10 @@ public sealed class AgentController : BaseController
             new GetAgentPropertiesRequest(1, DashboardPropertyCount, PropertyStatus.Sold),
             cancellationToken
         );
+        var chatResult = await _agentService.GetChatListAsync(
+            new GetMyConversationsRequest(1, 1),
+            cancellationToken
+        );
 
         var viewModel = new AgentHomeViewModel
         {
@@ -70,6 +75,7 @@ public sealed class AgentController : BaseController
                 ? availableResult.GetValue().TotalCount
                 : 0,
             SoldPropertiesCount = soldResult.IsSuccess ? soldResult.GetValue().TotalCount : 0,
+            ConversationsCount = chatResult.IsSuccess ? chatResult.GetValue().TotalCount : 0,
         };
 
         if (availableResult.IsFailure)

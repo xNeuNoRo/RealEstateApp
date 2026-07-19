@@ -8,5 +8,6 @@ public sealed class AgentHomeViewModel : BaseViewModel
     public IReadOnlyList<AgentPropertyListItemViewModel> SoldProperties { get; init; } = [];
     public int AvailablePropertiesCount { get; init; }
     public int SoldPropertiesCount { get; init; }
+    public int ConversationsCount { get; init; }
     public int TotalProperties => AvailablePropertiesCount + SoldPropertiesCount;
 }

@@ -105,15 +105,32 @@ public sealed class GetConversationUseCase : IGetConversationUseCase
         }
         else
         {
-            messages = await _messageRepository.GetByPropertyAsync(
-                request.PropertyId,
-                options,
-                cancellationToken
-            );
-            totalCount = await _messageRepository.CountAsync(
-                m => m.PropertyId == request.PropertyId,
-                cancellationToken
-            );
+            if (!string.IsNullOrWhiteSpace(request.ClientId))
+            {
+                messages = await _messageRepository.GetConversationAsync(
+                    request.PropertyId,
+                    request.ClientId,
+                    _currentUser.UserId,
+                    options,
+                    cancellationToken
+                );
+                totalCount = await _messageRepository.CountAsync(
+                    m => m.PropertyId == request.PropertyId && m.ClientId == request.ClientId,
+                    cancellationToken
+                );
+            }
+            else
+            {
+                messages = await _messageRepository.GetByPropertyAsync(
+                    request.PropertyId,
+                    options,
+                    cancellationToken
+                );
+                totalCount = await _messageRepository.CountAsync(
+                    m => m.PropertyId == request.PropertyId,
+                    cancellationToken
+                );
+            }
         }
 
         var userIds = messages

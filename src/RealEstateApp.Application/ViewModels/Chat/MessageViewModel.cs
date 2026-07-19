@@ -14,5 +14,5 @@ public sealed class MessageViewModel : BaseViewModel
     public SenderType SenderType { get; init; }
     public string Content { get; init; } = null!;
     public DateTimeOffset SentAt { get; init; }
-    public bool IsFromCurrentUser { get; init; }
+    public bool IsFromCurrentUser { get; set; }
 }

@@ -36,4 +36,13 @@
         </div>
         <div class="flex min-h-44 flex-col p-4"><div class="mb-3"><p class="text-[11px] font-black uppercase tracking-[0.14em] text-brand-600 dark:text-brand-500">@Model.SaleTypeName</p><h2 class="mt-1 h-11 overflow-hidden text-base font-extrabold leading-5 text-default transition-colors group-hover:text-brand-600 dark:group-hover:text-brand-500">@Model.Description</h2><p class="mt-1.5 font-mono text-[11px] font-medium text-subtle">REF. @Model.Code</p></div><dl class="mt-auto grid grid-cols-3 gap-2 border-t border-default pt-3 text-xs text-muted"><div class="flex items-center gap-1.5"><i data-lucide="bed-double" class="h-3.5 w-3.5 text-brand-600"></i><dd>@PropertyHelper.FormatBedrooms(Model.Bedrooms)</dd></div><div class="flex items-center gap-1.5"><i data-lucide="bath" class="h-3.5 w-3.5 text-brand-600"></i><dd>@Model.Bathrooms baños</dd></div><div class="flex items-center gap-1.5"><i data-lucide="ruler" class="h-3.5 w-3.5 text-brand-600"></i><dd>@PriceHelper.FormatArea(Model.SizeM2)</dd></div></dl></div>
     </a>
+    @if (isClient)
+    {
+        <div class="border-t border-default bg-[var(--color-bg-tertiary)] px-4 py-2.5">
+            <a asp-controller="Message" asp-action="Conversation" asp-route-propertyId="@Model.Id"
+               class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 transition hover:text-brand-700">
+                <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>Chatear con el agente
+            </a>
+        </div>
+    }
 </article>

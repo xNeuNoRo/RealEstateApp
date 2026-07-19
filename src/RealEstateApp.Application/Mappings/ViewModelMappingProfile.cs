@@ -134,7 +134,8 @@ public sealed class ViewModelMappingProfile : Profile
     private void MapChat()
     {
         CreateMap<ConversationSummaryResponse, ConversationSummaryViewModel>();
-        CreateMap<MessageResponse, MessageViewModel>();
+        CreateMap<MessageResponse, MessageViewModel>()
+            .ForMember(d => d.IsFromCurrentUser, o => o.Ignore());
     }
 
     private void MapOffers()

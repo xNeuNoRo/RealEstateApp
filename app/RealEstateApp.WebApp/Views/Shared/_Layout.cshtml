@@ -224,10 +224,14 @@ StringComparison.OrdinalIgnoreCase);
                                         <i data-lucide="building-2" class="w-5 h-5 shrink-0"></i>
                                         <span class="text-sm flex-1">Mis Propiedades</span>
                                     </a>
-                                    <a asp-controller="Property" asp-action="Create" class="@GetActiveClass("Property","Create")">
-                                        <i data-lucide="plus-circle" class="w-5 h-5 shrink-0"></i>
-                                        <span class="text-sm flex-1">Publicar</span>
-                                    </a>
+                                     <a asp-controller="Property" asp-action="Create" class="@GetActiveClass("Property","Create")">
+                                         <i data-lucide="plus-circle" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Publicar</span>
+                                     </a>
+                                     <a asp-controller="Message" asp-action="Index" class="@GetActiveClass("Message","Index")">
+                                         <i data-lucide="messages-square" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Mensajes</span>
+                                     </a>
                                 </div>
                             </div>
 
@@ -257,10 +261,14 @@ StringComparison.OrdinalIgnoreCase);
                             <div>
                                 <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Actividad</p>
                                 <div class="space-y-1">
-                                    <a asp-controller="Offer" asp-action="MyOffers" class="@GetActiveClass("Offer","MyOffers")">
-                                        <i data-lucide="file-text" class="w-5 h-5 shrink-0"></i>
-                                        <span class="text-sm flex-1">Mis Ofertas</span>
-                                    </a>
+                                     <a asp-controller="Offer" asp-action="MyOffers" class="@GetActiveClass("Offer","MyOffers")">
+                                         <i data-lucide="file-text" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Mis Ofertas</span>
+                                     </a>
+                                     <a asp-controller="Message" asp-action="Index" class="@GetActiveClass("Message","Index")">
+                                         <i data-lucide="messages-square" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Mensajes</span>
+                                     </a>
                                 </div>
                              </div>
                          }
