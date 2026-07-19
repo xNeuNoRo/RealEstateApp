@@ -234,6 +234,8 @@ public static class ServicesRegistration
         services.AddScoped<IGetAdminDashboardUseCase, GetAdminDashboardUseCase>();
         services.AddScoped<IGetAgentsListUseCase, GetAgentsListUseCase>();
         services.AddScoped<IGetAgentByIdUseCase, GetAgentByIdUseCase>();
+        services.AddScoped<IGetAdminByIdUseCase, GetAdminByIdUseCase>();
+        services.AddScoped<IGetDeveloperByIdUseCase, GetDeveloperByIdUseCase>();
         services.AddScoped<IToggleAgentActiveUseCase, ToggleAgentActiveUseCase>();
         services.AddScoped<IChangeAgentStatusUseCase, ChangeAgentStatusUseCase>();
         services.AddScoped<IDeleteAgentUseCase, DeleteAgentUseCase>();

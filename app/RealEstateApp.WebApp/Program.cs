@@ -18,12 +18,14 @@ builder.Services.AddSession(options =>
 });
 builder.Services.AddRateLimiter(options =>
 {
+    var isDev = builder.Environment.IsDevelopment();
+
     options.AddPolicy("auth-login", context =>
         RateLimitPartition.GetFixedWindowLimiter(
             context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 5,
+                PermitLimit = isDev ? 100 : 5,
                 Window = TimeSpan.FromMinutes(1),
                 QueueLimit = 0,
             }
@@ -34,7 +36,7 @@ builder.Services.AddRateLimiter(options =>
             context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 5,
+                PermitLimit = isDev ? 100 : 5,
                 Window = TimeSpan.FromMinutes(10),
                 QueueLimit = 0,
             }
@@ -45,7 +47,7 @@ builder.Services.AddRateLimiter(options =>
             context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 5,
+                PermitLimit = isDev ? 100 : 5,
                 Window = TimeSpan.FromMinutes(15),
                 QueueLimit = 0,
             }

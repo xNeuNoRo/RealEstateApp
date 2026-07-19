@@ -41,6 +41,8 @@ public sealed class AdminService : IAdminService
     private readonly IGetSaleTypeByIdUseCase _getSaleTypeByIdUC;
     private readonly IGetImprovementByIdUseCase _getImpByIdUC;
     private readonly IGetAgentByIdUseCase _getAgentByIdUC;
+    private readonly IGetAdminByIdUseCase _getAdminByIdUC;
+    private readonly IGetDeveloperByIdUseCase _getDeveloperByIdUC;
     private readonly ICurrentUserService _currentUser;
 
     public AdminService(
@@ -73,6 +75,8 @@ public sealed class AdminService : IAdminService
         IGetSaleTypeByIdUseCase getSaleTypeByIdUC,
         IGetImprovementByIdUseCase getImpByIdUC,
         IGetAgentByIdUseCase getAgentByIdUC,
+        IGetAdminByIdUseCase getAdminByIdUC,
+        IGetDeveloperByIdUseCase getDeveloperByIdUC,
         ICurrentUserService currentUser
     )
     {
@@ -105,6 +109,8 @@ public sealed class AdminService : IAdminService
         _getSaleTypeByIdUC = getSaleTypeByIdUC;
         _getImpByIdUC = getImpByIdUC;
         _getAgentByIdUC = getAgentByIdUC;
+        _getAdminByIdUC = getAdminByIdUC;
+        _getDeveloperByIdUC = getDeveloperByIdUC;
         _currentUser = currentUser;
     }
 
@@ -195,6 +201,19 @@ public sealed class AdminService : IAdminService
         return await _getAdminsUC.ExecuteAsync(request, ct);
     }
 
+    public async Task<Result<AdminListItemResponse>> GetAdminByIdAsync(
+        string adminId,
+        CancellationToken ct = default
+    )
+    {
+        if (!RequireAdmin())
+            return Forbidden<AdminListItemResponse>(
+                "Solo administradores pueden consultar administradores."
+            );
+
+        return await _getAdminByIdUC.ExecuteAsync(new GetAdminByIdRequest(adminId), ct);
+    }
+
     public async Task<Result<AdminResponse>> CreateAdminAsync(
         CreateAdminRequest request,
         CancellationToken ct = default
@@ -238,6 +257,19 @@ public sealed class AdminService : IAdminService
             );
 
         return await _getDevelopersUC.ExecuteAsync(request, ct);
+    }
+
+    public async Task<Result<DeveloperListItemResponse>> GetDeveloperByIdAsync(
+        string developerId,
+        CancellationToken ct = default
+    )
+    {
+        if (!RequireAdmin())
+            return Forbidden<DeveloperListItemResponse>(
+                "Solo administradores pueden consultar desarrolladores."
+            );
+
+        return await _getDeveloperByIdUC.ExecuteAsync(new GetDeveloperByIdRequest(developerId), ct);
     }
 
     public async Task<Result<DeveloperResponse>> CreateDeveloperAsync(

@@ -1,0 +1,155 @@
+@model AgentListViewModel
+@{
+    ViewData["Title"] = "Gestión de Usuarios";
+    var routeValues = new Dictionary<string, object?>();
+    if (!string.IsNullOrWhiteSpace(Model.SearchTerm)) routeValues["searchTerm"] = Model.SearchTerm;
+}
+
+<nav class="mb-6 flex gap-1 rounded-xl bg-[var(--color-bg-muted)] p-1 w-fit" aria-label="Tipos de usuario">
+    <span class="inline-flex items-center gap-1.5 rounded-lg bg-[var(--color-bg-elevated)] px-4 py-2 text-sm font-bold shadow-sm text-brand-600 dark:text-brand-500" aria-current="page">
+        <i data-lucide="users" class="h-4 w-4"></i>Agentes
+    </span>
+    <a asp-action="Admins" class="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 transition-colors hover:surface-elevated dark:text-gray-400">
+        <i data-lucide="shield" class="h-4 w-4"></i>Administradores
+    </a>
+    <a asp-action="Developers" class="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 transition-colors hover:surface-elevated dark:text-gray-400">
+        <i data-lucide="code" class="h-4 w-4"></i>Desarrolladores
+    </a>
+</nav>
+
+<div class="space-y-8">
+    <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <p class="text-xs font-black uppercase tracking-[.16em] text-brand-600">Gestión</p>
+            <h1 class="mt-2 text-3xl font-black tracking-tight text-default">Agentes</h1>
+            <p class="mt-2 text-sm text-muted">@Model.Items.TotalCount @(Model.Items.TotalCount == 1 ? "agente registrado" : "agentes registrados") en la plataforma.</p>
+        </div>
+    </header>
+
+    <form method="get" asp-action="Agents" class="flex items-center gap-3">
+        <div class="relative flex-1 max-w-md">
+            <i data-lucide="search" class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden="true"></i>
+            <input type="search" name="searchTerm" value="@Model.SearchTerm" placeholder="Buscar por nombre, usuario o correo..."
+                   class="form-input min-h-11 pl-10"
+                   aria-label="Buscar agentes" />
+        </div>
+        <button type="submit" class="btn-secondary min-h-11 px-4">
+            <i data-lucide="search" class="h-4 w-4"></i>
+            <span class="hidden sm:inline">Buscar</span>
+        </button>
+        @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+        {
+            <a asp-action="Agents" class="btn-ghost min-h-11 px-3 text-sm">
+                <i data-lucide="x" class="h-4 w-4"></i>Limpiar
+            </a>
+        }
+    </form>
+
+    @if (Model.Items.Items.Count == 0)
+    {
+        <div class="rounded-3xl border border-dashed border-default bg-[var(--color-bg-elevated)]">
+            <partial name="~/Views/Shared/Components/_EmptyState.cshtml"
+                     model='("users", "Sin agentes registrados", "No se encontraron agentes en la plataforma.", "")' />
+        </div>
+    }
+    else
+    {
+        <div class="overflow-hidden rounded-2xl border border-default bg-[var(--color-bg-elevated)] shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm" role="table" aria-label="Listado de agentes">
+                    <thead>
+                        <tr class="border-b border-default bg-[var(--color-bg-muted)]">
+                            <th scope="col" class="px-5 py-3.5 text-[11px] font-black uppercase tracking-[.12em] text-muted">Nombre</th>
+                            <th scope="col" class="hidden px-5 py-3.5 text-[11px] font-black uppercase tracking-[.12em] text-muted sm:table-cell">Usuario</th>
+                            <th scope="col" class="hidden px-5 py-3.5 text-[11px] font-black uppercase tracking-[.12em] text-muted lg:table-cell">Email</th>
+                            <th scope="col" class="hidden px-5 py-3.5 text-center text-[11px] font-black uppercase tracking-[.12em] text-muted md:table-cell">Propiedades</th>
+                            <th scope="col" class="px-5 py-3.5 text-center text-[11px] font-black uppercase tracking-[.12em] text-muted">Estado</th>
+                            <th scope="col" class="px-5 py-3.5 text-right text-[11px] font-black uppercase tracking-[.12em] text-muted">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-default">
+                        @foreach (var item in Model.Items.Items)
+                        {
+                            <tr class="group transition-colors hover:bg-brand-50/50 dark:hover:bg-brand-100/5">
+                                <td class="whitespace-nowrap px-5 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-100/20">
+                                            <i data-lucide="user" class="h-4 w-4"></i>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-default">@item.FullName</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="hidden whitespace-nowrap px-5 py-4 text-muted sm:table-cell">@@@item.UserName</td>
+                                <td class="hidden whitespace-nowrap px-5 py-4 text-muted lg:table-cell">@item.Email</td>
+                                <td class="hidden whitespace-nowrap px-5 py-4 text-center md:table-cell">
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-bg-muted)] px-2.5 py-1 text-xs font-bold text-muted">
+                                        <i data-lucide="building-2" class="h-3 w-3"></i>@item.PropertiesCount
+                                    </span>
+                                </td>
+                                <td class="whitespace-nowrap px-5 py-4 text-center">
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-100/20 dark:text-emerald-400">
+                                            <i data-lucide="check-circle" class="h-3 w-3"></i>@item.StatusLabel
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 dark:bg-amber-100/20 dark:text-amber-400">
+                                            <i data-lucide="x-circle" class="h-3 w-3"></i>@item.StatusLabel
+                                        </span>
+                                    }
+                                </td>
+                                <td class="whitespace-nowrap px-5 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-1">
+                                        <form asp-action="ToggleAgentStatus" method="post" class="contents">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <input type="hidden" name="page" value="@Model.Items.Page" />
+                                            @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+                                            {
+                                                <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+                                            }
+                                            <button type="submit"
+                                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl text-muted transition-colors hover:bg-brand-50 hover:text-brand-600"
+                                                    title="@(item.IsActive ? "Desactivar" : "Activar") agente"
+                                                    aria-label="@(item.IsActive ? "Desactivar" : "Activar") @item.FullName">
+                                                <i data-lucide="@(item.IsActive ? "pause-circle" : "play-circle")" class="h-4 w-4"></i>
+                                            </button>
+                                        </form>
+                                        <form asp-action="DeleteAgent" method="post" class="contents"
+                                              data-confirm="¿Eliminar a &quot;@item.FullName&quot;?"
+                                              data-confirm-text="Esta acción eliminará al agente, todas sus propiedades y datos asociados. No se puede deshacer.">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <input type="hidden" name="page" value="@Model.Items.Page" />
+                                            @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+                                            {
+                                                <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+                                            }
+                                            <button type="submit"
+                                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl text-muted transition-colors hover:bg-danger-50 hover:text-danger-600"
+                                                    title="Eliminar agente"
+                                                    aria-label="Eliminar @item.FullName">
+                                                <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <partial name="~/Views/Home/_Pagination.cshtml" model='new PaginationViewModel {
+            Action = nameof(UserController.Agents),
+            Controller = "User",
+            CurrentPage = Model.Items.Page,
+            TotalPages = Model.Items.TotalPages,
+            RouteValues = routeValues }' />
+    }
+</div>

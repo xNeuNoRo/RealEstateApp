@@ -1,0 +1,98 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var totalProperties = Model.AvailableProperties + Model.SoldProperties;
+    var totalAgents = Model.ActiveAgents + Model.InactiveAgents;
+    var totalClients = Model.ActiveClients + Model.InactiveClients;
+    var totalDevelopers = Model.ActiveDevelopers + Model.InactiveDevelopers;
+}
+
+<div class="space-y-10">
+    <header>
+        <p class="text-xs font-black uppercase tracking-[.16em] text-brand-600">Panel de control</p>
+        <h1 class="mt-2 text-3xl font-black tracking-tight text-default">Dashboard</h1>
+        <p class="mt-2 text-sm text-muted">Resumen general de la plataforma inmobiliaria.</p>
+    </header>
+
+    <section aria-labelledby="properties-heading">
+        <h2 id="properties-heading" class="mb-4 text-sm font-black uppercase tracking-[.12em] text-muted">Propiedades</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <partial name="~/Views/Shared/Components/_KpiCard.cshtml"
+                     model='("home", Model.AvailableProperties.ToString("N0"), "Disponibles", "/Property?status=Disponible", "text-brand-600")' />
+            <partial name="~/Views/Shared/Components/_KpiCard.cshtml"
+                     model='("check-circle", Model.SoldProperties.ToString("N0"), "Vendidas", "/Property?status=Vendida", "text-emerald-500")' />
+        </div>
+        @if (totalProperties > 0)
+        {
+            <p class="mt-2 text-xs text-muted">@totalProperties propiedad@(totalProperties == 1 ? "" : "es") en total.</p>
+        }
+    </section>
+
+    <section aria-labelledby="agents-heading">
+        <h2 id="agents-heading" class="mb-4 text-sm font-black uppercase tracking-[.12em] text-muted">Agentes</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <partial name="~/Views/Shared/Components/_KpiCard.cshtml"
+                     model='("users", Model.ActiveAgents.ToString("N0"), "Activos", "/User/Agents", "text-blue-500")' />
+            <partial name="~/Views/Shared/Components/_KpiCard.cshtml"
+                     model='("user-x", Model.InactiveAgents.ToString("N0"), "Inactivos", "/User/Agents", "text-amber-500")' />
+        </div>
+        @if (totalAgents > 0)
+        {
+            <p class="mt-2 text-xs text-muted">@totalAgents agente@(totalAgents == 1 ? "" : "s") registrado@(totalAgents == 1 ? "" : "s").</p>
+        }
+    </section>
+
+    <section aria-labelledby="clients-heading">
+        <h2 id="clients-heading" class="mb-4 text-sm font-black uppercase tracking-[.12em] text-muted">Clientes</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <partial name="~/Views/Shared/Components/_KpiCard.cshtml"
+                     model='("user-plus", Model.ActiveClients.ToString("N0"), "Activos", "#", "text-blue-500")' />
+            <partial name="~/Views/Shared/Components/_KpiCard.cshtml"
+                     model='("user-minus", Model.InactiveClients.ToString("N0"), "Inactivos", "#", "text-amber-500")' />
+        </div>
+        @if (totalClients > 0)
+        {
+            <p class="mt-2 text-xs text-muted">@totalClients cliente@(totalClients == 1 ? "" : "s") registrado@(totalClients == 1 ? "" : "s").</p>
+        }
+    </section>
+
+    <section aria-labelledby="developers-heading">
+        <h2 id="developers-heading" class="mb-4 text-sm font-black uppercase tracking-[.12em] text-muted">Desarrolladores</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <partial name="~/Views/Shared/Components/_KpiCard.cshtml"
+                     model='("code", Model.ActiveDevelopers.ToString("N0"), "Activos", "/User/Developers", "text-blue-500")' />
+            <partial name="~/Views/Shared/Components/_KpiCard.cshtml"
+                     model='("terminal", Model.InactiveDevelopers.ToString("N0"), "Inactivos", "/User/Developers", "text-amber-500")' />
+        </div>
+        @if (totalDevelopers > 0)
+        {
+            <p class="mt-2 text-xs text-muted">@totalDevelopers desarrollador@(totalDevelopers == 1 ? "" : "es") registrado@(totalDevelopers == 1 ? "" : "s").</p>
+        }
+    </section>
+
+    <div class="flex flex-wrap gap-3 rounded-2xl border border-dashed border-default bg-[var(--color-bg-elevated)] p-6">
+        <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-100/15">
+                <i data-lucide="link" class="h-5 w-5"></i>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-default">Accesos r&aacute;pidos</p>
+                <p class="mt-0.5 text-xs text-muted">Administra los recursos del sistema desde los siguientes enlaces.</p>
+            </div>
+        </div>
+        <div class="flex flex-wrap gap-2 w-full sm:w-auto sm:ml-auto sm:items-center">
+            <a asp-controller="User" asp-action="Agents" class="btn-secondary text-sm min-h-10 px-4">
+                <i data-lucide="users" class="h-4 w-4"></i>Agentes
+            </a>
+            <a asp-controller="User" asp-action="Admins" class="btn-secondary text-sm min-h-10 px-4">
+                <i data-lucide="shield" class="h-4 w-4"></i>Administradores
+            </a>
+            <a asp-controller="User" asp-action="Developers" class="btn-secondary text-sm min-h-10 px-4">
+                <i data-lucide="code" class="h-4 w-4"></i>Desarrolladores
+            </a>
+            <a asp-controller="PropertyType" asp-action="Index" class="btn-secondary text-sm min-h-10 px-4">
+                <i data-lucide="tags" class="h-4 w-4"></i>Catálogos
+            </a>
+        </div>
+    </div>
+</div>

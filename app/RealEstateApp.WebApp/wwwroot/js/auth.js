@@ -20,22 +20,26 @@
   function initSubmittingForms() {
     document.querySelectorAll("[data-auth-form]").forEach(function (form) {
       form.addEventListener("submit", function (event) {
-        var isValid =
-          window.jQuery && window.jQuery.validator
-            ? window.jQuery(form).valid()
-            : form.checkValidity();
-        if (!isValid) {
-          event.preventDefault();
-          return;
-        }
-        var button = form.querySelector('button[type="submit"]:not(.hidden)');
-        if (!button || button.disabled) return;
-        button.disabled = true;
-        button.setAttribute("aria-busy", "true");
-        var content = button.querySelector(".auth-submit-content");
-        if (content) {
-          content.innerHTML =
-            '<span class="spinner spinner-sm border-white/40 border-r-white"></span><span>Procesando...</span>';
+        try {
+          var validity =
+            window.jQuery && window.jQuery.validator
+              ? window.jQuery(form).valid()
+              : form.checkValidity();
+          if (!validity) {
+            event.preventDefault();
+            return;
+          }
+          var button = form.querySelector('button[type="submit"]:not(.hidden)');
+          if (!button || button.disabled) return;
+          button.disabled = true;
+          button.setAttribute("aria-busy", "true");
+          var content = button.querySelector(".auth-submit-content");
+          if (content) {
+            content.innerHTML =
+              '<span class="spinner spinner-sm border-white/40 border-r-white"></span><span>Procesando...</span>';
+          }
+        } catch (e) {
+          if (window.console) console.warn("auth.js: error en submitHandler", e);
         }
       });
     });

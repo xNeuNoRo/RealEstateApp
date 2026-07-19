@@ -28,6 +28,10 @@ public interface IAdminService
         GetAdminsListRequest request,
         CancellationToken ct = default
     );
+    Task<Result<AdminListItemResponse>> GetAdminByIdAsync(
+        string adminId,
+        CancellationToken ct = default
+    );
     Task<Result<AdminResponse>> CreateAdminAsync(
         CreateAdminRequest request,
         CancellationToken ct = default
@@ -39,6 +43,10 @@ public interface IAdminService
     Task<Result> ToggleAdminStatusAsync(string adminId, CancellationToken ct = default);
     Task<Result<PagedResult<DeveloperListItemResponse>>> GetDevelopersAsync(
         GetDevelopersListRequest request,
+        CancellationToken ct = default
+    );
+    Task<Result<DeveloperListItemResponse>> GetDeveloperByIdAsync(
+        string developerId,
         CancellationToken ct = default
     );
     Task<Result<DeveloperResponse>> CreateDeveloperAsync(
