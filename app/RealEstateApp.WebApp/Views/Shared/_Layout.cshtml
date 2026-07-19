@@ -413,10 +413,12 @@ StringComparison.OrdinalIgnoreCase);
 
                         @if (TempData["SweetAlertMessage"] != null)
                         {
+                            var alertTypeJson = System.Text.Json.JsonSerializer.Serialize(TempData["SweetAlertType"]?.ToString() ?? "success");
+                            var alertMessageJson = System.Text.Json.JsonSerializer.Serialize(TempData["SweetAlertMessage"]?.ToString());
                             <text>
                                 document.addEventListener('DOMContentLoaded', function() {
-                                var alertType = '@TempData["SweetAlertType"]' || 'success';
-                                var alertMessage = '@Html.Raw(TempData["SweetAlertMessage"]?.ToString()?.Replace("'", "\\'"))';
+                                var alertType = @Html.Raw(alertTypeJson);
+                                var alertMessage = @Html.Raw(alertMessageJson);
                                 setTimeout(() => Toast.fire({icon: alertType, title: alertMessage }), 500);
                                 });
                             </text>
@@ -424,9 +426,10 @@ StringComparison.OrdinalIgnoreCase);
 
                         @if (TempData["ErrorMessage"] != null)
                         {
+                            var errorMessageJson = System.Text.Json.JsonSerializer.Serialize(TempData["ErrorMessage"]?.ToString());
                             <text>
                                 document.addEventListener('DOMContentLoaded', function() {
-                                var alertMessage = '@Html.Raw(TempData["ErrorMessage"]?.ToString()?.Replace("'", "\\'"))';
+                                var alertMessage = @Html.Raw(errorMessageJson);
                                 setTimeout(() => Swal.fire({
                                 icon:'error', title:'Atención', text:alertMessage, confirmButtonText:'Entendido',
                                 confirmButtonColor:'#2563eb',

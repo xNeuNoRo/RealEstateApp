@@ -250,6 +250,8 @@
     document.querySelectorAll("[data-toggle-password]").forEach(function (btn) {
       if (btn.dataset.bound) return;
       btn.dataset.bound = "1";
+      btn.setAttribute("aria-pressed", "false");
+      btn.setAttribute("aria-label", "Mostrar contraseña");
       btn.addEventListener("click", function () {
         var input = document.getElementById(
           btn.getAttribute("data-toggle-password"),
@@ -258,6 +260,11 @@
         var icon = btn.querySelector("[data-lucide]");
         var isPwd = input.type === "password";
         input.type = isPwd ? "text" : "password";
+        btn.setAttribute("aria-pressed", isPwd ? "true" : "false");
+        btn.setAttribute(
+          "aria-label",
+          isPwd ? "Ocultar contraseña" : "Mostrar contraseña",
+        );
         if (icon) {
           icon.setAttribute("data-lucide", isPwd ? "eye-off" : "eye");
           if (window.lucide) window.lucide.createIcons();
@@ -438,7 +445,7 @@
   // EXPOSED API
   // ============================================================
 
-  window.LinkUpPro = {
+  window.RealEstateApp = {
     Theme: Theme,
     formatDate: formatDate,
     formatTimeAgo: formatTimeAgo,

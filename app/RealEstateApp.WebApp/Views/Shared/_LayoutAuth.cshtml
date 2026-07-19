@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full">
 
 <head>
     <meta charset="utf-8" />
@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
           rel="stylesheet">
 
-    <script>if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark') } else if (localStorage.getItem('theme') === 'light') { document.documentElement.classList.remove('dark') } else if (window.matchMedia('(prefers-color-scheme:dark)').matches) { document.documentElement.classList.add('dark') }</script>
+    <script>if (localStorage.getItem('realestate-theme') === 'dark') { document.documentElement.classList.add('dark') } else if (localStorage.getItem('realestate-theme') === 'light') { document.documentElement.classList.remove('dark') } else if (window.matchMedia('(prefers-color-scheme:dark)').matches) { document.documentElement.classList.add('dark') }</script>
 
     <meta name="view-transition" content="same-origin" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -71,8 +71,10 @@
     </style>
 </head>
 
-<body class="min-h-screen relative overflow-hidden flex items-center justify-center font-sans antialiased"
+<body class="min-h-screen relative overflow-x-hidden font-sans antialiased"
       style="background-color:var(--color-bg);color:var(--color-text)">
+
+    <a href="#main-content" class="skip-link">Saltar al contenido</a>
 
     <div
         class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-400/20 dark:bg-blue-600/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob">
@@ -84,13 +86,44 @@
         class="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-blue-400/20 dark:bg-blue-600/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000">
     </div>
 
-    <main style="view-transition-name:main-content"
-          class="w-full h-full relative z-10 page-entry flex items-center justify-center px-4 py-8">
+    <div class="pointer-events-none fixed inset-0 opacity-[0.035] dark:opacity-[0.06]"
+         style="background-image:linear-gradient(var(--color-brand-600) 1px,transparent 1px),linear-gradient(90deg,var(--color-brand-600) 1px,transparent 1px);background-size:48px 48px"></div>
+
+    <header class="relative z-20 flex items-center justify-between px-4 py-4 sm:px-8">
+        <a asp-controller="Home" asp-action="Index" class="group inline-flex items-center gap-2.5" aria-label="RealEstateApp, volver al inicio">
+            <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-from to-brand-to text-white shadow-lg shadow-brand-100 transition-transform group-hover:-translate-y-0.5 dark:shadow-brand-900/30">
+                <i data-lucide="building-2" class="h-5 w-5"></i>
+            </span>
+            <span class="text-lg font-black tracking-tighter text-default">RealEstate<span class="text-brand-600 dark:text-brand-500">App</span></span>
+        </a>
+
+        <div class="flex items-center gap-2">
+            <a asp-controller="Home" asp-action="Index" class="hidden items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-muted transition-colors hover:bg-white/70 hover:text-brand-600 dark:hover:bg-gray-800/70 sm:inline-flex">
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                Explorar propiedades
+            </a>
+            <button id="dark-mode-toggle" type="button" aria-label="Cambiar tema"
+                    class="flex h-10 w-10 items-center justify-center rounded-xl border border-default bg-white/70 text-muted shadow-sm backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:text-brand-600 dark:bg-gray-800/70">
+                <i id="dark-mode-icon" data-lucide="moon" class="h-4 w-4"></i>
+                <span id="dark-mode-text" class="sr-only">Modo oscuro</span>
+            </button>
+        </div>
+    </header>
+
+    <main id="main-content" style="view-transition-name:main-content"
+          class="relative z-10 flex min-h-[calc(100vh-144px)] w-full items-center justify-center px-4 py-6 sm:px-6 sm:py-10">
         @RenderBody()
     </main>
 
+    <footer class="relative z-10 px-4 pb-5 text-center text-xs font-medium text-subtle">
+        <span>&copy; @DateTime.UtcNow.Year RealEstateApp</span>
+        <span class="mx-2" aria-hidden="true">•</span>
+        <span>Tu próxima propiedad, con confianza.</span>
+    </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/auth.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 
@@ -101,9 +134,10 @@
 
         @if (TempData["ErrorMessage"] != null)
         {
+            var errorMessageJson = System.Text.Json.JsonSerializer.Serialize(TempData["ErrorMessage"]?.ToString());
             <text>
                 document.addEventListener('DOMContentLoaded', function() {
-                var msg = '@Html.Raw(TempData["ErrorMessage"]?.ToString()?.Replace("'", "\\'"))';
+                var msg = @Html.Raw(errorMessageJson);
                 setTimeout(() => Toast.fire({icon:'error', title:msg }), 500);
                 });
             </text>
@@ -111,10 +145,12 @@
 
         @if (TempData["SweetAlertMessage"] != null)
         {
+            var alertTypeJson = System.Text.Json.JsonSerializer.Serialize(TempData["SweetAlertType"]?.ToString() ?? "success");
+            var alertMessageJson = System.Text.Json.JsonSerializer.Serialize(TempData["SweetAlertMessage"]?.ToString());
             <text>
                 document.addEventListener('DOMContentLoaded', function() {
-                var t = '@TempData["SweetAlertType"]' || 'success';
-                var m = '@Html.Raw(TempData["SweetAlertMessage"]?.ToString()?.Replace("'", "\\'"))';
+                var t = @Html.Raw(alertTypeJson);
+                var m = @Html.Raw(alertMessageJson);
                 setTimeout(() => Toast.fire({icon:t, title:m }), 500);
                 });
             </text>
