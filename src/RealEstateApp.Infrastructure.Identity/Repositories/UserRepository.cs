@@ -29,14 +29,15 @@ public sealed class UserRepository : IUserRepository
         CancellationToken ct = default
     )
     {
-        var result = new List<UserInfo>(userIds.Count);
-        foreach (var id in userIds)
-        {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user is not null)
-                result.Add(Map(user));
-        }
-        return result;
+        if (userIds.Count == 0)
+            return Array.Empty<UserInfo>();
+
+        var distinctIds = userIds.Distinct().ToList();
+        var users = await _userManager.Users
+            .Where(user => distinctIds.Contains(user.Id))
+            .ToListAsync(ct);
+
+        return users.Select(Map).ToList();
     }
 
     public async Task<PagedResult<UserInfo>> GetByRoleAsync(
@@ -44,7 +45,10 @@ public sealed class UserRepository : IUserRepository
         string? searchTerm = null,
         int page = 1,
         int pageSize = 20,
-        CancellationToken ct = default
+        CancellationToken ct = default,
+        bool? activeOnly = null,
+        string? userId = null,
+        bool searchNamesOnly = false
     )
     {
         var role = await _identityContext
@@ -60,15 +64,25 @@ public sealed class UserRepository : IUserRepository
 
         var query = _userManager.Users.Where(u => userIdsInRole.Contains(u.Id));
 
+        if (activeOnly.HasValue)
+            query = query.Where(user => user.Active == activeOnly.Value);
+
+        if (!string.IsNullOrWhiteSpace(userId))
+            query = query.Where(user => user.Id == userId);
+
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             var term = searchTerm.Trim().ToLowerInvariant();
-            query = query.Where(u =>
-                u.FirstName.ToLower().Contains(term)
-                || u.LastName.ToLower().Contains(term)
-                || (u.Email != null && u.Email.ToLower().Contains(term))
-                || (u.UserName != null && u.UserName.ToLower().Contains(term))
-            );
+            query = searchNamesOnly
+                ? query.Where(u =>
+                    u.FirstName.ToLower().Contains(term) || u.LastName.ToLower().Contains(term)
+                )
+                : query.Where(u =>
+                    u.FirstName.ToLower().Contains(term)
+                    || u.LastName.ToLower().Contains(term)
+                    || (u.Email != null && u.Email.ToLower().Contains(term))
+                    || (u.UserName != null && u.UserName.ToLower().Contains(term))
+                );
         }
 
         var totalCount = await query.CountAsync(ct);

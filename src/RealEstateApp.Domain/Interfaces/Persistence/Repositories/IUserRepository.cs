@@ -15,7 +15,10 @@ public interface IUserRepository
         string? searchTerm = null,
         int page = 1,
         int pageSize = 20,
-        CancellationToken ct = default
+        CancellationToken ct = default,
+        bool? activeOnly = null,
+        string? userId = null,
+        bool searchNamesOnly = false
     );
 
     Task<int> CountByRoleAsync(
