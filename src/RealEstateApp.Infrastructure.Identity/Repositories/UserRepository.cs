@@ -40,6 +40,33 @@ public sealed class UserRepository : IUserRepository
         return users.Select(Map).ToList();
     }
 
+    public async Task<IReadOnlySet<string>> GetActiveIdsByRoleAsync(
+        string roleName,
+        CancellationToken ct = default
+    )
+    {
+        var roleId = await _identityContext
+            .Roles.AsNoTracking()
+            .Where(role => role.Name == roleName)
+            .Select(role => role.Id)
+            .FirstOrDefaultAsync(ct);
+        if (roleId is null)
+            return new HashSet<string>();
+
+        var ids = await _identityContext
+            .Users.AsNoTracking()
+            .Where(user =>
+                user.Active
+                && _identityContext.UserRoles.Any(link =>
+                    link.RoleId == roleId && link.UserId == user.Id
+                )
+            )
+            .Select(user => user.Id)
+            .ToListAsync(ct);
+
+        return ids.ToHashSet(StringComparer.Ordinal);
+    }
+
     public async Task<PagedResult<UserInfo>> GetByRoleAsync(
         string roleName,
         string? searchTerm = null,
@@ -133,5 +160,6 @@ public sealed class UserRepository : IUserRepository
             Phone = user.Phone,
             ProfileImage = user.ProfileImage,
             UserName = user.UserName,
+            IsActive = user.Active,
         };
 }
