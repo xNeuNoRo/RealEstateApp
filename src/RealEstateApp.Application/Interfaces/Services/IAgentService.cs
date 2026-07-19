@@ -31,6 +31,10 @@ public interface IAgentService
         GetPropertyOffersRequest request,
         CancellationToken ct = default
     );
+    Task<Result<PagedResult<OfferClientSummaryResponse>>> GetPropertyOfferClientsAsync(
+        GetPropertyOfferClientsRequest request,
+        CancellationToken ct = default
+    );
     Task<Result<OfferResponse>> AcceptOfferAsync(int offerId, CancellationToken ct = default);
     Task<Result> RejectOfferAsync(int offerId, CancellationToken ct = default);
 }

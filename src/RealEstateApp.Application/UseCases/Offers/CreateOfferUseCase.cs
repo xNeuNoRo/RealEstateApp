@@ -85,18 +85,68 @@ public sealed class CreateOfferUseCase : ICreateOfferUseCase
 
         var offer = offerResult.GetValue();
         await _offerRepository.AddAsync(offer, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            if (
+                await _offerRepository.HasPendingOfferAsync(
+                    request.PropertyId,
+                    _currentUser.UserId,
+                    cancellationToken
+                )
+            )
+                return Result<OfferResponse>.Failure(
+                    Error.Conflict(
+                        "Offer.ClientHasPending",
+                        "Ya tienes una oferta pendiente para esta propiedad."
+                    )
+                );
 
-        var property = await _propertyRepository.GetByIdAsync(offer.PropertyId, cancellationToken);
+            if (await _offerRepository.HasAcceptedOfferAsync(request.PropertyId, cancellationToken))
+                return Result<OfferResponse>.Failure(
+                    Error.Conflict(
+                        "Offer.PropertyHasAcceptedOffer",
+                        "La propiedad ya tiene una oferta aceptada."
+                    )
+                );
+
+            throw;
+        }
+
+        var property = await _propertyRepository.GetByIdAsync(
+            offer.PropertyId,
+            cancellationToken,
+            p => p.Images,
+            p => p.PropertyType!,
+            p => p.SaleType!
+        );
 
         var user = await _userRepository.GetByIdAsync(offer.ClientId, cancellationToken);
 
         var response = _mapper.Map<OfferResponse>(offer);
         response.PropertyCode = property?.Code.Value ?? string.Empty;
+        PopulateProperty(response, property);
         response.ClientName = user is not null
             ? $"{user.FirstName} {user.LastName}".Trim()
             : _currentUser.FullName ?? string.Empty;
 
         return Result<OfferResponse>.Success(response);
+    }
+
+    private static void PopulateProperty(OfferResponse response, Domain.Entities.Property? property)
+    {
+        if (property is null)
+            return;
+
+        response.PropertyDescription = property.Description;
+        response.PropertyTypeName = property.PropertyType?.Name;
+        response.SaleTypeName = property.SaleType?.Name;
+        response.PropertyMainImageUrl = property.Images.FirstOrDefault(image => image.IsMain)?.Url;
+        response.PropertyPrice = property.Price.Amount;
+        response.PropertyCurrency = property.Price.Currency;
+        response.PropertyStatus = property.Status.ToString();
     }
 }

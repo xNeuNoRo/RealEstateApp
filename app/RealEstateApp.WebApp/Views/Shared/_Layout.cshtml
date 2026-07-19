@@ -363,8 +363,7 @@ StringComparison.OrdinalIgnoreCase);
                                                         <span
                                                         class="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-tight">@currentRole</span>
                                                     </div>
-                                                    @await Html.PartialAsync("~/Views/Shared/Components/_Avatar.cshtml", new Tuple<string?,
-                                                string, string, string?>(null, currentFullName ?? "Usuario", "sm", "border-2 border-brand-500 shadow-lg group-hover:scale-110 transition-transform"))
+                                                     @await Html.PartialAsync("~/Views/Shared/Components/_Avatar.cshtml", ((string?)null, currentFullName ?? "Usuario", "sm", (string?)"border-2 border-brand-500 shadow-lg group-hover:scale-110 transition-transform"))
                                                     <i data-lucide="chevron-down"
                                                        class="w-4 h-4 text-gray-400 group-hover:text-default transition-colors"></i>
                                                 </button>

@@ -106,6 +106,9 @@ public sealed class HomeController : BaseController
     [HttpGet]
     public async Task<IActionResult> Detail(int id, CancellationToken cancellationToken = default)
     {
+        if (CurrentUser.IsAuthenticated && CurrentUser.IsInRole(nameof(Roles.Client)))
+            return RedirectToAction("Detail", "Property", new { id });
+
         var result = await _getPropertyDetail.ExecuteAsync(
             new GetPropertyDetailRequest(id),
             cancellationToken

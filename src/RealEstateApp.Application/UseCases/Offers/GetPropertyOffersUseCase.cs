@@ -76,16 +76,20 @@ public sealed class GetPropertyOffersUseCase : IGetPropertyOffersUseCase
 
         var options = new QueryOptions<Offer>
         {
-            OrderBy = q => q.OrderByDescending(o => o.CreatedAt),
+            Includes =
+            [
+                o => o.Property,
+                o => o.Property.Images,
+                o => o.Property.PropertyType!,
+                o => o.Property.SaleType!,
+            ],
+            OrderBy = q => q.OrderByDescending(o => o.CreatedAt).ThenByDescending(o => o.Id),
             Skip = (request.Page - 1) * request.PageSize,
             Take = request.PageSize,
+            Filter = o =>
+                (!request.Status.HasValue || o.Status == request.Status.Value)
+                && (request.ClientId == null || o.ClientId == request.ClientId),
         };
-
-        if (request.Status.HasValue)
-        {
-            var status = request.Status.Value;
-            options.Filter = o => o.PropertyId == request.PropertyId && o.Status == status;
-        }
 
         var offers = await _offerRepository.GetByPropertyAsync(
             request.PropertyId,
@@ -93,16 +97,12 @@ public sealed class GetPropertyOffersUseCase : IGetPropertyOffersUseCase
             cancellationToken
         );
 
-        Expression<Func<Offer, bool>> countFilter = request.Status.HasValue
-            ? o => o.PropertyId == request.PropertyId && o.Status == request.Status.Value
-            : o => o.PropertyId == request.PropertyId;
+        Expression<Func<Offer, bool>> countFilter = o =>
+            o.PropertyId == request.PropertyId
+            && (!request.Status.HasValue || o.Status == request.Status.Value)
+            && (request.ClientId == null || o.ClientId == request.ClientId);
 
         var totalCount = await _offerRepository.CountAsync(countFilter, cancellationToken);
-
-        var property = await _propertyRepository.GetByIdAsync(
-            request.PropertyId,
-            cancellationToken
-        );
 
         var clientIds = offers.Select(o => o.ClientId).Distinct().ToList();
         var users =
@@ -111,13 +111,15 @@ public sealed class GetPropertyOffersUseCase : IGetPropertyOffersUseCase
                 : [];
         var userMap = users.ToDictionary(u => u.Id);
 
+        var offerMap = offers.ToDictionary(offer => offer.Id);
         var items = _mapper.Map<List<OfferResponse>>(offers);
         foreach (var item in items)
         {
-            var offer = offers.First(o => o.Id == item.Id);
-            item.PropertyCode = property?.Code.Value ?? string.Empty;
+            var offer = offerMap[item.Id];
             if (userMap.TryGetValue(offer.ClientId, out var user))
                 item.ClientName = $"{user.FirstName} {user.LastName}".Trim();
+            else
+                item.ClientName = "Cliente no disponible";
         }
 
         return Result<PagedResult<OfferResponse>>.Success(

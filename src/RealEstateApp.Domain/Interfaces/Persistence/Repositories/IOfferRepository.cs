@@ -35,4 +35,11 @@ public interface IOfferRepository : IGenericRepository<Offer>
         CancellationToken ct = default
     );
     Task<bool> HasAcceptedOfferAsync(int propertyId, CancellationToken ct = default);
+    Task<IReadOnlyList<OfferClientSummary>> GetClientSummariesByPropertyAsync(
+        int propertyId,
+        int skip,
+        int take,
+        CancellationToken ct = default
+    );
+    Task<int> CountClientsByPropertyAsync(int propertyId, CancellationToken ct = default);
 }

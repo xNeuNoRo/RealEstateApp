@@ -103,8 +103,24 @@ public sealed class AcceptOfferUseCase : IAcceptOfferUseCase
         if (acceptResult.IsFailure)
             return Result<OfferResponse>.Failure(acceptResult.GetError());
 
+        await _unitOfWork.BeginTransactionAsync(ct: cancellationToken);
         _offerRepository.Update(offer);
-        await _unitOfWork.CommitAsync(cancellationToken);
+        try
+        {
+            await _unitOfWork.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            if (await _offerRepository.HasAcceptedOfferAsync(offer.PropertyId, cancellationToken))
+                return Result<OfferResponse>.Failure(
+                    Error.Conflict(
+                        "Offer.PropertyHasAcceptedOffer",
+                        "La propiedad ya tiene una oferta aceptada."
+                    )
+                );
+
+            throw;
+        }
 
         _logger.LogInformation(
             "Oferta {OfferId} aceptada por agente {AgentId}. Propiedad {PropertyId}.",
@@ -117,6 +133,10 @@ public sealed class AcceptOfferUseCase : IAcceptOfferUseCase
 
         var response = _mapper.Map<OfferResponse>(offer);
         response.PropertyCode = property.Code.Value;
+        response.PropertyDescription = property.Description;
+        response.PropertyPrice = property.Price.Amount;
+        response.PropertyCurrency = property.Price.Currency;
+        response.PropertyStatus = nameof(PropertyStatus.Sold);
         response.ClientName = user is not null
             ? $"{user.FirstName} {user.LastName}".Trim()
             : string.Empty;

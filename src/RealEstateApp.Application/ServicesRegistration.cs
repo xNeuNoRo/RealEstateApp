@@ -101,6 +101,7 @@ public static class ServicesRegistration
         services.AddScoped<IAcceptOfferUseCase, AcceptOfferUseCase>();
         services.AddScoped<IRejectOfferUseCase, RejectOfferUseCase>();
         services.AddScoped<IGetPropertyOffersUseCase, GetPropertyOffersUseCase>();
+        services.AddScoped<IGetPropertyOfferClientsUseCase, GetPropertyOfferClientsUseCase>();
         services.AddScoped<IGetMyOffersUseCase, GetMyOffersUseCase>();
 
         return services;

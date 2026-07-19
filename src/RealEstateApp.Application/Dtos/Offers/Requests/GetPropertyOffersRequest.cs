@@ -6,5 +6,6 @@ public sealed record GetPropertyOffersRequest(
     int PropertyId,
     int Page = 1,
     int PageSize = 20,
-    OfferStatus? Status = null
+    OfferStatus? Status = null,
+    string? ClientId = null
 );

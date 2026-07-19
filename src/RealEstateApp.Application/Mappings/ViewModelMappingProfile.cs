@@ -140,6 +140,7 @@ public sealed class ViewModelMappingProfile : Profile
     private void MapOffers()
     {
         CreateMap<OfferResponse, OfferListItemViewModel>();
+        CreateMap<OfferClientSummaryResponse, OfferClientSummaryViewModel>();
         CreateMap<OfferResponse, ViewModels.Offers.OfferDetailViewModel>();
         CreateMap<CreateOfferViewModel, CreateOfferRequest>();
     }

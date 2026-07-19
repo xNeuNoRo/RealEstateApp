@@ -21,6 +21,7 @@ public sealed class AgentService : IAgentService
     private readonly IGetConversationUseCase _conversationUC;
     private readonly IReplyMessageUseCase _replyUC;
     private readonly IGetPropertyOffersUseCase _propertyOffersUC;
+    private readonly IGetPropertyOfferClientsUseCase _propertyOfferClientsUC;
     private readonly IAcceptOfferUseCase _acceptOfferUC;
     private readonly IRejectOfferUseCase _rejectOfferUC;
     private readonly ICurrentUserService _currentUser;
@@ -32,6 +33,7 @@ public sealed class AgentService : IAgentService
         IGetConversationUseCase conversationUC,
         IReplyMessageUseCase replyUC,
         IGetPropertyOffersUseCase propertyOffersUC,
+        IGetPropertyOfferClientsUseCase propertyOfferClientsUC,
         IAcceptOfferUseCase acceptOfferUC,
         IRejectOfferUseCase rejectOfferUC,
         ICurrentUserService currentUser
@@ -43,6 +45,7 @@ public sealed class AgentService : IAgentService
         _conversationUC = conversationUC;
         _replyUC = replyUC;
         _propertyOffersUC = propertyOffersUC;
+        _propertyOfferClientsUC = propertyOfferClientsUC;
         _acceptOfferUC = acceptOfferUC;
         _rejectOfferUC = rejectOfferUC;
         _currentUser = currentUser;
@@ -115,6 +118,19 @@ public sealed class AgentService : IAgentService
             );
 
         return await _propertyOffersUC.ExecuteAsync(request, ct);
+    }
+
+    public async Task<Result<PagedResult<OfferClientSummaryResponse>>> GetPropertyOfferClientsAsync(
+        GetPropertyOfferClientsRequest request,
+        CancellationToken ct = default
+    )
+    {
+        if (!_currentUser.IsInRole(nameof(Roles.Agent)))
+            return Forbidden<PagedResult<OfferClientSummaryResponse>>(
+                "Solo los agentes pueden ver las ofertas de sus propiedades."
+            );
+
+        return await _propertyOfferClientsUC.ExecuteAsync(request, ct);
     }
 
     public async Task<Result<OfferResponse>> AcceptOfferAsync(

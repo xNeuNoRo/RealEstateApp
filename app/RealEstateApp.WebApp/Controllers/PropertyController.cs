@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using RealEstateApp.Application.Adapters;
 using RealEstateApp.Application.Dtos.Catalog.Requests;
 using RealEstateApp.Application.Dtos.Favorites.Requests;
+using RealEstateApp.Application.Dtos.Offers.Requests;
 using RealEstateApp.Application.Dtos.Property.Requests;
 using RealEstateApp.Application.Dtos.Property.Responses;
 using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Application.Interfaces.UseCases.Catalog;
 using RealEstateApp.Application.Interfaces.UseCases.Favorites;
+using RealEstateApp.Application.Interfaces.UseCases.Offers;
 using RealEstateApp.Application.Interfaces.UseCases.Property;
 using RealEstateApp.Application.ViewModels.Agent;
 using RealEstateApp.Application.ViewModels.Home;
@@ -39,6 +41,7 @@ public sealed class PropertyController : BaseController
     private readonly IGetAllImprovementsUseCase _getImprovements;
     private readonly IAddFavoriteUseCase _addFavorite;
     private readonly IRemoveFavoriteUseCase _removeFavorite;
+    private readonly IGetMyOffersUseCase _getMyOffers;
     private readonly IViewModelBuilder<BaseViewModel> _viewModelBuilder;
     private readonly IMapper _mapper;
 
@@ -56,6 +59,7 @@ public sealed class PropertyController : BaseController
         IGetAllImprovementsUseCase getImprovements,
         IAddFavoriteUseCase addFavorite,
         IRemoveFavoriteUseCase removeFavorite,
+        IGetMyOffersUseCase getMyOffers,
         IViewModelBuilder<BaseViewModel> viewModelBuilder,
         IMapper mapper
     )
@@ -73,6 +77,7 @@ public sealed class PropertyController : BaseController
         _getImprovements = getImprovements;
         _addFavorite = addFavorite;
         _removeFavorite = removeFavorite;
+        _getMyOffers = getMyOffers;
         _viewModelBuilder = viewModelBuilder;
         _mapper = mapper;
     }
@@ -137,20 +142,39 @@ public sealed class PropertyController : BaseController
             cancellationToken
         );
 
-        if (
-            result.IsFailure
-            || !string.Equals(
-                result.GetValue().Status,
-                nameof(PropertyStatus.Available),
-                StringComparison.OrdinalIgnoreCase
-            )
-        )
+        if (result.IsFailure)
         {
             this.SetWarningMessage("La propiedad solicitada no existe o no se encuentra disponible.");
             return RedirectToCatalog();
         }
 
-        var viewModel = _mapper.Map<PropertyDetailPublicViewModel>(result.GetValue());
+        var property = result.GetValue();
+        var isOwner = CurrentUser.IsAuthenticated
+            && CurrentUser.IsInRole(nameof(Roles.Agent))
+            && string.Equals(CurrentUser.UserId, property.AgentId, StringComparison.Ordinal);
+        var isAvailable = string.Equals(
+            property.Status,
+            nameof(PropertyStatus.Available),
+            StringComparison.OrdinalIgnoreCase
+        );
+        if (!isAvailable && !isOwner)
+        {
+            this.SetWarningMessage("La propiedad solicitada no existe o no se encuentra disponible.");
+            return RedirectToCatalog();
+        }
+
+        var viewModel = _mapper.Map<PropertyDetailPublicViewModel>(property);
+        if (CurrentUser.IsInRole(nameof(Roles.Client)))
+        {
+            var offersResult = await _getMyOffers.ExecuteAsync(
+                new GetMyOffersRequest(PageSize: 5, PropertyId: id),
+                cancellationToken
+            );
+            if (offersResult.IsSuccess)
+                viewModel.Offers = _mapper.Map<IReadOnlyList<Application.ViewModels.Offers.OfferListItemViewModel>>(
+                    offersResult.GetValue().Items
+                );
+        }
         viewModel.PageTitle = $"{viewModel.PropertyTypeName} {viewModel.Code}";
         await this.PopulateBaseViewModelAsync(viewModel, _viewModelBuilder, cancellationToken);
         return View("~/Views/Home/Detail.cshtml", viewModel);

@@ -13,11 +13,17 @@ public sealed class OfferPolicy : IOfferPolicy
 {
     private readonly IPropertyRepository _propertyRepo;
     private readonly IOfferRepository _offerRepo;
+    private readonly IUserRepository _userRepo;
 
-    public OfferPolicy(IPropertyRepository propertyRepo, IOfferRepository offerRepo)
+    public OfferPolicy(
+        IPropertyRepository propertyRepo,
+        IOfferRepository offerRepo,
+        IUserRepository userRepo
+    )
     {
         _propertyRepo = propertyRepo;
         _offerRepo = offerRepo;
+        _userRepo = userRepo;
     }
 
     public async Task<Result> CanCreateOfferAsync(
@@ -37,6 +43,15 @@ public sealed class OfferPolicy : IOfferPolicy
                 Error.Conflict(
                     "Offer.PropertyNotAvailable",
                     "Esta propiedad no está disponible para ofertas."
+                )
+            );
+
+        var agent = await _userRepo.GetByIdAsync(property.AgentId, ct);
+        if (agent is null || !agent.IsActive)
+            return Result.Failure(
+                Error.Conflict(
+                    "Offer.AgentNotAvailable",
+                    "El agente responsable no se encuentra disponible para recibir ofertas."
                 )
             );
 

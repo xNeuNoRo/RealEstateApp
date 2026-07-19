@@ -28,4 +28,6 @@ public sealed class PropertyDetailPublicViewModel : BaseViewModel
     public IReadOnlyList<PropertyImageDto> Images { get; init; } = [];
     public IReadOnlyList<PropertyImprovementDto> Improvements { get; init; } = [];
     public bool IsFavorite { get; init; }
+    public IReadOnlyList<Offers.OfferListItemViewModel> Offers { get; set; } = [];
+    public bool HasPendingOffer => Offers.Any(offer => offer.IsPending);
 }
