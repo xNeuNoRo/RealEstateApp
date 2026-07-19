@@ -4,7 +4,7 @@ namespace RealEstateApp.Application.ViewModels.Agent;
 
 using RealEstateApp.Application.ViewModels.Shared;
 
-public sealed class CreatePropertyViewModel : BaseViewModel
+public class CreatePropertyViewModel : BaseViewModel
 {
     [Required(ErrorMessage = "El tipo de propiedad es requerido.")]
     [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un tipo de propiedad.")]
@@ -55,6 +55,7 @@ public sealed class CreatePropertyViewModel : BaseViewModel
     public string Currency { get; set; } = "DOP";
 
     [Display(Name = "Mejoras")]
+    [MinLength(1, ErrorMessage = "Debe seleccionar al menos una mejora.")]
     public List<int> ImprovementIds { get; set; } = [];
 
     public IReadOnlyList<Shared.SelectListItemViewModel> PropertyTypes { get; set; } = [];

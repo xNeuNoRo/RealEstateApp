@@ -17,7 +17,9 @@ public sealed class PropertyDetailPublicViewModel : BaseViewModel
     public string Status { get; init; } = null!;
     public string? MainImageUrl { get; init; }
     public string? PropertyTypeName { get; init; }
+    public int PropertyTypeId { get; init; }
     public string? SaleTypeName { get; init; }
+    public int SaleTypeId { get; init; }
     public string? AgentId { get; init; }
     public string? AgentName { get; init; }
     public string? AgentPhone { get; init; }
@@ -25,4 +27,5 @@ public sealed class PropertyDetailPublicViewModel : BaseViewModel
     public string? AgentProfileImage { get; init; }
     public IReadOnlyList<PropertyImageDto> Images { get; init; } = [];
     public IReadOnlyList<PropertyImprovementDto> Improvements { get; init; } = [];
+    public bool IsFavorite { get; init; }
 }

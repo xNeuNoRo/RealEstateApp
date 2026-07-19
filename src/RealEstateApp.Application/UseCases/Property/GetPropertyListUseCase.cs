@@ -5,6 +5,7 @@ using RealEstateApp.Application.Common.Validation;
 using RealEstateApp.Application.Dtos.Property.Requests;
 using RealEstateApp.Application.Dtos.Property.Responses;
 using RealEstateApp.Application.Interfaces.UseCases.Property;
+using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Enums;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
@@ -16,18 +17,24 @@ public sealed class GetPropertyListUseCase : IGetPropertyListUseCase
 {
     private readonly IPropertyRepository _propertyRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IFavoritePropertyRepository _favoriteRepository;
+    private readonly ICurrentUserService _currentUser;
     private readonly IMapper _mapper;
     private readonly IValidator<GetPropertyListRequest> _validator;
 
     public GetPropertyListUseCase(
         IPropertyRepository propertyRepository,
         IUserRepository userRepository,
+        IFavoritePropertyRepository favoriteRepository,
+        ICurrentUserService currentUser,
         IMapper mapper,
         IValidator<GetPropertyListRequest> validator
     )
     {
         _propertyRepository = propertyRepository;
         _userRepository = userRepository;
+        _favoriteRepository = favoriteRepository;
+        _currentUser = currentUser;
         _mapper = mapper;
         _validator = validator;
     }
@@ -41,7 +48,11 @@ public sealed class GetPropertyListUseCase : IGetPropertyListUseCase
         if (!validationResult.IsValid)
             return validationResult.ToResult<PagedResult<PropertyListItemResponse>>();
 
-        var filter = BuildFilter(request);
+        var activeAgentIds = await _userRepository.GetActiveIdsByRoleAsync(
+            nameof(Roles.Agent),
+            cancellationToken
+        );
+        var filter = BuildFilter(request, activeAgentIds);
 
         var options = new QueryOptions<PropertyEntity>
         {
@@ -67,6 +78,21 @@ public sealed class GetPropertyListUseCase : IGetPropertyListUseCase
                 item.AgentName = $"{agent.FirstName} {agent.LastName}".Trim();
         }
 
+        if (
+            _currentUser.IsAuthenticated
+            && _currentUser.UserId is not null
+            && _currentUser.IsInRole(nameof(Roles.Client))
+        )
+        {
+            var favoriteIds = await _favoriteRepository.GetPropertyIdsAsync(
+                _currentUser.UserId,
+                items.Select(item => item.Id).ToArray(),
+                cancellationToken
+            );
+            foreach (var item in items)
+                item.IsFavorite = favoriteIds.Contains(item.Id);
+        }
+
         return Result<PagedResult<PropertyListItemResponse>>.Success(
             new PagedResult<PropertyListItemResponse>(
                 items,
@@ -77,10 +103,14 @@ public sealed class GetPropertyListUseCase : IGetPropertyListUseCase
         );
     }
 
-    private static Expression<Func<PropertyEntity, bool>> BuildFilter(GetPropertyListRequest req)
+    private static Expression<Func<PropertyEntity, bool>> BuildFilter(
+        GetPropertyListRequest req,
+        IReadOnlySet<string> activeAgentIds
+    )
     {
         return p =>
-            (req.IncludeAllStatuses || p.Status == PropertyStatus.Available)
+            (req.IncludeAllStatuses || activeAgentIds.Contains(p.AgentId))
+            && (req.IncludeAllStatuses || p.Status == PropertyStatus.Available)
             && (
                 string.IsNullOrWhiteSpace(req.SearchTerm)
                 || (p.Description.Contains(req.SearchTerm) || p.Code.Value.Contains(req.SearchTerm))
@@ -93,7 +123,7 @@ public sealed class GetPropertyListUseCase : IGetPropertyListUseCase
             && (!req.Bathrooms.HasValue || p.Bathrooms == req.Bathrooms.Value)
             && (!req.PropertyTypeId.HasValue || p.PropertyTypeId == req.PropertyTypeId.Value)
             && (!req.SaleTypeId.HasValue || p.SaleTypeId == req.SaleTypeId.Value)
-            && (string.IsNullOrWhiteSpace(req.Code) || p.Code.Value.Contains(req.Code))
+            && (string.IsNullOrWhiteSpace(req.Code) || p.Code.Value == req.Code)
             && (string.IsNullOrWhiteSpace(req.AgentId) || p.AgentId == req.AgentId);
     }
 }

@@ -17,6 +17,7 @@ public sealed class AddFavoriteUseCase : IAddFavoriteUseCase
 {
     private readonly IFavoritePropertyRepository _favoriteRepository;
     private readonly IPropertyRepository _propertyRepository;
+    private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUser;
     private readonly IMapper _mapper;
@@ -25,6 +26,7 @@ public sealed class AddFavoriteUseCase : IAddFavoriteUseCase
     public AddFavoriteUseCase(
         IFavoritePropertyRepository favoriteRepository,
         IPropertyRepository propertyRepository,
+        IUserRepository userRepository,
         IUnitOfWork unitOfWork,
         ICurrentUserService currentUser,
         IMapper mapper,
@@ -33,6 +35,7 @@ public sealed class AddFavoriteUseCase : IAddFavoriteUseCase
     {
         _favoriteRepository = favoriteRepository;
         _propertyRepository = propertyRepository;
+        _userRepository = userRepository;
         _unitOfWork = unitOfWork;
         _currentUser = currentUser;
         _mapper = mapper;
@@ -75,6 +78,12 @@ public sealed class AddFavoriteUseCase : IAddFavoriteUseCase
                 )
             );
 
+        var agent = await _userRepository.GetByIdAsync(property.AgentId, cancellationToken);
+        if (agent is null || !agent.IsActive)
+            return Result<FavoriteResponse>.Failure(
+                Error.NotFound("Property.NotFound", "La propiedad no existe o no está disponible.")
+            );
+
         var clientId = _currentUser.UserId;
         var isFavorited = await _favoriteRepository.IsFavoritedAsync(
             clientId,
@@ -82,9 +91,17 @@ public sealed class AddFavoriteUseCase : IAddFavoriteUseCase
             cancellationToken
         );
         if (isFavorited)
-            return Result<FavoriteResponse>.Failure(
-                Error.Conflict("Favorite.Duplicate", "La propiedad ya está en sus favoritos.")
+        {
+            var existing = await _favoriteRepository.GetAsync(
+                clientId,
+                request.PropertyId,
+                cancellationToken
             );
+            var existingResponse = _mapper.Map<FavoriteResponse>(property);
+            existingResponse.Id = existing?.Id ?? 0;
+            existingResponse.FavoritedAt = existing?.CreatedAt ?? DateTimeOffset.UtcNow;
+            return Result<FavoriteResponse>.Success(existingResponse);
+        }
 
         var createResult = FavoriteProperty.Create(clientId, request.PropertyId);
         if (createResult.IsFailure)
@@ -92,7 +109,21 @@ public sealed class AddFavoriteUseCase : IAddFavoriteUseCase
 
         var favorite = createResult.GetValue();
         await _favoriteRepository.AddAsync(favorite, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            var concurrentFavorite = await _favoriteRepository.GetAsync(
+                clientId,
+                request.PropertyId,
+                cancellationToken
+            );
+            if (concurrentFavorite is null)
+                throw;
+            favorite = concurrentFavorite;
+        }
 
         var response = _mapper.Map<FavoriteResponse>(property);
         response.Id = favorite.Id;

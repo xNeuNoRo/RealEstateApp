@@ -13,7 +13,9 @@ public sealed class PropertyDetailResponse
     public string Status { get; init; } = null!;
     public string? MainImageUrl { get; init; }
     public string? PropertyTypeName { get; init; }
+    public int PropertyTypeId { get; init; }
     public string? SaleTypeName { get; init; }
+    public int SaleTypeId { get; init; }
     public string? AgentId { get; init; }
     public string? AgentName { get; set; }
     public string? AgentPhone { get; set; }
@@ -21,6 +23,7 @@ public sealed class PropertyDetailResponse
     public string? AgentProfileImage { get; set; }
     public IReadOnlyList<PropertyImageDto> Images { get; set; } = [];
     public IReadOnlyList<PropertyImprovementDto> Improvements { get; set; } = [];
+    public bool IsFavorite { get; set; }
 }
 
 public sealed class PropertyImageDto

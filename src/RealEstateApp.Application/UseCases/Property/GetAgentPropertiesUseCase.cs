@@ -57,7 +57,7 @@ public sealed class GetAgentPropertiesUseCase : IGetAgentPropertiesUseCase
 
         var options = new QueryOptions<PropertyEntity>
         {
-            Includes = [p => p.Images],
+            Includes = [p => p.Images, p => p.PropertyType!, p => p.SaleType!],
             OrderBy = q => q.OrderByDescending(p => p.CreatedAt),
             Skip = (request.Page - 1) * request.PageSize,
             Take = request.PageSize,

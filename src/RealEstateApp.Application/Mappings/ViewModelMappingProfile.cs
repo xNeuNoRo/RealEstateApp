@@ -73,6 +73,7 @@ public sealed class ViewModelMappingProfile : Profile
     {
         CreateMap<PublicAgentResponse, PublicAgentListItemViewModel>();
         CreateMap<PropertyListItemResponse, AgentPropertyListItemViewModel>();
+        CreateMap<PropertySummaryResponse, AgentPropertyListItemViewModel>();
         CreateMap<AgentProfileResponse, AgentProfileViewModel>();
         CreateMap<UpdateAgentProfileViewModel, UpdateAgentProfileRequest>();
 

@@ -15,4 +15,5 @@ public sealed class PropertyListItemResponse
     public string? PropertyTypeName { get; init; }
     public string? SaleTypeName { get; init; }
     public string? AgentName { get; set; }
+    public bool IsFavorite { get; set; }
 }

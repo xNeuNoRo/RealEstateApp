@@ -1,8 +1,12 @@
 @model PropertyDetailPublicViewModel
+@inject ICurrentUserService CurrentUser
 @{
     ViewData["Title"] = $"{Model.PropertyTypeName} {Model.Code}";
     var images = Model.Images;
     var primaryImage = images.FirstOrDefault(image => image.IsMain) ?? images.FirstOrDefault();
+    var isClient = CurrentUser.IsAuthenticated && CurrentUser.IsInRole("Client");
+    var isOwner = CurrentUser.IsAuthenticated && CurrentUser.IsInRole("Agent") && string.Equals(CurrentUser.UserId, Model.AgentId, StringComparison.Ordinal);
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
 }
 
 <div class="space-y-7">
@@ -60,7 +64,15 @@
                     @if (!string.IsNullOrWhiteSpace(Model.AgentPhone)) { <a href="tel:@Model.AgentPhone" class="flex items-center gap-3 rounded-2xl border border-white/80 bg-white/75 p-3 text-sm font-bold text-default transition hover:border-brand-100 hover:text-brand-600 dark:border-gray-700 dark:bg-gray-800/60"><i data-lucide="phone" class="h-4 w-4 text-brand-600"></i><span class="truncate">@Model.AgentPhone</span></a> }
                     @if (!string.IsNullOrWhiteSpace(Model.AgentEmail)) { <a href="mailto:@Model.AgentEmail" class="flex items-center gap-3 rounded-2xl border border-white/80 bg-white/75 p-3 text-sm font-bold text-default transition hover:border-brand-100 hover:text-brand-600 dark:border-gray-700 dark:bg-gray-800/60"><i data-lucide="mail" class="h-4 w-4 text-brand-600"></i><span class="truncate">@Model.AgentEmail</span></a> }
                 </div>
-                @if (!Model.IsAuthenticated) { <a asp-controller="Auth" asp-action="Login" class="btn-primary mt-6 w-full"><i data-lucide="log-in" class="h-4 w-4"></i>Inicia sesión para contactar</a> }
+                @if (isClient)
+                {
+                    <form asp-controller="Property" asp-action="ToggleFavorite" method="post" class="mt-6">@Html.AntiForgeryToken()<input type="hidden" name="propertyId" value="@Model.Id" /><input type="hidden" name="add" value="@(!Model.IsFavorite)" /><input type="hidden" name="returnUrl" value="@returnUrl" /><button type="submit" class="@(Model.IsFavorite ? "btn-secondary" : "btn-primary") w-full"><i data-lucide="heart" class="h-4 w-4 @(Model.IsFavorite ? "fill-current text-danger-500" : "")"></i>@(Model.IsFavorite ? "Quitar de favoritas" : "Agregar a favoritas")</button></form>
+                }
+                else if (isOwner)
+                {
+                    <div class="mt-6 grid grid-cols-2 gap-2"><a asp-controller="Property" asp-action="Edit" asp-route-id="@Model.Id" class="btn-secondary"><i data-lucide="pencil" class="h-4 w-4"></i>Editar</a><a asp-controller="Property" asp-action="Delete" asp-route-id="@Model.Id" class="btn-danger"><i data-lucide="trash-2" class="h-4 w-4"></i>Eliminar</a></div>
+                }
+                else if (!Model.IsAuthenticated) { <a asp-controller="Auth" asp-action="Login" asp-route-returnUrl="@returnUrl" class="btn-primary mt-6 w-full"><i data-lucide="log-in" class="h-4 w-4"></i>Inicia sesión para contactar</a> }
             </section>
         </aside>
     </div>
