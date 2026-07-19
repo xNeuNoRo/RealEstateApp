@@ -1,0 +1,71 @@
+@model PropertyDetailPublicViewModel
+@{
+    ViewData["Title"] = $"{Model.PropertyTypeName} {Model.Code}";
+    var images = Model.Images;
+    var primaryImage = images.FirstOrDefault(image => image.IsMain) ?? images.FirstOrDefault();
+}
+
+<div class="space-y-7">
+    <nav aria-label="Ruta de navegación"><ol class="flex items-center gap-2 text-sm text-muted"><li><a asp-action="Index" class="font-semibold transition-colors hover:text-brand-600">Inicio</a></li><li aria-hidden="true"><i data-lucide="chevron-right" class="h-4 w-4"></i></li><li><a asp-action="Index" class="font-semibold transition-colors hover:text-brand-600">Propiedades</a></li><li aria-hidden="true"><i data-lucide="chevron-right" class="h-4 w-4"></i></li><li class="font-mono text-xs text-default" aria-current="page">@Model.Code</li></ol></nav>
+
+    <div class="grid gap-8 xl:grid-cols-[minmax(0,1fr)_21rem]">
+        <main class="min-w-0 space-y-8">
+            <section class="overflow-hidden rounded-3xl border border-default bg-[var(--color-bg-elevated)] shadow-sm" aria-label="Galería de la propiedad">
+                <div class="relative aspect-[16/9] bg-brand-50 dark:bg-brand-100/20">
+                    @if (primaryImage is not null)
+                    {
+                        <img id="property-main-image" src="@primaryImage.Url" alt="@Model.PropertyTypeName, código @Model.Code" class="h-full w-full object-cover transition-opacity duration-200" />
+                    }
+                    else
+                    {
+                        <div class="flex h-full items-center justify-center bg-gradient-to-br from-brand-from to-brand-to text-white/55"><i data-lucide="@PropertyHelper.GetPropertyTypeIcon(Model.PropertyTypeName)" class="h-20 w-20"></i></div>
+                    }
+                    <span class="absolute bottom-4 left-4 rounded-2xl bg-gray-950/80 px-4 py-2 text-xl font-black text-white shadow-lg backdrop-blur">@PriceHelper.Format(Model.Price, Model.Currency)</span>
+                </div>
+                @if (images.Count > 1)
+                {
+                    <div class="flex gap-3 overflow-x-auto p-4" role="list" aria-label="Seleccionar imagen">
+                        @foreach (var image in images)
+                        {
+                            <button type="button" data-gallery-image="@image.Url" class="h-16 w-20 shrink-0 overflow-hidden rounded-xl border-2 border-transparent transition hover:scale-105 focus:border-brand-500" aria-label="Ver imagen de la propiedad"><img src="@image.Url" alt="" class="h-full w-full object-cover" loading="lazy" /></button>
+                        }
+                    </div>
+                }
+            </section>
+
+            <section>
+                <p class="text-xs font-black uppercase tracking-[0.16em] text-brand-600 dark:text-brand-500">@Model.SaleTypeName · REF. @Model.Code</p>
+                <h1 class="mt-2 text-3xl font-black tracking-tight text-default sm:text-4xl">@Model.Description</h1>
+                <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Características de la propiedad">
+                    <div class="rounded-2xl border border-default bg-[var(--color-bg-elevated)] p-4"><i data-lucide="building-2" class="h-5 w-5 text-brand-600"></i><p class="mt-3 text-[11px] font-black uppercase tracking-[0.12em] text-subtle">Tipo</p><p class="mt-1 text-sm font-bold text-default">@Model.PropertyTypeName</p></div>
+                    <div class="rounded-2xl border border-default bg-[var(--color-bg-elevated)] p-4"><i data-lucide="bed-double" class="h-5 w-5 text-brand-600"></i><p class="mt-3 text-[11px] font-black uppercase tracking-[0.12em] text-subtle">Habitaciones</p><p class="mt-1 text-sm font-bold text-default">@PropertyHelper.FormatBedrooms(Model.Bedrooms)</p></div>
+                    <div class="rounded-2xl border border-default bg-[var(--color-bg-elevated)] p-4"><i data-lucide="bath" class="h-5 w-5 text-brand-600"></i><p class="mt-3 text-[11px] font-black uppercase tracking-[0.12em] text-subtle">Baños</p><p class="mt-1 text-sm font-bold text-default">@Model.Bathrooms baños</p></div>
+                    <div class="rounded-2xl border border-default bg-[var(--color-bg-elevated)] p-4"><i data-lucide="ruler" class="h-5 w-5 text-brand-600"></i><p class="mt-3 text-[11px] font-black uppercase tracking-[0.12em] text-subtle">Tamaño</p><p class="mt-1 text-sm font-bold text-default">@PriceHelper.FormatArea(Model.SizeM2)</p></div>
+                </div>
+            </section>
+
+            <section class="rounded-3xl border border-default bg-[var(--color-bg-elevated)] p-6 sm:p-8"><h2 class="text-xl font-black text-default">Descripción</h2><p class="mt-4 whitespace-pre-line text-sm leading-7 text-muted">@Model.Description</p></section>
+
+            @if (Model.Improvements.Count > 0)
+            {
+                <section class="rounded-3xl border border-default bg-[var(--color-bg-elevated)] p-6 sm:p-8"><h2 class="flex items-center gap-2 text-xl font-black text-default"><i data-lucide="sparkles" class="h-5 w-5 text-brand-600"></i>Mejoras y características</h2><ul class="mt-5 flex flex-wrap gap-2" role="list">@foreach (var improvement in Model.Improvements) { <li class="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-brand-50 px-3 py-1.5 text-sm font-semibold text-brand-700 dark:border-brand-100/20 dark:bg-brand-100/10 dark:text-brand-500"><i data-lucide="check" class="h-3.5 w-3.5"></i>@improvement.Name</li> }</ul></section>
+            }
+        </main>
+
+        <aside class="xl:sticky xl:top-20 xl:self-start" aria-label="Información del agente">
+            <section class="overflow-hidden rounded-3xl border border-brand-100 bg-gradient-to-br from-brand-50 to-blue-50 p-6 shadow-sm dark:border-brand-100/20 dark:from-brand-100/15 dark:to-blue-100/10">
+                <p class="text-xs font-black uppercase tracking-[0.16em] text-brand-700 dark:text-brand-500">Tu asesor</p>
+                <div class="mt-4 flex items-center gap-3">@await Html.PartialAsync("~/Views/Shared/Components/_Avatar.cshtml", (Model.AgentProfileImage, Model.AgentName ?? "Agente", "lg", "ring-4 ring-white dark:ring-gray-800"))<div class="min-w-0"><h2 class="truncate text-lg font-black text-default">@Model.AgentName</h2><p class="text-sm text-muted">Agente inmobiliario</p></div></div>
+                <div class="mt-6 space-y-3">
+                    @if (!string.IsNullOrWhiteSpace(Model.AgentPhone)) { <a href="tel:@Model.AgentPhone" class="flex items-center gap-3 rounded-2xl border border-white/80 bg-white/75 p-3 text-sm font-bold text-default transition hover:border-brand-100 hover:text-brand-600 dark:border-gray-700 dark:bg-gray-800/60"><i data-lucide="phone" class="h-4 w-4 text-brand-600"></i><span class="truncate">@Model.AgentPhone</span></a> }
+                    @if (!string.IsNullOrWhiteSpace(Model.AgentEmail)) { <a href="mailto:@Model.AgentEmail" class="flex items-center gap-3 rounded-2xl border border-white/80 bg-white/75 p-3 text-sm font-bold text-default transition hover:border-brand-100 hover:text-brand-600 dark:border-gray-700 dark:bg-gray-800/60"><i data-lucide="mail" class="h-4 w-4 text-brand-600"></i><span class="truncate">@Model.AgentEmail</span></a> }
+                </div>
+                @if (!Model.IsAuthenticated) { <a asp-controller="Auth" asp-action="Login" class="btn-primary mt-6 w-full"><i data-lucide="log-in" class="h-4 w-4"></i>Inicia sesión para contactar</a> }
+            </section>
+        </aside>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/home.js" asp-append-version="true"></script>
+}

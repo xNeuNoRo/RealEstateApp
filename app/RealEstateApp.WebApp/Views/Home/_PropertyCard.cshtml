@@ -1,0 +1,43 @@
+@model PropertyListItemViewModel
+@{
+    var imageUrl = Model.MainImageUrl;
+    var typeIcon = PropertyHelper.GetPropertyTypeIcon(Model.PropertyTypeName);
+}
+
+<article class="group overflow-hidden rounded-2xl border border-default bg-[var(--color-bg-elevated)] shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-600/10 card-fade-in">
+    <a asp-action="Detail" asp-route-id="@Model.Id" class="block h-full focus:outline-none" aria-label="Ver detalle de @Model.PropertyTypeName, código @Model.Code">
+        <div class="relative aspect-[16/10] overflow-hidden bg-brand-50 dark:bg-brand-100/20">
+            @if (!string.IsNullOrWhiteSpace(imageUrl))
+            {
+                <img src="@imageUrl" alt="@Model.PropertyTypeName, código @Model.Code" class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" loading="lazy" decoding="async" />
+            }
+            else
+            {
+                <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-from to-brand-to text-white/55">
+                    <i data-lucide="@typeIcon" class="h-14 w-14"></i>
+                </div>
+            }
+            <span class="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-brand-700 shadow-sm backdrop-blur dark:bg-gray-900/85 dark:text-brand-500">
+                <i data-lucide="@typeIcon" class="h-3.5 w-3.5"></i>
+                @Model.PropertyTypeName
+            </span>
+            <span class="absolute bottom-3 left-3 rounded-xl bg-gray-950/80 px-2.5 py-1.5 text-sm font-black text-white shadow-sm backdrop-blur">
+                @PriceHelper.FormatCompact(Model.Price, Model.Currency)
+            </span>
+        </div>
+
+        <div class="flex min-h-44 flex-col p-4">
+            <div class="mb-3">
+                <p class="text-[11px] font-black uppercase tracking-[0.14em] text-brand-600 dark:text-brand-500">@Model.SaleTypeName</p>
+                <h2 class="mt-1 h-11 overflow-hidden text-base font-extrabold leading-5 text-default transition-colors group-hover:text-brand-600 dark:group-hover:text-brand-500">@Model.Description</h2>
+                <p class="mt-1.5 font-mono text-[11px] font-medium text-subtle">REF. @Model.Code</p>
+            </div>
+
+            <dl class="mt-auto grid grid-cols-3 gap-2 border-t border-default pt-3 text-xs text-muted">
+                <div class="flex items-center gap-1.5"><i data-lucide="bed-double" class="h-3.5 w-3.5 text-brand-600"></i><dd>@PropertyHelper.FormatBedrooms(Model.Bedrooms)</dd></div>
+                <div class="flex items-center gap-1.5"><i data-lucide="bath" class="h-3.5 w-3.5 text-brand-600"></i><dd>@Model.Bathrooms baños</dd></div>
+                <div class="flex items-center gap-1.5"><i data-lucide="ruler" class="h-3.5 w-3.5 text-brand-600"></i><dd>@PriceHelper.FormatArea(Model.SizeM2)</dd></div>
+            </dl>
+        </div>
+    </a>
+</article>

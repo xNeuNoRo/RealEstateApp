@@ -22,6 +22,7 @@ using RealEstateApp.Application.ViewModels.Chat;
 using RealEstateApp.Application.ViewModels.Client;
 using RealEstateApp.Application.ViewModels.Offers;
 using RealEstateApp.Application.ViewModels.Property;
+using RealEstateApp.Application.ViewModels.Home;
 using RealEstateApp.Application.ViewModels.Shared;
 
 namespace RealEstateApp.Application.Mappings;
@@ -70,6 +71,7 @@ public sealed class ViewModelMappingProfile : Profile
 
     private void MapAgent()
     {
+        CreateMap<PublicAgentResponse, PublicAgentListItemViewModel>();
         CreateMap<PropertyListItemResponse, AgentPropertyListItemViewModel>();
         CreateMap<AgentProfileResponse, AgentProfileViewModel>();
         CreateMap<UpdateAgentProfileViewModel, UpdateAgentProfileRequest>();

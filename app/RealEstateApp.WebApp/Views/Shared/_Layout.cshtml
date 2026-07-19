@@ -241,8 +241,8 @@ StringComparison.OrdinalIgnoreCase);
                                 </div>
                             </div>
                         }
-                else if (isClient)
-                        {
+                         else if (isClient)
+                         {
                             <div>
                                 <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Explorar</p>
                                 <div class="space-y-1">
@@ -271,10 +271,34 @@ StringComparison.OrdinalIgnoreCase);
                                         <span class="text-sm flex-1">Mensajes</span>
                                     </a>
                                 </div>
-                            </div>
-                        }
+                             </div>
+                         }
+                         else
+                         {
+                             <div>
+                                 <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Explorar</p>
+                                 <div class="space-y-1">
+                                     <a asp-controller="Home" asp-action="Index" class="@GetActiveClass("Home", "Index")">
+                                         <i data-lucide="search" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Propiedades</span>
+                                     </a>
+                                     <a asp-controller="Home" asp-action="Agents" class="@GetActiveClass("Home", "Agents")">
+                                         <i data-lucide="users-round" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Agentes</span>
+                                     </a>
+                                     <a asp-controller="Auth" asp-action="Register" class="@GetActiveClass("Auth", "Register")">
+                                         <i data-lucide="user-plus" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Únete a la app</span>
+                                     </a>
+                                     <a asp-controller="Auth" asp-action="Login" class="@GetActiveClass("Auth", "Login")">
+                                         <i data-lucide="log-in" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Iniciar sesión</span>
+                                     </a>
+                                 </div>
+                             </div>
+                         }
 
-                        <div class="my-3 mx-3 h-px bg-gray-200 dark:bg-gray-700"></div>
+                         <div class="my-3 mx-3 h-px bg-gray-200 dark:bg-gray-700"></div>
 
                         <div>
                             <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Sistema</p>

@@ -117,6 +117,7 @@ public static class ServicesRegistration
     internal static IServiceCollection AddAgentUseCases(this IServiceCollection services)
     {
         services.AddScoped<IGetAgentProfileUseCase, GetAgentProfileUseCase>();
+        services.AddScoped<IGetPublicAgentsUseCase, GetPublicAgentsUseCase>();
 
         return services;
     }
@@ -134,6 +135,7 @@ public static class ServicesRegistration
         services.AddScoped<IGetAllPropertyTypesUseCase, GetAllPropertyTypesUseCase>();
         services.AddScoped<IDeletePropertyTypeUseCase, DeletePropertyTypeUseCase>();
         services.AddScoped<IGetPropertyTypeByIdUseCase, GetPropertyTypeByIdUseCase>();
+        services.AddScoped<IGetPublicPropertyTypesUseCase, GetPublicPropertyTypesUseCase>();
 
         // SaleType
         services.AddScoped<ICreateSaleTypeUseCase, CreateSaleTypeUseCase>();

@@ -8,6 +8,26 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Tailwind v4 utilities resolve against runtime theme variables, including dark mode. */
+@theme inline {
+  --color-brand-50: var(--color-brand-50);
+  --color-brand-100: var(--color-brand-100);
+  --color-brand-500: var(--color-brand-500);
+  --color-brand-600: var(--color-brand-600);
+  --color-brand-700: var(--color-brand-700);
+  --color-brand-from: var(--color-brand-from);
+  --color-brand-to: var(--color-brand-to);
+  --color-success-50: var(--color-success-50);
+  --color-success-500: var(--color-success-500);
+  --color-success-700: var(--color-success-700);
+  --color-danger-50: var(--color-danger-50);
+  --color-danger-500: var(--color-danger-500);
+  --color-danger-700: var(--color-danger-700);
+  --color-warning-50: var(--color-warning-50);
+  --color-warning-500: var(--color-warning-500);
+  --color-warning-700: var(--color-warning-700);
+}
+
 :root {
   --color-bg: #f8fafc;
   --color-bg-elevated: #ffffff;

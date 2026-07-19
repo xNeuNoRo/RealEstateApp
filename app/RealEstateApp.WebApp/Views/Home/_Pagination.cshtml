@@ -1,0 +1,46 @@
+@using Microsoft.AspNetCore.Routing
+@model PaginationViewModel
+@{
+    RouteValueDictionary ValuesFor(int targetPage) => new(Model.RouteValues) { ["page"] = targetPage };
+    var firstPage = Math.Max(1, Model.CurrentPage - 2);
+    var lastPage = Math.Min(Model.TotalPages, Model.CurrentPage + 2);
+}
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="mt-10 flex items-center justify-center gap-1.5" aria-label="Paginación">
+        @if (Model.CurrentPage > 1)
+        {
+            <a href="@Url.Action(Model.Action, Model.Controller, ValuesFor(Model.CurrentPage - 1))" class="pagination-btn" aria-label="Página anterior"><i data-lucide="chevron-left" class="h-4 w-4"></i></a>
+        }
+
+        @if (firstPage > 1)
+        {
+            <a href="@Url.Action(Model.Action, Model.Controller, ValuesFor(1))" class="pagination-btn">1</a>
+            @if (firstPage > 2) { <span class="pagination-ellipsis" aria-hidden="true">…</span> }
+        }
+
+        @for (var currentPage = firstPage; currentPage <= lastPage; currentPage++)
+        {
+            @if (currentPage == Model.CurrentPage)
+            {
+                <span class="pagination-btn active" aria-current="page">@currentPage</span>
+            }
+            else
+            {
+                <a href="@Url.Action(Model.Action, Model.Controller, ValuesFor(currentPage))" class="pagination-btn">@currentPage</a>
+            }
+        }
+
+        @if (lastPage < Model.TotalPages)
+        {
+            @if (lastPage < Model.TotalPages - 1) { <span class="pagination-ellipsis" aria-hidden="true">…</span> }
+            <a href="@Url.Action(Model.Action, Model.Controller, ValuesFor(Model.TotalPages))" class="pagination-btn">@Model.TotalPages</a>
+        }
+
+        @if (Model.CurrentPage < Model.TotalPages)
+        {
+            <a href="@Url.Action(Model.Action, Model.Controller, ValuesFor(Model.CurrentPage + 1))" class="pagination-btn" aria-label="Página siguiente"><i data-lucide="chevron-right" class="h-4 w-4"></i></a>
+        }
+    </nav>
+}
