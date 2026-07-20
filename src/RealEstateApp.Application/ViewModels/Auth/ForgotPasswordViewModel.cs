@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using RealEstateApp.Application.ViewModels.Shared;
 
 namespace RealEstateApp.Application.ViewModels.Auth;
-
-using RealEstateApp.Application.ViewModels.Shared;
 
 public sealed class ForgotPasswordViewModel : BaseViewModel
 {
@@ -11,5 +10,5 @@ public sealed class ForgotPasswordViewModel : BaseViewModel
     [Display(Name = "Correo electrónico")]
     public string Email { get; set; } = null!;
 
-    public string Website { get; set; } = string.Empty;
+    public string? Website { get; set; }
 }

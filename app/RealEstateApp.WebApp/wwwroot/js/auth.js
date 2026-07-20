@@ -29,8 +29,11 @@
             event.preventDefault();
             return;
           }
-          var button = form.querySelector('button[type="submit"]:not(.hidden)');
+          var button = form.querySelector('button[type="submit"]');
           if (!button || button.disabled) return;
+          if (!button.offsetParent) {
+            button.style.display = "inline-flex";
+          }
           button.disabled = true;
           button.setAttribute("aria-busy", "true");
           var content = button.querySelector(".auth-submit-content");
@@ -39,7 +42,8 @@
               '<span class="spinner spinner-sm border-white/40 border-r-white"></span><span>Procesando...</span>';
           }
         } catch (e) {
-          if (window.console) console.warn("auth.js: error en submitHandler", e);
+          if (window.console)
+            console.warn("auth.js: error en submitHandler", e);
         }
       });
     });
@@ -251,8 +255,11 @@
         line.classList.toggle("is-complete", index + 1 < current);
       });
       previous.classList.toggle("hidden", current === 1);
+      previous.style.display = current === 1 ? "none" : "";
       next.classList.toggle("hidden", current === panels.length);
+      next.style.display = current === panels.length ? "none" : "";
       submit.classList.toggle("hidden", current !== panels.length);
+      submit.style.display = current !== panels.length ? "none" : "";
       counter.textContent = "Paso " + current + " de " + panels.length;
     }
 
@@ -291,7 +298,7 @@
     }
 
     next.addEventListener("click", function () {
-      if (validateCurrent()) show(current + 1, 1);
+      if (validateCurrent() && current < panels.length) show(current + 1, 1);
     });
     previous.addEventListener("click", function () {
       show(current - 1, -1);

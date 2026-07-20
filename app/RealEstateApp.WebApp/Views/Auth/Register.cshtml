@@ -55,7 +55,7 @@
                     <input asp-for="Website" tabindex="-1" autocomplete="off" />
                 </div>
 
-                <div asp-validation-summary="ModelOnly" class="validation-summary mb-5" role="alert"></div>
+                <div asp-validation-summary="All" class="validation-summary mb-5" role="alert"></div>
 
                 <div data-step-panel="1" class="auth-step-panel space-y-6">
                     <div>
@@ -154,7 +154,7 @@
                     <div>
                         <label class="label-base" for="photoFile">Foto de perfil</label>
                         <div id="photo-drop-zone" class="auth-drop-zone" data-drop-zone>
-                            <input id="photoFile" name="photoFile" type="file" class="sr-only" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" data-photo-input required />
+                            <input id="photoFile" name="PhotoFile" type="file" class="sr-only" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" data-photo-input data-val="true" data-val-required="La foto de usuario es requerida." required />
                             <label for="photoFile" class="block cursor-pointer">
                                 <span data-photo-placeholder class="flex flex-col items-center">
                                     <span class="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 dark:bg-brand-100/20 dark:text-brand-500"><i data-lucide="image-up" class="h-5 w-5"></i></span>

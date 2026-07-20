@@ -53,5 +53,5 @@ public sealed class RegisterViewModel : BaseViewModel
     [Display(Name = "Confirmar contraseña")]
     public string ConfirmPassword { get; set; } = string.Empty;
 
-    public string Website { get; set; } = string.Empty;
+    public string? Website { get; set; }
 }

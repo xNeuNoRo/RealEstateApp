@@ -3174,6 +3174,17 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.btn-primary.hidden,
+.btn-secondary.hidden,
+.btn-ghost.hidden,
+.btn-danger.hidden,
+.btn-outline.hidden,
+.btn-sm.hidden,
+.btn-lg.hidden {
+  display: none;
+}
+
 .btn-outline {
   display: inline-flex;
   align-items: center;

@@ -10,5 +10,5 @@ public sealed class ResendActivationViewModel : BaseViewModel
     [Display(Name = "Correo electrónico")]
     public string Email { get; set; } = string.Empty;
 
-    public string Website { get; set; } = string.Empty;
+    public string? Website { get; set; }
 }

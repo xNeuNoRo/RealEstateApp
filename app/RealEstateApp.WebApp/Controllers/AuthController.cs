@@ -116,7 +116,9 @@ public sealed class AuthController : BaseController
             ModelState.AddModelError("PhotoFile", "La foto de usuario es requerida.");
 
         if (!ModelState.IsValid)
+        {
             return View(model);
+        }
 
         Result<AuthResponse> result;
 
