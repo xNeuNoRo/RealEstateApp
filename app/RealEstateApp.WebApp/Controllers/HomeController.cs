@@ -14,6 +14,7 @@ using RealEstateApp.Application.ViewModels.Property;
 using RealEstateApp.Application.ViewModels.Shared;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Enums;
+using RealEstateApp.WebApp.Constants;
 using RealEstateApp.WebApp.Extensions;
 
 namespace RealEstateApp.WebApp.Controllers;
@@ -21,7 +22,7 @@ namespace RealEstateApp.WebApp.Controllers;
 [AllowAnonymous]
 public sealed class HomeController : BaseController
 {
-    private const int PageSize = 12;
+    private const int PageSize = UIConstants.DefaultPageSize;
 
     private readonly IGetPropertyListUseCase _getPropertyList;
     private readonly IGetPropertyDetailUseCase _getPropertyDetail;

@@ -110,7 +110,7 @@
                 </div>
                 @if (isClient)
                 {
-                    <form asp-controller="Property" asp-action="ToggleFavorite" method="post" class="mt-6">@Html.AntiForgeryToken()<input type="hidden" name="propertyId" value="@Model.Id" /><input type="hidden" name="add" value="@(!Model.IsFavorite)" /><input type="hidden" name="returnUrl" value="@returnUrl" /><button type="submit" class="@(Model.IsFavorite ? "btn-secondary" : "btn-primary") w-full"><i data-lucide="heart" class="h-4 w-4 @(Model.IsFavorite ? "fill-current text-danger-500" : "")"></i>@(Model.IsFavorite ? "Quitar de favoritas" : "Agregar a favoritas")</button></form>
+                    <form asp-controller="Property" asp-action="@(Model.IsFavorite ? "RemoveFavorite" : "AddFavorite")" method="post" class="mt-6">@Html.AntiForgeryToken()<input type="hidden" name="propertyId" value="@Model.Id" /><input type="hidden" name="returnUrl" value="@returnUrl" /><button type="submit" class="@(Model.IsFavorite ? "btn-secondary" : "btn-primary") w-full"><i data-lucide="heart" class="h-4 w-4 @(Model.IsFavorite ? "fill-current text-danger-500" : "")"></i>@(Model.IsFavorite ? "Quitar de favoritas" : "Agregar a favoritas")</button></form>
                 }
                 else if (isOwner)
                 {

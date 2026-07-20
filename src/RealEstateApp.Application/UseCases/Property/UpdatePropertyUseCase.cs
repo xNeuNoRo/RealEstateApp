@@ -245,6 +245,7 @@ public sealed class UpdatePropertyUseCase : IUpdatePropertyUseCase
                 }
             }
 
+            _propertyRepository.Update(property);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch

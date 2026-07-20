@@ -172,38 +172,23 @@ public class FileService : IFileService
             long originalPosition = stream.Position;
             stream.Position = 0;
 
-            var buffer = new byte[expected.Length];
-            int read = stream.Read(buffer, 0, expected.Length);
+            int readLength = Math.Max(expected.Length, 16);
+            var buffer = new byte[readLength];
+            int read = stream.Read(buffer, 0, readLength);
+            stream.Position = originalPosition;
 
             if (read < expected.Length)
-            {
-                stream.Position = originalPosition;
                 return false;
-            }
 
             for (int i = 0; i < expected.Length; i++)
             {
+                if (extension == ".webp" && i >= 4 && i <= 7)
+                    continue;
+
                 if (buffer[i] != expected[i])
-                {
-                    stream.Position = originalPosition;
                     return false;
-                }
             }
 
-            if (extension == ".webp")
-            {
-                stream.Seek(8, SeekOrigin.Begin);
-                var webpHeader = new byte[4];
-                int webpRead = stream.Read(webpHeader, 0, 4);
-                stream.Position = originalPosition;
-                return webpRead == 4
-                    && webpHeader[0] == 0x57
-                    && webpHeader[1] == 0x45
-                    && webpHeader[2] == 0x42
-                    && webpHeader[3] == 0x50;
-            }
-
-            stream.Position = originalPosition;
             return true;
         }
         catch

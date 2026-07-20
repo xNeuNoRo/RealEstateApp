@@ -12,6 +12,7 @@ using RealEstateApp.Application.ViewModels.Shared;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Enums;
 using RealEstateApp.Domain.Settings;
+using RealEstateApp.WebApp.Constants;
 using RealEstateApp.WebApp.Extensions;
 using RealEstateApp.WebApp.Filters;
 
@@ -21,7 +22,7 @@ namespace RealEstateApp.WebApp.Controllers;
 [RoleAuthorize(nameof(Roles.Agent))]
 public sealed class AgentController : BaseController
 {
-    private const int DashboardPropertyCount = 3;
+    private const int DashboardPropertyCount = UIConstants.DashboardPropertyCount;
     private const long ProfileUploadLimit = FileConstants.MaxImageFileSizeBytes + (1024 * 1024);
 
     private readonly IAgentService _agentService;

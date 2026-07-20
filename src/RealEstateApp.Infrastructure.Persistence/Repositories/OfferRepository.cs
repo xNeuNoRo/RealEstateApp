@@ -93,30 +93,37 @@ public sealed class OfferRepository : GenericRepository<Offer>, IOfferRepository
         CancellationToken ct = default
     )
     {
-        return await _dbSet
+        var offers = await _dbSet
             .AsNoTracking()
             .Where(offer => offer.PropertyId == propertyId)
-            .GroupBy(offer => offer.ClientId)
-            .Select(group => new OfferClientSummary(
-                group.Key,
-                group.Count(),
-                group
-                    .OrderByDescending(offer => offer.CreatedAt)
-                    .ThenByDescending(offer => offer.Id)
-                    .Select(offer => offer.Amount)
-                    .First(),
-                group
-                    .OrderByDescending(offer => offer.CreatedAt)
-                    .ThenByDescending(offer => offer.Id)
-                    .Select(offer => offer.Status)
-                    .First(),
-                group.Max(offer => offer.CreatedAt)
-            ))
-            .OrderByDescending(summary => summary.LastCreatedAt)
-            .ThenBy(summary => summary.ClientId)
+            .Select(offer => new
+            {
+                offer.ClientId,
+                offer.Amount,
+                offer.Status,
+                offer.CreatedAt,
+                offer.Id
+            })
+            .ToListAsync(ct);
+
+        return offers
+            .GroupBy(o => o.ClientId)
+            .Select(g =>
+            {
+                var last = g.OrderByDescending(o => o.CreatedAt).ThenByDescending(o => o.Id).First();
+                return new OfferClientSummary(
+                    g.Key,
+                    g.Count(),
+                    last.Amount,
+                    last.Status,
+                    g.Max(o => o.CreatedAt)
+                );
+            })
+            .OrderByDescending(s => s.LastCreatedAt)
+            .ThenBy(s => s.ClientId)
             .Skip(skip)
             .Take(take)
-            .ToListAsync(ct);
+            .ToList();
     }
 
     public Task<int> CountClientsByPropertyAsync(

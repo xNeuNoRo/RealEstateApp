@@ -85,12 +85,12 @@
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div class="space-y-1.5">
                             <label asp-for="FirstName" class="label-base"></label>
-                            <div class="relative"><i data-lucide="user-round" class="auth-input-icon"></i><input asp-for="FirstName" class="input-base auth-input" placeholder="Tu nombre" autocomplete="given-name" /></div>
+                            <div class="relative"><i data-lucide="user-round" class="auth-input-icon"></i><input asp-for="FirstName" class="input-base auth-input" placeholder="Tu nombre" autocomplete="given-name" required /></div>
                             <span asp-validation-for="FirstName" class="field-validation"></span>
                         </div>
                         <div class="space-y-1.5">
                             <label asp-for="LastName" class="label-base"></label>
-                            <div class="relative"><i data-lucide="user-round" class="auth-input-icon"></i><input asp-for="LastName" class="input-base auth-input" placeholder="Tu apellido" autocomplete="family-name" /></div>
+                            <div class="relative"><i data-lucide="user-round" class="auth-input-icon"></i><input asp-for="LastName" class="input-base auth-input" placeholder="Tu apellido" autocomplete="family-name" required /></div>
                             <span asp-validation-for="LastName" class="field-validation"></span>
                         </div>
                     </div>
@@ -104,14 +104,14 @@
 
                     <div class="space-y-1.5">
                         <label asp-for="Phone" class="label-base"></label>
-                        <div class="relative"><i data-lucide="phone" class="auth-input-icon"></i><input asp-for="Phone" class="input-base auth-input" placeholder="809-555-1234" autocomplete="tel" inputmode="tel" data-phone-mask /></div>
+                        <div class="relative"><i data-lucide="phone" class="auth-input-icon"></i><input asp-for="Phone" class="input-base auth-input" placeholder="809-555-1234" autocomplete="tel" inputmode="tel" data-phone-mask required /></div>
                         <p class="helper-text">Números 809, 829 o 849 en formato 000-000-0000.</p>
                         <span asp-validation-for="Phone" class="field-validation"></span>
                     </div>
 
                     <div class="space-y-1.5">
                         <label asp-for="Email" class="label-base"></label>
-                        <div class="relative"><i data-lucide="mail" class="auth-input-icon"></i><input asp-for="Email" class="input-base auth-input" placeholder="tu@correo.com" autocomplete="email" /></div>
+                        <div class="relative"><i data-lucide="mail" class="auth-input-icon"></i><input asp-for="Email" class="input-base auth-input" placeholder="tu@correo.com" autocomplete="email" required /></div>
                         <p class="helper-text" data-role-copy="Client">Enviaremos aquí el enlace para activar tu cuenta.</p>
                         <p class="helper-text hidden" data-role-copy="Agent">Te notificaremos cuando un administrador active tu cuenta.</p>
                         <span asp-validation-for="Email" class="field-validation"></span>
@@ -126,19 +126,19 @@
 
                     <div class="space-y-1.5">
                         <label asp-for="UserName" class="label-base"></label>
-                        <div class="relative"><i data-lucide="at-sign" class="auth-input-icon"></i><input asp-for="UserName" class="input-base auth-input" placeholder="usuario123" autocomplete="username" /></div>
+                        <div class="relative"><i data-lucide="at-sign" class="auth-input-icon"></i><input asp-for="UserName" class="input-base auth-input" placeholder="usuario123" autocomplete="username" required /></div>
                         <span asp-validation-for="UserName" class="field-validation"></span>
                     </div>
 
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div class="space-y-1.5">
                             <label asp-for="Password" class="label-base"></label>
-                            <div class="relative"><i data-lucide="lock-keyhole" class="auth-input-icon"></i><input asp-for="Password" id="register-password" class="input-base auth-input pr-11" placeholder="Mínimo 8 caracteres" autocomplete="new-password" data-strength-input /><button type="button" data-toggle-password="register-password" class="auth-password-toggle" aria-label="Mostrar u ocultar contraseña"><i data-lucide="eye" class="h-4 w-4"></i></button></div>
+                            <div class="relative"><i data-lucide="lock-keyhole" class="auth-input-icon"></i><input asp-for="Password" id="register-password" class="input-base auth-input pr-11" placeholder="Mínimo 8 caracteres" autocomplete="new-password" data-strength-input required /><button type="button" data-toggle-password="register-password" class="auth-password-toggle" aria-label="Mostrar u ocultar contraseña"><i data-lucide="eye" class="h-4 w-4"></i></button></div>
                             <span asp-validation-for="Password" class="field-validation"></span>
                         </div>
                         <div class="space-y-1.5">
                             <label asp-for="ConfirmPassword" class="label-base"></label>
-                            <div class="relative"><i data-lucide="shield-check" class="auth-input-icon"></i><input asp-for="ConfirmPassword" id="register-confirm-password" class="input-base auth-input pr-11" placeholder="Repite la contraseña" autocomplete="new-password" /><button type="button" data-toggle-password="register-confirm-password" class="auth-password-toggle" aria-label="Mostrar u ocultar contraseña"><i data-lucide="eye" class="h-4 w-4"></i></button></div>
+                            <div class="relative"><i data-lucide="shield-check" class="auth-input-icon"></i><input asp-for="ConfirmPassword" id="register-confirm-password" class="input-base auth-input pr-11" placeholder="Repite la contraseña" autocomplete="new-password" required /><button type="button" data-toggle-password="register-confirm-password" class="auth-password-toggle" aria-label="Mostrar u ocultar contraseña"><i data-lucide="eye" class="h-4 w-4"></i></button></div>
                             <span asp-validation-for="ConfirmPassword" class="field-validation"></span>
                         </div>
                     </div>

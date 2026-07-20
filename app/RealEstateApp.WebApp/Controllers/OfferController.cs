@@ -9,6 +9,7 @@ using RealEstateApp.Application.ViewModels.Offers;
 using RealEstateApp.Application.ViewModels.Shared;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Enums;
+using RealEstateApp.WebApp.Constants;
 using RealEstateApp.WebApp.Extensions;
 using RealEstateApp.WebApp.Filters;
 
@@ -17,7 +18,7 @@ namespace RealEstateApp.WebApp.Controllers;
 [SessionAuthorize]
 public sealed class OfferController : BaseController
 {
-    private const int PageSize = 12;
+    private const int PageSize = UIConstants.DefaultPageSize;
 
     private readonly IClientService _clientService;
     private readonly IAgentService _agentService;
@@ -51,12 +52,6 @@ public sealed class OfferController : BaseController
         CancellationToken cancellationToken = default
     )
     {
-        if (!ModelState.IsValid)
-        {
-            this.SetWarningMessage("El filtro de estado enviado no es válido.");
-            return RedirectToAction(nameof(MyOffers), new { propertyId });
-        }
-
         page = Math.Max(1, page);
         var result = await _clientService.GetMyOffersAsync(
             new GetMyOffersRequest(page, PageSize, propertyId, status),
@@ -160,12 +155,6 @@ public sealed class OfferController : BaseController
         CancellationToken cancellationToken = default
     )
     {
-        if (!ModelState.IsValid)
-        {
-            this.SetWarningMessage("El filtro de estado enviado no es válido.");
-            return RedirectToAction(nameof(PropertyOffers), new { propertyId, clientId });
-        }
-
         page = Math.Max(1, page);
         clientId = string.IsNullOrWhiteSpace(clientId) ? null : clientId.Trim();
 
@@ -252,7 +241,7 @@ public sealed class OfferController : BaseController
         var property = propertyResult.GetValue();
         var viewModel = new PropertyOffersViewModel
         {
-            PageTitle = $"Ofertas de {property.Code}",
+            PageTitle = $"Ofertas · {property.PropertyTypeName}",
             PropertyId = property.Id,
             PropertyCode = property.Code,
             PropertyDescription = property.Description,

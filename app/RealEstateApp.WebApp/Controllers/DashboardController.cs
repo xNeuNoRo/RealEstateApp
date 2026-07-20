@@ -27,9 +27,9 @@ public sealed class DashboardController : BaseController
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(CancellationToken ct = default)
+    public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
     {
-        var result = await _adminService.GetDashboardAsync(ct);
+        var result = await _adminService.GetDashboardAsync(cancellationToken);
 
         var viewModel = new AdminDashboardViewModel
         {
@@ -46,7 +46,7 @@ public sealed class DashboardController : BaseController
         if (result.IsFailure)
             this.SetErrorMessage(result.GetError().Message);
 
-        await this.PopulateBaseViewModelAsync(viewModel, _viewModelBuilder, ct);
+        await this.PopulateBaseViewModelAsync(viewModel, _viewModelBuilder, cancellationToken);
         return View(viewModel);
     }
 }

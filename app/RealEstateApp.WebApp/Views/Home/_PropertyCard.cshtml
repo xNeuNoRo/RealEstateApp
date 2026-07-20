@@ -10,10 +10,9 @@
 <article class="group relative overflow-hidden rounded-2xl border border-default bg-[var(--color-bg-elevated)] shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-600/10 card-fade-in">
     @if (isClient)
     {
-        <form asp-controller="Property" asp-action="ToggleFavorite" method="post" class="absolute right-3 top-3 z-20">
+        <form asp-controller="Property" asp-action="@(Model.IsFavorite ? "RemoveFavorite" : "AddFavorite")" method="post" class="absolute right-3 top-3 z-20">
             @Html.AntiForgeryToken()
             <input type="hidden" name="propertyId" value="@Model.Id" />
-            <input type="hidden" name="add" value="@(!Model.IsFavorite)" />
             <input type="hidden" name="returnUrl" value="@returnUrl" />
             <button type="submit" class="flex h-10 w-10 items-center justify-center rounded-full border border-white/60 bg-white/90 text-gray-500 shadow-md backdrop-blur transition hover:scale-105 hover:text-danger-500 dark:border-gray-700 dark:bg-gray-900/90 @(Model.IsFavorite ? "text-danger-500" : "")" aria-label="@(Model.IsFavorite ? "Quitar propiedad de favoritas" : "Agregar propiedad a favoritas")" title="@(Model.IsFavorite ? "Quitar de favoritas" : "Agregar a favoritas")">
                 <i data-lucide="heart" class="h-4 w-4 @(Model.IsFavorite ? "fill-current" : "")"></i>

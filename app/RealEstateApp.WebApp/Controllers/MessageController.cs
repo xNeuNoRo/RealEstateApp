@@ -128,20 +128,6 @@ public sealed class MessageController : BaseController
         }
 
         var pageResult = conversationResult.GetValue();
-        if (page <= 1 && pageResult.TotalPages > 1)
-        {
-            var lastPage = pageResult.TotalPages;
-            conversationResult = IsAgent
-                ? await _agentService.GetConversationAsync(
-                    new GetConversationRequest(propertyId, clientId, lastPage, PageSize),
-                    cancellationToken
-                )
-                : await _clientService.GetConversationAsync(
-                    new GetConversationRequest(propertyId, Page: lastPage),
-                    cancellationToken
-                );
-            pageResult = conversationResult.GetValue();
-        }
 
         if (pageResult.TotalPages > 0 && page > pageResult.TotalPages)
             return RedirectToAction(

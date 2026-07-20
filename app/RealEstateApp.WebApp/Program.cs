@@ -55,6 +55,7 @@ builder.Services.AddRateLimiter(options =>
     );
 });
 
+builder.Services.AddMemoryCache();
 builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddIdentityForWebApp(builder.Configuration);

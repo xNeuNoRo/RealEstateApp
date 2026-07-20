@@ -9,6 +9,7 @@ using RealEstateApp.Application.Interfaces.Services;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Enums;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
+using RealEstateApp.Domain.ValueObjects;
 using PropertyEntity = RealEstateApp.Domain.Entities.Property;
 
 namespace RealEstateApp.Application.UseCases.Property;
@@ -108,13 +109,16 @@ public sealed class GetPropertyListUseCase : IGetPropertyListUseCase
         IReadOnlySet<string> activeAgentIds
     )
     {
+        var isCodeSearch = !string.IsNullOrWhiteSpace(req.SearchTerm)
+            && req.SearchTerm.Length == 6
+            && req.SearchTerm.All(char.IsDigit);
+
         return p =>
             (req.IncludeAllStatuses || activeAgentIds.Contains(p.AgentId))
             && (req.IncludeAllStatuses || p.Status == PropertyStatus.Available)
-            && (
-                string.IsNullOrWhiteSpace(req.SearchTerm)
-                || (p.Description.Contains(req.SearchTerm) || p.Code.Value.Contains(req.SearchTerm))
-            )
+            && (string.IsNullOrWhiteSpace(req.SearchTerm)
+                || p.Description.Contains(req.SearchTerm)
+                || (isCodeSearch && p.Code == PropertyCode.Unsafe(req.SearchTerm)))
             && (!req.PriceMin.HasValue || p.Price.Amount >= req.PriceMin.Value)
             && (!req.PriceMax.HasValue || p.Price.Amount <= req.PriceMax.Value)
             && (!req.SizeMin.HasValue || p.Size.Area >= req.SizeMin.Value)
@@ -123,7 +127,7 @@ public sealed class GetPropertyListUseCase : IGetPropertyListUseCase
             && (!req.Bathrooms.HasValue || p.Bathrooms == req.Bathrooms.Value)
             && (!req.PropertyTypeId.HasValue || p.PropertyTypeId == req.PropertyTypeId.Value)
             && (!req.SaleTypeId.HasValue || p.SaleTypeId == req.SaleTypeId.Value)
-            && (string.IsNullOrWhiteSpace(req.Code) || p.Code.Value == req.Code)
+            && (string.IsNullOrWhiteSpace(req.Code) || p.Code == PropertyCode.Unsafe(req.Code))
             && (string.IsNullOrWhiteSpace(req.AgentId) || p.AgentId == req.AgentId);
     }
 }

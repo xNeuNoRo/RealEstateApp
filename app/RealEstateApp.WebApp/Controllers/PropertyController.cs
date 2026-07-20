@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using RealEstateApp.Application.Adapters;
 using RealEstateApp.Application.Dtos.Catalog.Requests;
 using RealEstateApp.Application.Dtos.Favorites.Requests;
@@ -18,6 +19,7 @@ using RealEstateApp.Application.ViewModels.Shared;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Enums;
 using RealEstateApp.Domain.Settings;
+using RealEstateApp.WebApp.Constants;
 using RealEstateApp.WebApp.Extensions;
 using RealEstateApp.WebApp.Filters;
 
@@ -25,8 +27,8 @@ namespace RealEstateApp.WebApp.Controllers;
 
 public sealed class PropertyController : BaseController
 {
-    private const int PageSize = 12;
-    private const int CatalogPageSize = 100;
+    private const int PageSize = UIConstants.DefaultPageSize;
+    private const int CatalogPageSize = UIConstants.CatalogPageSize;
     private const long PropertyUploadLimit = (4 * FileConstants.MaxImageFileSizeBytes) + (1024 * 1024);
 
     private readonly IGetPropertyListUseCase _getPropertyList;
@@ -44,6 +46,7 @@ public sealed class PropertyController : BaseController
     private readonly IGetMyOffersUseCase _getMyOffers;
     private readonly IViewModelBuilder<BaseViewModel> _viewModelBuilder;
     private readonly IMapper _mapper;
+    private readonly IMemoryCache _cache;
 
     public PropertyController(
         ICurrentUserService currentUser,
@@ -61,7 +64,8 @@ public sealed class PropertyController : BaseController
         IRemoveFavoriteUseCase removeFavorite,
         IGetMyOffersUseCase getMyOffers,
         IViewModelBuilder<BaseViewModel> viewModelBuilder,
-        IMapper mapper
+        IMapper mapper,
+        IMemoryCache cache
     )
         : base(currentUser)
     {
@@ -80,6 +84,7 @@ public sealed class PropertyController : BaseController
         _getMyOffers = getMyOffers;
         _viewModelBuilder = viewModelBuilder;
         _mapper = mapper;
+        _cache = cache;
     }
 
     [HttpGet]
@@ -184,41 +189,46 @@ public sealed class PropertyController : BaseController
     [ValidateAntiForgeryToken]
     [SessionAuthorize]
     [RoleAuthorize(nameof(Roles.Client))]
-    public async Task<IActionResult> ToggleFavorite(
+    public async Task<IActionResult> AddFavorite(
         int propertyId,
-        bool add,
         string? returnUrl,
         CancellationToken cancellationToken = default
     )
     {
-        Error? error = null;
-        if (add)
-        {
-            var result = await _addFavorite.ExecuteAsync(
-                new AddFavoriteRequest(propertyId),
-                cancellationToken
-            );
-            if (result.IsFailure)
-                error = result.GetError();
-        }
-        else
-        {
-            var result = await _removeFavorite.ExecuteAsync(
-                new RemoveFavoriteRequest(propertyId),
-                cancellationToken
-            );
-            if (result.IsFailure)
-                error = result.GetError();
-        }
+        var result = await _addFavorite.ExecuteAsync(
+            new AddFavoriteRequest(propertyId),
+            cancellationToken
+        );
 
-        if (error is not null)
-            this.SetWarningMessage(error.Message);
+        if (result.IsFailure)
+            this.SetWarningMessage(result.GetError().Message);
         else
-            this.SetSuccessMessage(
-                add
-                    ? "La propiedad fue agregada a sus favoritas correctamente."
-                    : "La propiedad fue eliminada de sus favoritas correctamente."
-            );
+            this.SetSuccessMessage("La propiedad fue agregada a sus favoritas correctamente.");
+
+        return !string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)
+            ? LocalRedirect(returnUrl)
+            : RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [SessionAuthorize]
+    [RoleAuthorize(nameof(Roles.Client))]
+    public async Task<IActionResult> RemoveFavorite(
+        int propertyId,
+        string? returnUrl,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var result = await _removeFavorite.ExecuteAsync(
+            new RemoveFavoriteRequest(propertyId),
+            cancellationToken
+        );
+
+        if (result.IsFailure)
+            this.SetWarningMessage(result.GetError().Message);
+        else
+            this.SetSuccessMessage("La propiedad fue eliminada de sus favoritas correctamente.");
 
         return !string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)
             ? LocalRedirect(returnUrl)
@@ -490,22 +500,31 @@ public sealed class PropertyController : BaseController
         CancellationToken cancellationToken
     )
     {
-        var propertyTypes = await LoadAllCatalogItemsAsync(page =>
-            _getPropertyTypes.ExecuteAsync(
-                new GetAllPropertyTypesRequest(Page: page, PageSize: CatalogPageSize),
-                cancellationToken
+        var propertyTypes = await CachedCatalogAsync(
+            "PropertyTypes",
+            () => LoadAllCatalogItemsAsync(page =>
+                _getPropertyTypes.ExecuteAsync(
+                    new GetAllPropertyTypesRequest(Page: page, PageSize: CatalogPageSize),
+                    cancellationToken
+                )
             )
         );
-        var saleTypes = await LoadAllCatalogItemsAsync(page =>
-            _getSaleTypes.ExecuteAsync(
-                new GetAllSaleTypesRequest(Page: page, PageSize: CatalogPageSize),
-                cancellationToken
+        var saleTypes = await CachedCatalogAsync(
+            "SaleTypes",
+            () => LoadAllCatalogItemsAsync(page =>
+                _getSaleTypes.ExecuteAsync(
+                    new GetAllSaleTypesRequest(Page: page, PageSize: CatalogPageSize),
+                    cancellationToken
+                )
             )
         );
-        var improvements = await LoadAllCatalogItemsAsync(page =>
-            _getImprovements.ExecuteAsync(
-                new GetAllImprovementsRequest(Page: page, PageSize: CatalogPageSize),
-                cancellationToken
+        var improvements = await CachedCatalogAsync(
+            "Improvements",
+            () => LoadAllCatalogItemsAsync(page =>
+                _getImprovements.ExecuteAsync(
+                    new GetAllImprovementsRequest(Page: page, PageSize: CatalogPageSize),
+                    cancellationToken
+                )
             )
         );
 
@@ -514,6 +533,19 @@ public sealed class PropertyController : BaseController
         model.Improvements = _mapper.Map<IReadOnlyList<SelectListItemViewModel>>(improvements);
 
         AddCatalogAvailabilityErrors(model.PropertyTypes, model.SaleTypes, model.Improvements);
+    }
+
+    private async Task<IReadOnlyList<T>> CachedCatalogAsync<T>(
+        string key, Func<Task<IReadOnlyList<T>>> loader)
+    {
+        if (_cache.TryGetValue(key, out IReadOnlyList<T>? cached) && cached is not null)
+            return cached;
+
+        var items = await loader();
+
+        _cache.Set(key, items, TimeSpan.FromMinutes(10));
+
+        return items;
     }
 
     private async Task<IReadOnlyList<T>> LoadAllCatalogItemsAsync<T>(

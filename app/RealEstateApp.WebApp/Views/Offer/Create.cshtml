@@ -4,7 +4,7 @@
 }
 
 <div class="mx-auto max-w-6xl space-y-6">
-    <nav aria-label="Ruta de navegación"><ol class="flex items-center gap-2 text-sm text-muted"><li><a asp-controller="Property" asp-action="Detail" asp-route-id="@Model.PropertyId" class="font-semibold transition-colors hover:text-brand-600">Propiedad @Model.PropertyCode</a></li><li aria-hidden="true"><i data-lucide="chevron-right" class="h-4 w-4"></i></li><li class="font-semibold text-default" aria-current="page">Nueva oferta</li></ol></nav>
+    <nav aria-label="Ruta de navegación"><ol class="flex items-center gap-2 text-sm text-muted"><li><a asp-controller="Property" asp-action="Detail" asp-route-id="@Model.PropertyId" class="font-semibold transition-colors hover:text-brand-600">@Model.PropertyTypeName · @Model.SaleTypeName</a></li><li aria-hidden="true"><i data-lucide="chevron-right" class="h-4 w-4"></i></li><li class="font-semibold text-default" aria-current="page">Nueva oferta</li></ol></nav>
 
     <div class="grid gap-7 lg:grid-cols-[minmax(0,1fr)_24rem]">
         <section class="rounded-3xl border border-default bg-[var(--color-bg-elevated)] p-6 shadow-sm sm:p-9" aria-labelledby="create-offer-title">
