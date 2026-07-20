@@ -64,6 +64,9 @@ public sealed class PropertyRepository : GenericRepository<Property>, IPropertyR
         if (options is null)
             return query;
 
+        if (options.UseSplitQuery)
+            query = query.AsSplitQuery();
+
         foreach (var include in options.Includes)
             query = query.Include(include);
 

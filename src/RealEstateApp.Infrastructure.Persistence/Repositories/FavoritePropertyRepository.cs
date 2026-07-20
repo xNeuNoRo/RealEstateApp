@@ -78,6 +78,9 @@ public sealed class FavoritePropertyRepository
         if (options.Filter is not null)
             query = query.Where(options.Filter);
 
+        if (options.UseSplitQuery)
+            query = query.AsSplitQuery();
+
         foreach (var include in options.Includes)
             query = query.Include(include);
 

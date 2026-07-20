@@ -60,6 +60,7 @@ public sealed class SearchPropertyByCodeUseCase : ISearchPropertyByCodeUseCase
                     p => p.Images,
                     p => p.Improvements,
                 ],
+                UseSplitQuery = true,
             },
             cancellationToken
         );

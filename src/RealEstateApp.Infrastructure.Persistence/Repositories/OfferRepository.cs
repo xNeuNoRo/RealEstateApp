@@ -145,6 +145,9 @@ public sealed class OfferRepository : GenericRepository<Offer>, IOfferRepository
         if (options is null)
             return query;
 
+        if (options.UseSplitQuery)
+            query = query.AsSplitQuery();
+
         foreach (var include in options.Includes)
             query = query.Include(include);
 

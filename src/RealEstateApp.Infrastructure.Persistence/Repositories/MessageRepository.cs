@@ -57,6 +57,9 @@ public sealed class MessageRepository : GenericRepository<Message>, IMessageRepo
         if (options is null)
             return query;
 
+        if (options.UseSplitQuery)
+            query = query.AsSplitQuery();
+
         foreach (var include in options.Includes)
             query = query.Include(include);
 

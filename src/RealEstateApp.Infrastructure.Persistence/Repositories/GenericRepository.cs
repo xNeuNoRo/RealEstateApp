@@ -29,6 +29,9 @@ public class GenericRepository<T> : IGenericRepository<T>
         foreach (var include in includes)
             query = query.Include(include);
 
+        if (includes.Length > 1)
+            query = query.AsSplitQuery();
+
         return await query.FirstOrDefaultAsync(x => x.Id == id, ct);
     }
 
@@ -92,6 +95,9 @@ public class GenericRepository<T> : IGenericRepository<T>
 
         if (!options.IsTracking)
             query = query.AsNoTracking();
+
+        if (options.UseSplitQuery)
+            query = query.AsSplitQuery();
 
         foreach (var include in options.Includes)
             query = query.Include(include);
