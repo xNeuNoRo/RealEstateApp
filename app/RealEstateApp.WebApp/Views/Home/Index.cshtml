@@ -53,7 +53,7 @@
             <div asp-validation-summary="All" class="mb-6 rounded-2xl border border-danger-500/30 bg-danger-50 px-4 py-3 text-sm font-medium text-danger-700 dark:bg-danger-50"></div>
         }
 
-        <div class="grid gap-8 lg:grid-cols-[16rem_minmax(0,1fr)]">
+        <div class="grid gap-8 lg:grid-cols-[20rem_minmax(0,1fr)]">
             <aside class="hidden self-start rounded-2xl border border-default bg-[var(--color-bg-elevated)] p-5 shadow-sm lg:block lg:sticky lg:top-20" aria-label="Filtros de propiedades">
                 <div class="mb-5 flex items-center gap-2"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-100/20 dark:text-brand-500"><i data-lucide="sliders-horizontal" class="h-4 w-4"></i></span><div><h3 class="text-sm font-black text-default">Refina tu búsqueda</h3><p class="text-xs text-subtle">Todos filtros combinables</p></div></div>
                 <partial name="~/Views/Home/_PropertyFilters.cshtml" model="Model.Filters" />

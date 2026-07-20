@@ -29,20 +29,6 @@ public static class FileConstants
         "image/webp",
     ];
 
-    /// <summary>
-    /// Magic bytes por extensión de imagen.
-    /// </summary>
-    public static readonly IReadOnlyDictionary<string, byte[]> ImageMagicBytes = new Dictionary<
-        string,
-        byte[]
-    >
-    {
-        [".jpg"] = [0xFF, 0xD8, 0xFF],
-        [".jpeg"] = [0xFF, 0xD8, 0xFF],
-        [".png"] = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A],
-        [".webp"] = [0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50],
-    };
-
     /// <summary>Subcarpeta para imágenes de propiedades.</summary>
     public const string PropertiesFolder = "properties";
 

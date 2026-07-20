@@ -104,7 +104,7 @@
 
                     <div class="space-y-1.5">
                         <label asp-for="Phone" class="label-base"></label>
-                        <div class="relative"><i data-lucide="phone" class="auth-input-icon"></i><input asp-for="Phone" class="input-base auth-input" placeholder="809-555-1234" autocomplete="tel" inputmode="tel" data-phone-mask required /></div>
+                        <div class="relative"><i data-lucide="phone" class="auth-input-icon"></i><input asp-for="Phone" type="tel" class="input-base auth-input" placeholder="809-555-1234" autocomplete="tel" inputmode="tel" data-phone-mask required /></div>
                         <p class="helper-text">Números 809, 829 o 849 en formato 000-000-0000.</p>
                         <span asp-validation-for="Phone" class="field-validation"></span>
                     </div>

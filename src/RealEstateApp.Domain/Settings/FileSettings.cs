@@ -25,10 +25,6 @@ public sealed class FileSettings
     /// <summary>Tipos MIME permitidos para imágenes.</summary>
     public IReadOnlyList<string> AllowedMimeTypes { get; init; } = FileConstants.AllowedMimeTypes;
 
-    /// <summary>Bytes de firma (magic bytes) por extensión para validar formato real.</summary>
-    public IReadOnlyDictionary<string, byte[]> ImageMagicBytes { get; init; } =
-        FileConstants.ImageMagicBytes;
-
     /// <summary>
     /// Verifica si una extensión o nombre de archivo tiene una extensión permitida.
     /// </summary>

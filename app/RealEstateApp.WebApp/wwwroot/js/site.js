@@ -441,6 +441,22 @@
     form.submit();
   }
 
+  function initPhoneMasks() {
+    document.querySelectorAll("[data-phone-mask]").forEach(function (input) {
+      if (input.dataset.bound) return;
+      input.dataset.bound = "1";
+      input.addEventListener("input", function () {
+        var value = input.value.replace(/\D/g, "").slice(0, 10);
+        if (value.length > 6)
+          value =
+            value.slice(0, 3) + "-" + value.slice(3, 6) + "-" + value.slice(6);
+        else if (value.length > 3)
+          value = value.slice(0, 3) + "-" + value.slice(3);
+        input.value = value;
+      });
+    });
+  }
+
   // ============================================================
   // EXPOSED API
   // ============================================================
@@ -459,6 +475,7 @@
     initTabs: initTabs,
     initSidebar: initSidebar,
     initUserDropdown: initUserDropdown,
+    initPhoneMasks: initPhoneMasks,
     submitDynamicPost: submitDynamicPost,
   };
 
@@ -472,6 +489,7 @@
     initPasswordStrength();
     initImagePreview();
     initTabs();
+    initPhoneMasks();
     initSidebar();
     initUserDropdown();
     if (window.lucide) lucide.createIcons();
