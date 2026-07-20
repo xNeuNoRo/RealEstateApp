@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
+using RealEstateApp.Domain.Common;
+using RealEstateApp.Domain.Interfaces.Events;
 
 namespace RealEstateApp.Infrastructure.Persistence.Contexts;
 
@@ -36,7 +38,18 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
         return new AppDbContext(
             optionsBuilder.Options,
             TimeProvider.System,
-            NullLogger<AppDbContext>.Instance
+            NullLogger<AppDbContext>.Instance,
+            NullDomainEventDispatcher.Instance
         );
+    }
+
+    private sealed class NullDomainEventDispatcher : IDomainEventDispatcher
+    {
+        // Instancia singleton para evitar múltiples instancias de un dispatcher nulo.
+        public static readonly NullDomainEventDispatcher Instance = new();
+
+        // Implementación nula del método DispatchAsync, que no hace nada y retorna una tarea completada.
+        public Task DispatchAsync<TEvent>(TEvent @event, CancellationToken ct = default)
+            where TEvent : IDomainEvent => Task.CompletedTask;
     }
 }

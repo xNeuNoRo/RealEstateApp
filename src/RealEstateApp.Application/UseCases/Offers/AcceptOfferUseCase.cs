@@ -103,24 +103,35 @@ public sealed class AcceptOfferUseCase : IAcceptOfferUseCase
         if (acceptResult.IsFailure)
             return Result<OfferResponse>.Failure(acceptResult.GetError());
 
-        await _unitOfWork.BeginTransactionAsync(ct: cancellationToken);
-        _offerRepository.Update(offer);
-        try
-        {
-            await _unitOfWork.CommitAsync(cancellationToken);
-        }
-        catch
-        {
-            if (await _offerRepository.HasAcceptedOfferAsync(offer.PropertyId, cancellationToken))
-                return Result<OfferResponse>.Failure(
-                    Error.Conflict(
-                        "Offer.PropertyHasAcceptedOffer",
-                        "La propiedad ya tiene una oferta aceptada."
-                    )
-                );
+        var txResult = await _unitOfWork.ExecuteInTransactionAsync(
+            async (ct) =>
+            {
+                _offerRepository.Update(offer);
 
-            throw;
-        }
+                try
+                {
+                    await _unitOfWork.SaveChangesAsync(ct);
+                }
+                catch
+                {
+                    if (await _offerRepository.HasAcceptedOfferAsync(offer.PropertyId, ct))
+                        return Result.Failure(
+                            Error.Conflict(
+                                "Offer.PropertyHasAcceptedOffer",
+                                "La propiedad ya tiene una oferta aceptada."
+                            )
+                        );
+
+                    throw;
+                }
+
+                return Result.Success();
+            },
+            ct: cancellationToken
+        );
+
+        if (txResult.IsFailure)
+            return Result<OfferResponse>.Failure(txResult.GetError());
 
         _logger.LogInformation(
             "Oferta {OfferId} aceptada por agente {AgentId}. Propiedad {PropertyId}.",

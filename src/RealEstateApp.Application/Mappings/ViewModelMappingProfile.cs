@@ -11,7 +11,6 @@ using RealEstateApp.Application.Dtos.Chat.Responses;
 using RealEstateApp.Application.Dtos.Client.Requests;
 using RealEstateApp.Application.Dtos.Client.Responses;
 using RealEstateApp.Application.Dtos.Favorites.Responses;
-using RealEstateApp.Application.Dtos.Offers.Requests;
 using RealEstateApp.Application.Dtos.Offers.Responses;
 using RealEstateApp.Application.Dtos.Property.Requests;
 using RealEstateApp.Application.Dtos.Property.Responses;
@@ -147,7 +146,6 @@ public sealed class ViewModelMappingProfile : Profile
         CreateMap<OfferResponse, OfferListItemViewModel>();
         CreateMap<OfferClientSummaryResponse, OfferClientSummaryViewModel>();
         CreateMap<OfferResponse, ViewModels.Offers.OfferDetailViewModel>();
-        CreateMap<CreateOfferViewModel, CreateOfferRequest>();
     }
 
     private void MapShared()

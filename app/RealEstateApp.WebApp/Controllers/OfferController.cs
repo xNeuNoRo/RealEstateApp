@@ -91,9 +91,13 @@ public sealed class OfferController : BaseController
         CancellationToken cancellationToken = default
     )
     {
-        var model = new CreateOfferViewModel { PropertyId = propertyId };
-        if (!await PopulatePropertyAsync(model, cancellationToken))
+        var summary = await GetPropertySummaryAsync(propertyId, cancellationToken);
+        if (summary is null)
             return RedirectToAction("Index", "Property");
+
+        ViewBag.PropertySummary = summary;
+
+        var model = new CreateOfferViewModel { PropertyId = propertyId };
 
         var pendingResult = await _clientService.GetMyOffersAsync(
             new GetMyOffersRequest(PageSize: 1, PropertyId: propertyId, Status: OfferStatus.Pending),
@@ -117,12 +121,14 @@ public sealed class OfferController : BaseController
         CancellationToken cancellationToken = default
     )
     {
-        var propertyIsAvailable = await PopulatePropertyAsync(model, cancellationToken);
-        if (!propertyIsAvailable)
+        var summary = await GetPropertySummaryAsync(model.PropertyId, cancellationToken);
+        if (summary is null)
         {
             this.SetWarningMessage("La propiedad ya no está disponible para recibir ofertas.");
             return RedirectToAction("Index", "Property");
         }
+
+        ViewBag.PropertySummary = summary;
 
         if (!ModelState.IsValid)
         {
@@ -301,13 +307,13 @@ public sealed class OfferController : BaseController
         return RedirectAfterMutation(propertyId, returnUrl);
     }
 
-    private async Task<bool> PopulatePropertyAsync(
-        CreateOfferViewModel model,
+    private async Task<PropertySummaryViewModel?> GetPropertySummaryAsync(
+        int propertyId,
         CancellationToken cancellationToken
     )
     {
         var result = await _getPropertyDetail.ExecuteAsync(
-            new GetPropertyDetailRequest(model.PropertyId),
+            new GetPropertyDetailRequest(propertyId),
             cancellationToken
         );
         if (
@@ -318,19 +324,21 @@ public sealed class OfferController : BaseController
                 StringComparison.OrdinalIgnoreCase
             )
         )
-            return false;
+            return null;
 
         var property = result.GetValue();
-        model.PropertyCode = property.Code;
-        model.PropertyTitle = property.Title;
-        model.PropertyDescription = property.Description;
-        model.PropertyTypeName = property.PropertyTypeName;
-        model.SaleTypeName = property.SaleTypeName;
-        model.PropertyMainImageUrl = property.MainImageUrl;
-        model.PropertyPrice = property.Price;
-        model.PropertyCurrency = property.Currency;
-        model.PageTitle = $"Ofertar por {property.Title}";
-        return true;
+        return new PropertySummaryViewModel
+        {
+            PropertyId = property.Id,
+            Code = property.Code,
+            Title = property.Title,
+            Description = property.Description,
+            PropertyTypeName = property.PropertyTypeName,
+            SaleTypeName = property.SaleTypeName,
+            MainImageUrl = property.MainImageUrl,
+            Price = property.Price,
+            Currency = property.Currency,
+        };
     }
 
     private IActionResult RedirectAfterMutation(int propertyId, string? returnUrl) =>
