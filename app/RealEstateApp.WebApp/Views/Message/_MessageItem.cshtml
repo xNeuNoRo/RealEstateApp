@@ -2,13 +2,13 @@
 @inject ICurrentUserService CurrentUser
 @{
     var isMine = string.Equals(Model.SenderId, CurrentUser.UserId, StringComparison.Ordinal);
-    var alignClass = isMine ? "flex-row-reverse" : "";
+    var alignClass = isMine ? "flex-row-reverse" : "justify-start";
     var bubbleClass = isMine
         ? "bg-brand-600 text-white rounded-2xl rounded-tr-sm"
         : "bg-[var(--color-bg-tertiary)] text-default rounded-2xl rounded-tl-sm";
 }
 
-<div class="flex items-start gap-3 @alignClass" role="listitem" aria-label="@(isMine ? "Tu mensaje" : "Mensaje de " + Model.SenderName)">
+<div class="flex w-full items-start gap-3 @alignClass" role="listitem" aria-label="@(isMine ? "Tu mensaje" : "Mensaje de " + Model.SenderName)">
     @if (!isMine)
     {
         <div class="w-8 h-8 shrink-0 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
@@ -18,7 +18,14 @@
         </div>
     }
 
-    <div class="max-w-[75%] px-4 py-2.5 shadow-sm @bubbleClass">
+    @if (isMine)
+    {
+        <div class="w-8 h-8 shrink-0 rounded-full bg-brand-600 flex items-center justify-center">
+            <i data-lucide="send" class="h-4 w-4 text-white/80" aria-hidden="true"></i>
+        </div>
+    }
+
+    <div class="max-w-[65%] px-4 py-2.5 shadow-sm @bubbleClass">
         @if (!isMine && !string.IsNullOrWhiteSpace(Model.SenderName))
         {
             <p class="mb-1 text-[10px] font-bold uppercase tracking-wide opacity-70">@Model.SenderName</p>
@@ -28,11 +35,4 @@
             @Model.SentAt.ToLocalTime().ToString("HH:mm")
         </time>
     </div>
-
-    @if (isMine)
-    {
-        <div class="w-8 h-8 shrink-0 rounded-full bg-brand-600 flex items-center justify-center">
-            <i data-lucide="send" class="h-4 w-4 text-white/80" aria-hidden="true"></i>
-        </div>
-    }
 </div>
