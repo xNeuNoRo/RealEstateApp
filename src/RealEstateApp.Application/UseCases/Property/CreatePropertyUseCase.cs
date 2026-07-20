@@ -102,6 +102,7 @@ public sealed class CreatePropertyUseCase : ICreatePropertyUseCase
 
             var propertyResult = Domain.Entities.Property.Create(
                 propertyCode,
+                request.Title,
                 request.Description,
                 price.GetValue(),
                 size.GetValue(),

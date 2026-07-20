@@ -8,6 +8,7 @@ public sealed class PropertyOffersViewModel : BaseViewModel
 {
     public int PropertyId { get; init; }
     public string PropertyCode { get; init; } = null!;
+    public string PropertyTitle { get; init; } = null!;
     public string PropertyDescription { get; init; } = null!;
     public string? PropertyTypeName { get; init; }
     public string? PropertyMainImageUrl { get; init; }

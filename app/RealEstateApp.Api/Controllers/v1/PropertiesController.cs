@@ -69,6 +69,7 @@ public class PropertiesController : BaseApiController
             {
                 Id = i.Id,
                 Code = i.Code,
+                Title = i.Title,
                 PropertyType = i.PropertyTypeName ?? "",
                 SaleType = i.SaleTypeName ?? "",
                 Price = i.Price,
@@ -87,6 +88,7 @@ public class PropertiesController : BaseApiController
         {
             Id = d.Id,
             Code = d.Code,
+            Title = d.Title,
             PropertyType = d.PropertyTypeName ?? "",
             SaleType = d.SaleTypeName ?? "",
             Price = d.Price,

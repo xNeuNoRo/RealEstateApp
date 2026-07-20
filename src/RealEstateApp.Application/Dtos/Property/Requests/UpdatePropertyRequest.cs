@@ -4,6 +4,7 @@ namespace RealEstateApp.Application.Dtos.Property.Requests;
 
 public sealed record UpdatePropertyRequest(
     int PropertyId,
+    string? Title = null,
     string? Description = null,
     decimal? Price = null,
     string? Currency = null,

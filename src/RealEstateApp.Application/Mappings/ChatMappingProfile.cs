@@ -20,6 +20,7 @@ public sealed class ChatMappingProfile : Profile
 
         CreateMap<Message, ConversationSummaryResponse>()
             .ForMember(d => d.PropertyCode, o => o.MapFrom(s => s.Property.Code.Value))
+            .ForMember(d => d.PropertyTitle, o => o.MapFrom(s => s.Property.Title))
             .ForMember(d => d.PropertyDescription, o => o.MapFrom(s => s.Property.Description))
             .ForMember(d => d.LastMessageContent, o => o.MapFrom(s => s.Content))
             .ForMember(d => d.LastMessageSenderType, o => o.MapFrom(s => s.SenderType.ToString()))

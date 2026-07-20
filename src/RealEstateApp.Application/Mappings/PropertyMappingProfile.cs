@@ -9,6 +9,7 @@ public sealed class PropertyMappingProfile : Profile
     public PropertyMappingProfile()
     {
         CreateMap<Property, PropertyListItemResponse>()
+            .ForMember(d => d.Title, o => o.MapFrom(s => s.Title))
             .ForMember(d => d.Code, o => o.MapFrom(s => s.Code.Value))
             .ForMember(d => d.Price, o => o.MapFrom(s => s.Price.Amount))
             .ForMember(d => d.Currency, o => o.MapFrom(s => s.Price.Currency))
@@ -34,6 +35,7 @@ public sealed class PropertyMappingProfile : Profile
             .ForMember(d => d.AgentName, o => o.Ignore());
 
         CreateMap<Property, PropertyDetailResponse>()
+            .ForMember(d => d.Title, o => o.MapFrom(s => s.Title))
             .ForMember(d => d.Code, o => o.MapFrom(s => s.Code.Value))
             .ForMember(d => d.Price, o => o.MapFrom(s => s.Price.Amount))
             .ForMember(d => d.Currency, o => o.MapFrom(s => s.Price.Currency))
@@ -71,6 +73,7 @@ public sealed class PropertyMappingProfile : Profile
             .ForMember(d => d.AgentProfileImage, o => o.Ignore());
 
         CreateMap<Property, PropertySummaryResponse>()
+            .ForMember(d => d.Title, o => o.MapFrom(s => s.Title))
             .ForMember(d => d.Code, o => o.MapFrom(s => s.Code.Value))
             .ForMember(d => d.Price, o => o.MapFrom(s => s.Price.Amount))
             .ForMember(d => d.Currency, o => o.MapFrom(s => s.Price.Currency))

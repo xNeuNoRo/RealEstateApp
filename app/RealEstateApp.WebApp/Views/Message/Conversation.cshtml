@@ -3,7 +3,7 @@
 @using Microsoft.AspNetCore.Routing
 @{
     var isAgent = CurrentUser.IsInRole("Agent");
-    ViewData["Title"] = $"Conversación: {Model.PropertyCode}";
+    ViewData["Title"] = $"Conversación: {Model.PropertyTitle}";
     var returnUrl = Context.Request.Path + Context.Request.QueryString;
     var conversationRouteValues = new Dictionary<string, object?>
     {
@@ -18,7 +18,7 @@
         <ol class="flex items-center gap-2 text-sm text-muted">
             <li><a asp-action="Index" class="font-semibold transition-colors hover:text-brand-600">Mensajes</a></li>
             <li aria-hidden="true"><i data-lucide="chevron-right" class="h-4 w-4"></i></li>
-            <li class="font-mono text-xs text-default" aria-current="page">@Model.PropertyCode</li>
+            <li class="text-xs text-default" aria-current="page">@Model.PropertyTitle</li>
         </ol>
     </nav>
 
@@ -29,7 +29,7 @@
                     <i data-lucide="building-2" class="h-7 w-7 text-brand-600"></i>
                 </div>
                 <div class="min-w-0">
-                    <p class="text-xs font-black uppercase tracking-[.16em] text-brand-600">@Model.PropertyCode</p>
+                    <p class="text-xs font-black uppercase tracking-[.16em] text-brand-600">@Model.PropertyTitle</p>
                     <h1 class="mt-1 line-clamp-2 text-2xl font-black tracking-tight text-default">@Model.PropertyDescription</h1>
                     <div class="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
                         <span class="font-semibold text-default">@Model.OtherUserName</span>

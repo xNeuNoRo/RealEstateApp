@@ -11,6 +11,7 @@ public sealed class OfferMappingProfile : Profile
     {
         CreateMap<Offer, OfferResponse>()
             .ForMember(d => d.PropertyCode, o => o.MapFrom(s => s.Property != null ? s.Property.Code.Value : string.Empty))
+            .ForMember(d => d.PropertyTitle, o => o.MapFrom(s => s.Property != null ? s.Property.Title : string.Empty))
             .ForMember(d => d.PropertyDescription, o => o.MapFrom(s => s.Property != null ? s.Property.Description : string.Empty))
             .ForMember(d => d.PropertyTypeName, o => o.MapFrom(s => s.Property != null && s.Property.PropertyType != null ? s.Property.PropertyType.Name : null))
             .ForMember(d => d.SaleTypeName, o => o.MapFrom(s => s.Property != null && s.Property.SaleType != null ? s.Property.SaleType.Name : null))

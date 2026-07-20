@@ -20,6 +20,7 @@ public sealed class PropertyConfiguration : IEntityTypeConfiguration<Property>
             .HasMaxLength(6)
             .IsRequired();
 
+        builder.Property(x => x.Title).IsRequired().HasMaxLength(120);
         builder.Property(x => x.Description).IsRequired().HasMaxLength(2000);
 
         builder.OwnsOne(

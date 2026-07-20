@@ -303,6 +303,7 @@ public sealed class PropertyController : BaseController
 
         var result = await _createProperty.ExecuteAsync(
             new CreatePropertyRequest(
+                model.Title,
                 model.Description,
                 model.Price,
                 "DOP",
@@ -406,6 +407,7 @@ public sealed class PropertyController : BaseController
         var result = await _updateProperty.ExecuteAsync(
             new UpdatePropertyRequest(
                 model.Id,
+                model.Title,
                 model.Description,
                 model.Price,
                 "DOP",
@@ -447,9 +449,10 @@ public sealed class PropertyController : BaseController
         {
             Id = detail.Id,
             Code = detail.Code,
+            Title = detail.Title,
             Description = detail.Description,
             MainImageUrl = detail.MainImageUrl,
-            PageTitle = $"Eliminar {detail.Code}",
+            PageTitle = $"Eliminar {detail.Title}",
         };
         await this.PopulateBaseViewModelAsync(viewModel, _viewModelBuilder, cancellationToken);
         return View(viewModel);

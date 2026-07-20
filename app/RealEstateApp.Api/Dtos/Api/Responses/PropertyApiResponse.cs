@@ -4,6 +4,7 @@ public sealed class PropertyApiResponse
 {
     public int Id { get; init; }
     public string Code { get; init; } = null!;
+    public string Title { get; init; } = null!;
     public string PropertyType { get; init; } = null!;
     public string SaleType { get; init; } = null!;
     public decimal Price { get; init; }

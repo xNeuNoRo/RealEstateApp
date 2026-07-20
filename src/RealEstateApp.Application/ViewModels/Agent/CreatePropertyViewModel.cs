@@ -21,6 +21,15 @@ public class CreatePropertyViewModel : BaseViewModel
     [Display(Name = "Precio")]
     public decimal Price { get; set; }
 
+    [Required(ErrorMessage = "El título es requerido.")]
+    [StringLength(
+        120,
+        MinimumLength = 3,
+        ErrorMessage = "El título debe tener entre 3 y 120 caracteres."
+    )]
+    [Display(Name = "Título")]
+    public string Title { get; set; } = null!;
+
     [Required(ErrorMessage = "La descripción es requerida.")]
     [StringLength(
         2000,

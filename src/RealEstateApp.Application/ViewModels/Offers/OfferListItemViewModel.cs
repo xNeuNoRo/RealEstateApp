@@ -7,6 +7,7 @@ public sealed class OfferListItemViewModel : BaseViewModel
     public int Id { get; init; }
     public int PropertyId { get; init; }
     public string PropertyCode { get; init; } = null!;
+    public string PropertyTitle { get; init; } = null!;
     public string PropertyDescription { get; init; } = null!;
     public string? PropertyTypeName { get; init; }
     public string? SaleTypeName { get; init; }

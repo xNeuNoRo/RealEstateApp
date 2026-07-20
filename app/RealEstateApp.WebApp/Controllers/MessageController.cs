@@ -153,6 +153,7 @@ public sealed class MessageController : BaseController
         {
             PropertyId = propertyId,
             PropertyCode = property.Code,
+            PropertyTitle = property.Title,
             PropertyDescription = property.Description,
             OtherUserId = IsAgent ? (clientId ?? string.Empty) : (property.AgentId ?? string.Empty),
             OtherUserName = otherName,

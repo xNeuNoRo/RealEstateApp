@@ -167,6 +167,7 @@ public sealed class UpdatePropertyUseCase : IUpdatePropertyUseCase
         }
 
         var detailsResult = property.UpdateDetails(
+            request.Title,
             request.Description,
             newPrice,
             newSize,

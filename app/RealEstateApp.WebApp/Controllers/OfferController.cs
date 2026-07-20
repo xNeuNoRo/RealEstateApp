@@ -241,9 +241,10 @@ public sealed class OfferController : BaseController
         var property = propertyResult.GetValue();
         var viewModel = new PropertyOffersViewModel
         {
-            PageTitle = $"Ofertas · {property.PropertyTypeName}",
+            PageTitle = $"Ofertas · {property.Title}",
             PropertyId = property.Id,
             PropertyCode = property.Code,
+            PropertyTitle = property.Title,
             PropertyDescription = property.Description,
             PropertyTypeName = property.PropertyTypeName,
             PropertyMainImageUrl = property.MainImageUrl,
@@ -321,13 +322,14 @@ public sealed class OfferController : BaseController
 
         var property = result.GetValue();
         model.PropertyCode = property.Code;
+        model.PropertyTitle = property.Title;
         model.PropertyDescription = property.Description;
         model.PropertyTypeName = property.PropertyTypeName;
         model.SaleTypeName = property.SaleTypeName;
         model.PropertyMainImageUrl = property.MainImageUrl;
         model.PropertyPrice = property.Price;
         model.PropertyCurrency = property.Currency;
-        model.PageTitle = $"Ofertar por {property.Code}";
+        model.PageTitle = $"Ofertar por {property.Title}";
         return true;
     }
 

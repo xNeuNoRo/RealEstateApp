@@ -9,6 +9,7 @@ public sealed class CreateOfferViewModel : BaseViewModel
     public int PropertyId { get; set; }
 
     public string PropertyCode { get; set; } = null!;
+    public string PropertyTitle { get; set; } = null!;
     public string PropertyDescription { get; set; } = null!;
     public string? PropertyTypeName { get; set; }
     public string? SaleTypeName { get; set; }

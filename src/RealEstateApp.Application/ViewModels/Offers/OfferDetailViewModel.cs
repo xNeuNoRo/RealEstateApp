@@ -7,6 +7,7 @@ public sealed class OfferDetailViewModel : BaseViewModel
     public int Id { get; init; }
     public int PropertyId { get; init; }
     public string PropertyCode { get; init; } = null!;
+    public string PropertyTitle { get; init; } = null!;
     public string ClientId { get; init; } = null!;
     public string ClientName { get; init; } = null!;
     public decimal Amount { get; init; }

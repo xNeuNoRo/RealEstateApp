@@ -34,6 +34,13 @@
             <span asp-validation-for="SizeM2" class="mt-1 block text-xs font-semibold text-danger-700"></span>
         </div>
         <div class="sm:col-span-2">
+            <label asp-for="Title" class="label-base"></label>
+            <input asp-for="Title" maxlength="120" class="input-base"
+                   placeholder="Ej: Casa de 3 habitaciones en Jardines del Norte"
+                   data-property-title />
+            <span asp-validation-for="Title" class="mt-1 block text-xs font-semibold text-danger-700"></span>
+        </div>
+        <div class="sm:col-span-2">
             <div class="flex items-center justify-between gap-3"><label asp-for="Description" class="label-base"></label><span class="text-xs font-semibold text-subtle" data-description-count>0 / 2000</span></div>
             <textarea asp-for="Description" rows="5" maxlength="2000" class="textarea-base resize-y" placeholder="Describe distribución, ubicación, iluminación y atributos que hacen única esta propiedad" data-property-description></textarea>
             <span asp-validation-for="Description" class="mt-1 block text-xs font-semibold text-danger-700"></span>

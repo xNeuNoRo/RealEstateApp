@@ -152,6 +152,7 @@ public sealed class GetConversationUseCase : IGetConversationUseCase
             if (msgById.TryGetValue(item.Id, out var msg))
             {
                 var senderId = msg.SenderType == SenderType.Client ? msg.ClientId : msg.AgentId;
+                item.SenderId = senderId;
                 if (userMap.TryGetValue(senderId, out var name))
                     item.SenderName = name;
             }
