@@ -5,6 +5,6 @@ namespace RealEstateApp.Application.ViewModels.Admin;
 
 public sealed class AgentListViewModel : BaseViewModel
 {
-    public PagedResult<AgentListItemViewModel> Items { get; init; } = new([], 0, 0, 0);
+    public PagedResult<AgentListItemViewModel> Items { get; init; } = new([], 0, 1, 20);
     public string? SearchTerm { get; init; }
 }

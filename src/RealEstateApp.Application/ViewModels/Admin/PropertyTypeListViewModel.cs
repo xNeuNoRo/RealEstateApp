@@ -5,6 +5,6 @@ namespace RealEstateApp.Application.ViewModels.Admin;
 
 public sealed class PropertyTypeListViewModel : BaseViewModel
 {
-    public PagedResult<PropertyTypeListItemViewModel> Items { get; init; } = new([], 0, 0, 0);
+    public PagedResult<PropertyTypeListItemViewModel> Items { get; init; } = new([], 0, 1, 20);
     public string? SearchTerm { get; init; }
 }
