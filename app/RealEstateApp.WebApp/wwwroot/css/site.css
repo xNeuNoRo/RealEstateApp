@@ -1754,6 +1754,9 @@
   .pl-14 {
     padding-left: calc(var(--spacing) * 14);
   }
+  .pl-20 {
+    padding-left: calc(var(--spacing) * 20);
+  }
   .text-center {
     text-align: center;
   }

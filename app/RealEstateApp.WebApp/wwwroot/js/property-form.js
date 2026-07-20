@@ -14,7 +14,13 @@
     const updateDescriptionCount = () => {
       if (description && descriptionCount) descriptionCount.textContent = `${description.value.length} / 2000`;
     };
+    const sanitizePrice = () => {
+      if (!price) return;
+      const cleaned = price.value.replace(/[^0-9.]/g, "");
+      if (cleaned !== price.value) price.value = cleaned;
+    };
     const updatePrice = () => {
+      sanitizePrice();
       if (!price || !pricePreview) return;
       const value = Number(price.value);
       pricePreview.textContent = Number.isFinite(value)
