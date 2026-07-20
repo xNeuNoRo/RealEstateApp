@@ -109,13 +109,17 @@ public sealed class ViewModelMappingProfile : Profile
         CreateMap<DeleteAgentViewModel, DeleteAgentRequest>();
         CreateMap<CreateAdminViewModel, CreateAdminRequest>();
         CreateMap<EditAdminViewModel, UpdateAdminRequest>()
-            .ForMember(d => d.AdminId, opt => opt.MapFrom(s => s.Id))
-            .ForMember(d => d.ConfirmNewPassword, opt => opt.MapFrom(s => s.ConfirmPassword));
+            .ConstructUsing(s => new UpdateAdminRequest(
+                s.Id, s.FirstName, s.LastName,
+                s.IdentityDocument, s.Email, s.UserName,
+                s.NewPassword, s.ConfirmPassword));
         CreateMap<ToggleAdminStatusViewModel, ToggleAdminActiveRequest>();
         CreateMap<CreateDeveloperViewModel, CreateDeveloperRequest>();
         CreateMap<EditDeveloperViewModel, UpdateDeveloperRequest>()
-            .ForMember(d => d.DeveloperId, opt => opt.MapFrom(s => s.Id))
-            .ForMember(d => d.ConfirmNewPassword, opt => opt.MapFrom(s => s.ConfirmPassword));
+            .ConstructUsing(s => new UpdateDeveloperRequest(
+                s.Id, s.FirstName, s.LastName,
+                s.IdentityDocument, s.Email, s.UserName,
+                s.NewPassword, s.ConfirmPassword));
         CreateMap<ToggleDeveloperStatusViewModel, ToggleDeveloperActiveRequest>();
     }
 

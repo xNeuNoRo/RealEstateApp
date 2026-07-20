@@ -63,6 +63,14 @@ public sealed class CreatePropertyTypeUseCase : ICreatePropertyTypeUseCase
             return Result<PropertyTypeResponse>.Failure(result.GetError());
 
         var entity = result.GetValue();
+
+        var nameExists = await _repository.ExistsAsync(
+            pt => pt.Name == request.Name, cancellationToken);
+        if (nameExists)
+            return Result<PropertyTypeResponse>.Failure(
+                Error.Validation("PropertyType.NameDuplicate",
+                    "Ya existe un tipo de propiedad con ese nombre."));
+
         await _repository.AddAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

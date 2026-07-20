@@ -63,6 +63,14 @@ public sealed class CreateSaleTypeUseCase : ICreateSaleTypeUseCase
             return Result<SaleTypeResponse>.Failure(result.GetError());
 
         var entity = result.GetValue();
+
+        var codeExists = await _repository.ExistsAsync(
+            st => st.Code == request.Code, cancellationToken);
+        if (codeExists)
+            return Result<SaleTypeResponse>.Failure(
+                Error.Validation("SaleType.CodeDuplicate",
+                    "Ya existe un tipo de venta con ese código."));
+
         await _repository.AddAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

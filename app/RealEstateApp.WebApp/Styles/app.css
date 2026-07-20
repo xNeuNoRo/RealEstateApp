@@ -376,6 +376,9 @@ html.dark::view-transition-group(root) {
   opacity: 0.5;
   cursor: not-allowed;
 }
+.input-base.pl-10 {
+  padding-left: calc(var(--spacing) * 10);
+}
 
 .label-base {
   display: block;

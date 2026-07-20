@@ -123,6 +123,7 @@
     --radius-xl: 0.75rem;
     --radius-2xl: 1rem;
     --radius-3xl: 1.5rem;
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
     --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -1730,14 +1731,14 @@
   .pr-3 {
     padding-right: calc(var(--spacing) * 3);
   }
-  .pr-10 {
-    padding-right: calc(var(--spacing) * 10);
-  }
   .pr-11 {
     padding-right: calc(var(--spacing) * 11);
   }
   .pr-12 {
     padding-right: calc(var(--spacing) * 12);
+  }
+  .pr-16 {
+    padding-right: calc(var(--spacing) * 16);
   }
   .pb-5 {
     padding-bottom: calc(var(--spacing) * 5);
@@ -1753,9 +1754,6 @@
   }
   .pl-14 {
     padding-left: calc(var(--spacing) * 14);
-  }
-  .pl-20 {
-    padding-left: calc(var(--spacing) * 20);
   }
   .text-center {
     text-align: center;
@@ -2296,6 +2294,10 @@
   .duration-500 {
     --tw-duration: 500ms;
     transition-duration: 500ms;
+  }
+  .ease-in {
+    --tw-ease: var(--ease-in);
+    transition-timing-function: var(--ease-in);
   }
   .ease-out {
     --tw-ease: var(--ease-out);
@@ -2875,12 +2877,6 @@
     }
     .lg\:grid-cols-\[1\.05fr_\.95fr\] {
       grid-template-columns: 1.05fr .95fr;
-    }
-    .lg\:grid-cols-\[16rem_minmax\(0\,1fr\)\] {
-      grid-template-columns: 16rem minmax(0,1fr);
-    }
-    .lg\:grid-cols-\[18rem_minmax\(0\,1fr\)\] {
-      grid-template-columns: 18rem minmax(0,1fr);
     }
     .lg\:grid-cols-\[20rem_minmax\(0\,1fr\)\] {
       grid-template-columns: 20rem minmax(0,1fr);
@@ -3562,6 +3558,9 @@ html.dark::view-transition-group(root) {
 .input-base:disabled, .select-base:disabled, .textarea-base:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+.input-base.pl-10 {
+  padding-left: calc(var(--spacing) * 10);
 }
 .label-base {
   display: block;

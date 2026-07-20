@@ -21,16 +21,16 @@
         <div class="relative flex-1 max-w-md">
             <i data-lucide="search" class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden="true"></i>
             <input type="search" name="searchTerm" value="@Model.SearchTerm" placeholder="Buscar por nombre o descripci&oacute;n..."
-                   class="form-input min-h-11 pl-10"
+                   class="input-base pl-10"
                    aria-label="Buscar tipos de propiedad" />
         </div>
-        <button type="submit" class="btn-secondary min-h-11 px-4">
+        <button type="submit" class="btn-secondary px-4">
             <i data-lucide="search" class="h-4 w-4"></i>
             <span class="hidden sm:inline">Buscar</span>
         </button>
         @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
         {
-            <a asp-action="Index" class="btn-ghost min-h-11 px-3 text-sm">
+            <a asp-action="Index" class="btn-ghost px-3 text-sm">
                 <i data-lucide="x" class="h-4 w-4"></i>Limpiar
             </a>
         }
