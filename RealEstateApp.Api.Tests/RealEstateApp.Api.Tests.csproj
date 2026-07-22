@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\app\RealEstateApp.Api\RealEstateApp.Api.csproj" />
+    <ProjectReference Include="..\RealEstateApp.Api\RealEstateApp.Api.csproj" />
   </ItemGroup>
 
 </Project>

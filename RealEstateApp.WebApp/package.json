@@ -8,10 +8,10 @@
     "css:watch": "bunx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/css/site.css --watch",
     "css:components": "bunx @tailwindcss/cli -i ./Styles/components.css -o ./wwwroot/css/components.css --minify",
     "css:components:watch": "bunx @tailwindcss/cli -i ./Styles/components.css -o ./wwwroot/css/components.css --watch",
-    "dev": "concurrently -n css,dotnet -c cyan,magenta \"bun css:watch\" \"dotnet watch --project ../RealEstateApp.WebApp\"",
-    "dev:backend": "dotnet watch --project ../RealEstateApp.WebApp",
+    "dev": "concurrently -n css,dotnet -c cyan,magenta \"bun css:watch\" \"dotnet watch\"",
+    "dev:backend": "dotnet watch",
     "dev:css": "bun css:watch",
-    "build": "bun css:build && bun css:components && dotnet publish --project ../RealEstateApp.WebApp -c Release -o ../../publish",
+    "build": "bun css:build && bun css:components && dotnet publish -c Release -o ../publish",
     "lint": "bunx eslint wwwroot/js --ext .js,.ts 2>/dev/null || echo 'ESLint not configured yet'",
     "typecheck": "bunx tsc --noEmit 2>/dev/null || echo 'tsc not configured yet'"
   },

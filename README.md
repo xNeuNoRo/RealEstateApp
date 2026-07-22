@@ -80,16 +80,16 @@
 1.  **Base de Datos:** Configura `ConnectionStrings:RealEstateDb` en `appsettings.Development.json`.
 2.  **Migraciones:**
     ```bash
-    dotnet ef database update --project src/RealEstateApp.Infrastructure.Persistence --startup-project app/RealEstateApp.WebApp
-    dotnet ef database update --context IdentityContext --project src/RealEstateApp.Infrastructure.Identity --startup-project app/RealEstateApp.WebApp
+    dotnet ef database update --project RealEstateApp.Infrastructure.Persistence --startup-project RealEstateApp.WebApp
+    dotnet ef database update --context IdentityContext --project RealEstateApp.Infrastructure.Identity --startup-project RealEstateApp.WebApp
     ```
 3.  **Ejecutar:**
     ```bash
-    dotnet run --project app/RealEstateApp.WebApp
+    dotnet run --project RealEstateApp.WebApp
     ```
 4.  **Tests (requiere Docker):**
     ```bash
-    dotnet test tests/RealEstateApp.Api.Tests
+    dotnet test RealEstateApp.Api.Tests
     ```
 
 ### Credenciales por Defecto (Dev)
