@@ -2,10 +2,13 @@ using RealEstateApp.Application.Dtos.Property.Responses;
 
 namespace RealEstateApp.Application.ViewModels.Agent;
 
-public sealed class AgentPropertyDetailViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class AgentPropertyDetailViewModel : BaseViewModel
 {
     public int Id { get; init; }
     public string Code { get; init; } = null!;
+    public string Title { get; init; } = null!;
     public string Description { get; init; } = null!;
     public decimal Price { get; init; }
     public string Currency { get; init; } = null!;

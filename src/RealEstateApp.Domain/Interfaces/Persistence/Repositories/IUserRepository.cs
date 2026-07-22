@@ -9,13 +9,20 @@ public interface IUserRepository
         IReadOnlyList<string> userIds,
         CancellationToken ct = default
     );
+    Task<IReadOnlySet<string>> GetActiveIdsByRoleAsync(
+        string roleName,
+        CancellationToken ct = default
+    );
 
     Task<PagedResult<UserInfo>> GetByRoleAsync(
         string roleName,
         string? searchTerm = null,
         int page = 1,
         int pageSize = 20,
-        CancellationToken ct = default
+        CancellationToken ct = default,
+        bool? activeOnly = null,
+        string? userId = null,
+        bool searchNamesOnly = false
     );
 
     Task<int> CountByRoleAsync(

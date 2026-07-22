@@ -15,18 +15,21 @@ namespace RealEstateApp.Application.UseCases.Improvement;
 public sealed class GetAllImprovementsUseCase : IGetAllImprovementsUseCase
 {
     private readonly IGenericRepository<ImprovementEntity> _repository;
+    private readonly IPropertyRepository _propertyRepository;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUser;
     private readonly IValidator<GetAllImprovementsRequest> _validator;
 
     public GetAllImprovementsUseCase(
         IGenericRepository<ImprovementEntity> repository,
+        IPropertyRepository propertyRepository,
         IMapper mapper,
         ICurrentUserService currentUser,
         IValidator<GetAllImprovementsRequest> validator
     )
     {
         _repository = repository;
+        _propertyRepository = propertyRepository;
         _mapper = mapper;
         _currentUser = currentUser;
         _validator = validator;
@@ -87,8 +90,18 @@ public sealed class GetAllImprovementsUseCase : IGetAllImprovementsUseCase
 
         var responseItems = _mapper.Map<IReadOnlyList<ImprovementResponse>>(items);
 
+        var enrichedItems = new List<ImprovementResponse>(responseItems.Count);
+        foreach (var item in responseItems)
+        {
+            var count = await _propertyRepository.CountAsync(
+                p => p.Improvements.Any(pi => pi.ImprovementId == item.Id),
+                cancellationToken
+            );
+            enrichedItems.Add(item with { PropertiesCount = count });
+        }
+
         var pagedResult = new PagedResult<ImprovementResponse>(
-            responseItems,
+            enrichedItems.AsReadOnly(),
             totalCount,
             request.Page,
             request.PageSize

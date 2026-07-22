@@ -3,6 +3,7 @@ using RealEstateApp.Application.Interfaces.Services;
 namespace RealEstateApp.Application.Dtos.Property.Requests;
 
 public sealed record CreatePropertyRequest(
+    string Title,
     string Description,
     decimal Price,
     string Currency,

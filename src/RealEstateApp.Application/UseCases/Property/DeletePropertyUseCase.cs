@@ -9,7 +9,6 @@ using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Enums;
 using RealEstateApp.Domain.Interfaces.Persistence;
 using RealEstateApp.Domain.Interfaces.Persistence.Repositories;
-using RealEstateApp.Domain.Settings;
 
 namespace RealEstateApp.Application.UseCases.Property;
 
@@ -93,26 +92,26 @@ public sealed class DeletePropertyUseCase : IDeletePropertyUseCase
                 )
             );
 
-        string folder = $"{FileConstants.PropertiesFolder}/{property.Code.Value}";
-        foreach (var img in property.Images)
+        var imageUrls = property.Images.Select(image => image.Url).ToArray();
+        _propertyRepository.Delete(property);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        foreach (var imageUrl in imageUrls)
         {
             try
             {
-                _fileService.DeleteFile(img.Url);
+                _fileService.DeleteFile(imageUrl);
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(
                     ex,
                     "Error al eliminar imagen {Url} de propiedad {PropertyId}.",
-                    img.Url,
+                    imageUrl,
                     property.Id
                 );
             }
         }
-
-        _propertyRepository.Delete(property);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation(
             "Propiedad {PropertyId} eliminada por agente {AgentId}.",

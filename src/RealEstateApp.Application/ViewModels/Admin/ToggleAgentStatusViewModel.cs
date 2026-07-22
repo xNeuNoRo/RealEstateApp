@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RealEstateApp.Application.ViewModels.Admin;
 
-public sealed class ToggleAgentStatusViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class ToggleAgentStatusViewModel : BaseViewModel
 {
     [Required]
     public string AgentId { get; set; } = null!;

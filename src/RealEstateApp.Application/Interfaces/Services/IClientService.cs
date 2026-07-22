@@ -24,8 +24,16 @@ public interface IClientService
     );
     Task<Result<FavoriteResponse>> AddFavoriteAsync(int propertyId, CancellationToken ct = default);
     Task<Result> RemoveFavoriteAsync(int propertyId, CancellationToken ct = default);
+    Task<Result<PagedResult<ConversationSummaryResponse>>> GetChatListAsync(
+        GetMyConversationsRequest request,
+        CancellationToken ct = default
+    );
     Task<Result<MessageResponse>> SendMessageAsync(
         SendMessageRequest request,
+        CancellationToken ct = default
+    );
+    Task<Result<PagedResult<MessageResponse>>> GetConversationAsync(
+        GetConversationRequest request,
         CancellationToken ct = default
     );
     Task<Result<OfferResponse>> CreateOfferAsync(

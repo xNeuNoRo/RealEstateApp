@@ -29,7 +29,7 @@ public static class DefaultAdminUser
             Active = true,
             FirstName = configuration["SeedData:AdminFirstName"] ?? "System",
             LastName = configuration["SeedData:AdminLastName"] ?? "Admin",
-            IdentityDocument = configuration["SeedData:AdminIdentityDocument"] ?? "40212345671",
+            IdentityDocument = configuration["SeedData:AdminIdentityDocument"] ?? "00112345673",
         };
 
         var password = configuration["SeedData:AdminPassword"] ?? "Admin123!";

@@ -1,9 +1,12 @@
 namespace RealEstateApp.Application.ViewModels.Chat;
 
-public sealed class ConversationSummaryViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class ConversationSummaryViewModel : BaseViewModel
 {
     public int PropertyId { get; init; }
     public string PropertyCode { get; init; } = null!;
+    public string PropertyTitle { get; init; } = null!;
     public string PropertyDescription { get; init; } = null!;
     public string OtherUserId { get; init; } = null!;
     public string OtherUserName { get; init; } = null!;

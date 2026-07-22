@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RealEstateApp.Application.ViewModels.Admin;
 
-public sealed class EditAdminViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class EditAdminViewModel : BaseViewModel
 {
     [Required]
     public string Id { get; set; } = null!;
@@ -18,7 +20,11 @@ public sealed class EditAdminViewModel
     public string LastName { get; set; } = null!;
 
     [Required(ErrorMessage = "La cédula es requerida.")]
-    [StringLength(20, MinimumLength = 11, ErrorMessage = "La cédula debe tener entre 11 y 20 caracteres.")]
+    [StringLength(
+        20,
+        MinimumLength = 11,
+        ErrorMessage = "La cédula debe tener entre 11 y 20 caracteres."
+    )]
     [Display(Name = "Cédula")]
     public string IdentityDocument { get; set; } = null!;
 
@@ -28,11 +34,19 @@ public sealed class EditAdminViewModel
     public string Email { get; set; } = null!;
 
     [Required(ErrorMessage = "El nombre de usuario es requerido.")]
-    [StringLength(50, MinimumLength = 4, ErrorMessage = "El nombre de usuario debe tener entre 4 y 50 caracteres.")]
+    [StringLength(
+        50,
+        MinimumLength = 4,
+        ErrorMessage = "El nombre de usuario debe tener entre 4 y 50 caracteres."
+    )]
     [Display(Name = "Nombre de usuario")]
     public string UserName { get; set; } = null!;
 
-    [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]
+    [StringLength(
+        100,
+        MinimumLength = 8,
+        ErrorMessage = "La contraseña debe tener al menos 8 caracteres."
+    )]
     [DataType(DataType.Password)]
     [Display(Name = "Nueva contraseña (dejar vacía para mantener la actual)")]
     public string? NewPassword { get; set; }

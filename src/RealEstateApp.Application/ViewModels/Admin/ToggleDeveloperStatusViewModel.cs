@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RealEstateApp.Application.ViewModels.Admin;
 
-public sealed class ToggleDeveloperStatusViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class ToggleDeveloperStatusViewModel : BaseViewModel
 {
     [Required]
     public string DeveloperId { get; set; } = null!;

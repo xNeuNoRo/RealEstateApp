@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RealEstateApp.Application.ViewModels.Auth;
 
-public sealed class LoginViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class LoginViewModel : BaseViewModel
 {
     [Required(ErrorMessage = "Debe ingresar su correo o nombre de usuario.")]
     [Display(Name = "Correo o nombre de usuario")]
@@ -12,4 +14,7 @@ public sealed class LoginViewModel
     [DataType(DataType.Password)]
     [Display(Name = "Contraseña")]
     public string Password { get; set; } = null!;
+
+    [Display(Name = "Mantener sesión iniciada")]
+    public bool RememberMe { get; set; }
 }

@@ -1,0 +1,29 @@
+@model (string? Header, string? Footer, string Padding, string? CssClass, bool Hover)
+@{
+    var padding = Model.Padding ?? "md";
+    var paddingClass = padding switch
+    {
+        "none" => "",
+        "sm" => "p-3",
+        "md" => "p-5",
+        "lg" => "p-6 sm:p-8",
+        _ => "p-5"
+    };
+}
+<section class="surface-elevated rounded-2xl shadow-sm border border-default overflow-hidden @(Model.Hover ? "hover:shadow-md transition-shadow" : "") @Model.CssClass">
+    @if (!string.IsNullOrEmpty(Model.Header))
+    {
+        <header class="px-5 py-4 border-b border-default flex items-center justify-between gap-3">
+            @Html.Raw(Model.Header)
+        </header>
+    }
+    <div class="@paddingClass">
+        @RenderBody()
+    </div>
+    @if (!string.IsNullOrEmpty(Model.Footer))
+    {
+        <footer class="px-5 py-3 border-t border-default surface-muted">
+            @Html.Raw(Model.Footer)
+        </footer>
+    }
+</section>

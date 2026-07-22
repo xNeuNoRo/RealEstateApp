@@ -1,50 +1,508 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@using Microsoft.AspNetCore.Hosting
+@inject ICurrentUserService CurrentUser
+@inject IWebHostEnvironment WebHostEnv
+@{
+    string currentController = ViewContext.RouteData.Values["Controller"]?.ToString() ?? "";
+    string currentAction = ViewContext.RouteData.Values["Action"]?.ToString() ?? "";
+
+    string GetActiveClass(string targetController, string? targetAction = null)
+    {
+        bool isActive = string.Equals(currentController, targetController, StringComparison.OrdinalIgnoreCase);
+        if (targetAction != null) isActive = isActive && string.Equals(currentAction, targetAction,
+StringComparison.OrdinalIgnoreCase);
+        return isActive
+            ? "active nav-item flex items-center gap-3 px-3 py-2.5 bg-brand-50 text-brand-700 rounded-xl font-bold border-r-4 border-brand-600 transition-all shadow-sm shadow-brand-100/50"
+            : "nav-item flex items-center gap-3 px-3 py-2.5 text-gray-600 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-brand-100/10 hover:text-brand-600 dark:hover:text-brand-500 rounded-xl font-medium transition-all";
+    }
+
+    bool isAuthenticated = CurrentUser.IsAuthenticated && !string.IsNullOrEmpty(CurrentUser.UserId);
+    string? currentUserId = CurrentUser.UserId;
+    string? currentFullName = CurrentUser.FullName ?? "Usuario";
+    string? currentUserName = CurrentUser.UserName ?? "";
+    string? currentRole = CurrentUser.Roles.FirstOrDefault();
+    bool isAdmin = CurrentUser.Roles.Any(r => string.Equals(r, "Admin", StringComparison.OrdinalIgnoreCase));
+    bool isAgent = CurrentUser.Roles.Any(r => string.Equals(r, "Agent", StringComparison.OrdinalIgnoreCase));
+    bool isClient = CurrentUser.Roles.Any(r => string.Equals(r, "Client", StringComparison.OrdinalIgnoreCase));
+}
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - RealEstateApp.WebApp</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/RealEstateApp.WebApp.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">RealEstateApp.WebApp</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    <title>@ViewData["Title"] — RealEstateApp</title>
+    <link rel="icon" type="image/x-icon" href="~/Estate.ico" />
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - RealEstateApp.WebApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-</body>
-</html>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+          rel="stylesheet">
+
+    <script>if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark') } else if (localStorage.getItem('theme') === 'light') { document.documentElement.classList.remove('dark') } else if (window.matchMedia('(prefers-color-scheme:dark)').matches) { document.documentElement.classList.add('dark') }</script>
+
+    <meta name="view-transition" content="same-origin" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .page-entry {
+        animation: fancyFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        will-change: opacity, transform, filter;
+        }
+
+        @@keyframes fancyFadeIn {
+        0% {
+        opacity: 0;
+        transform: translateY(20px) scale(.98);
+        filter: blur(4px);
+        }
+
+        100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+        }
+        }
+
+        #sidebar {
+        transition: transform .3s cubic-bezier(.25, 1, .3, 1);
+        display: flex;
+        flex-direction: column;
+        }
+
+        .nav-item {
+        transition: all .2s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .nav-item.active {
+        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, .15);
+        }
+
+        @@media (max-width:1023px) {
+        #sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 50;
+        height: 100vh;
+        }
+
+        #sidebar.open {
+        transform: translateX(0);
+        }
+
+        #sidebar-backdrop {
+        display: none;
+        }
+
+        #sidebar-backdrop.visible {
+        display: block;
+        }
+
+        main {
+        padding-bottom: 5rem;
+        }
+        }
+
+        @@media (min-width:1024px) {
+        main {
+        padding-bottom: 0;
+        }
+        }
+
+        .badge-count {
+        font-size: .65rem;
+        padding: .125rem .5rem;
+        border-radius: 9999px;
+        font-weight: 700;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 10px;
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #4b5563;
+        }
+    </style>
+</head>
+
+<body class="font-sans antialiased min-h-screen overflow-x-hidden"
+      style="background-color:var(--color-bg);color:var(--color-text)">
+
+    <a href="#main-content" class="skip-link">Saltar al contenido</a>
+
+    <div class="flex min-h-screen w-full relative">
+
+        <div id="sidebar-backdrop"
+             class="fixed inset-0 bg-gray-900/40 z-40 hidden lg:hidden transition-opacity backdrop-blur-sm"></div>
+
+        <aside id="sidebar" aria-label="Menú principal" style="view-transition-name:app-sidebar"
+               class="fixed inset-y-0 left-0 w-64 surface-elevated shrink-0 flex flex-col z-50 lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen transition-transform duration-300 shadow-sm border-r border-default">
+
+            <div class="h-16 flex items-center justify-between px-5 border-b border-default shrink-0">
+                <a asp-controller="Home" asp-action="Index"
+                   class="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+                    <div
+                        class="w-9 h-9 bg-gradient-to-br from-brand-from to-brand-to rounded-xl flex items-center justify-center shadow-lg shadow-brand-100 dark:shadow-brand-900/50">
+                        <i data-lucide="building-2" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span
+                        class="text-lg font-black text-gray-900 dark:text-gray-100 tracking-tighter whitespace-nowrap">RealEstate<span
+                        class="text-brand-600">App</span></span>
+                    </a>
+                    <button id="close-sidebar-btn" type="button" aria-label="Cerrar menú"
+                            class="lg:hidden p-1.5 text-gray-500 hover:surface-muted rounded-xl cursor-pointer">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto custom-scrollbar">
+
+                    @if (isAdmin)
+                    {
+                        <div>
+                            <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Gestión</p>
+                            <div class="space-y-1">
+                                <a asp-controller="Dashboard" asp-action="Index" class="@GetActiveClass("Dashboard")">
+                                    <i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0"></i>
+                                    <span class="text-sm flex-1">Dashboard</span>
+                                </a>
+                                <a asp-controller="User" asp-action="Index" class="@GetActiveClass("User")">
+                                    <i data-lucide="users" class="w-5 h-5 shrink-0"></i>
+                                    <span class="text-sm flex-1">Usuarios</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="my-3 mx-3 h-px bg-gray-200 dark:bg-gray-700"></div>
+
+                        <div>
+                            <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Catálogos</p>
+                            <div class="space-y-1">
+                                <a asp-controller="PropertyType" asp-action="Index" class="@GetActiveClass("PropertyType")">
+                                    <i data-lucide="tags" class="w-5 h-5 shrink-0"></i>
+                                    <span class="text-sm flex-1">Tipos Propiedad</span>
+                                </a>
+                                <a asp-controller="SaleType" asp-action="Index" class="@GetActiveClass("SaleType")">
+                                    <i data-lucide="receipt" class="w-5 h-5 shrink-0"></i>
+                                    <span class="text-sm flex-1">Tipos Venta</span>
+                                </a>
+                                <a asp-controller="Improvement" asp-action="Index" class="@GetActiveClass("Improvement")">
+                                    <i data-lucide="zap" class="w-5 h-5 shrink-0"></i>
+                                    <span class="text-sm flex-1">Mejoras</span>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                     else if (isAgent)
+                     {
+                         <div>
+                             <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Operación</p>
+                                 <div class="space-y-1">
+                                     <a asp-controller="Agent" asp-action="Index" class="@GetActiveClass("Agent","Index")">
+                                         <i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Panel</span>
+                                     </a>
+                                     <a asp-controller="Property" asp-action="MyProperties"
+                                        class="@GetActiveClass("Property","MyProperties")">
+                                        <i data-lucide="building-2" class="w-5 h-5 shrink-0"></i>
+                                        <span class="text-sm flex-1">Mis Propiedades</span>
+                                    </a>
+                                     <a asp-controller="Property" asp-action="Create" class="@GetActiveClass("Property","Create")">
+                                         <i data-lucide="plus-circle" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Publicar</span>
+                                     </a>
+                                     <a asp-controller="Message" asp-action="Index" class="@GetActiveClass("Message","Index")">
+                                         <i data-lucide="messages-square" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Mensajes</span>
+                                     </a>
+                                </div>
+                            </div>
+
+                        }
+                          else if (isClient)
+                          {
+                             <div>
+                                 <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Explorar</p>
+                                 <div class="space-y-1">
+                                     <a asp-controller="Client" asp-action="Index" class="@GetActiveClass("Client","Index")">
+                                         <i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Mi espacio</span>
+                                     </a>
+                                     <a asp-controller="Property" asp-action="Index" class="@GetActiveClass("Property")">
+                                        <i data-lucide="search" class="w-5 h-5 shrink-0"></i>
+                                        <span class="text-sm flex-1">Buscar</span>
+                                    </a>
+                                     <a asp-controller="Client" asp-action="Favorites" class="@GetActiveClass("Client","Favorites")">
+                                        <i data-lucide="heart" class="w-5 h-5 shrink-0"></i>
+                                        <span class="text-sm flex-1">Favoritos</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="my-3 mx-3 h-px bg-gray-200 dark:bg-gray-700"></div>
+
+                            <div>
+                                <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Actividad</p>
+                                <div class="space-y-1">
+                                     <a asp-controller="Offer" asp-action="MyOffers" class="@GetActiveClass("Offer","MyOffers")">
+                                         <i data-lucide="file-text" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Mis Ofertas</span>
+                                     </a>
+                                     <a asp-controller="Message" asp-action="Index" class="@GetActiveClass("Message","Index")">
+                                         <i data-lucide="messages-square" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Mensajes</span>
+                                     </a>
+                                </div>
+                             </div>
+                         }
+                         else
+                         {
+                             <div>
+                                 <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Explorar</p>
+                                 <div class="space-y-1">
+                                     <a asp-controller="Home" asp-action="Index" class="@GetActiveClass("Home", "Index")">
+                                         <i data-lucide="search" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Propiedades</span>
+                                     </a>
+                                     <a asp-controller="Home" asp-action="Agents" class="@GetActiveClass("Home", "Agents")">
+                                         <i data-lucide="users-round" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Agentes</span>
+                                     </a>
+                                     <a asp-controller="Auth" asp-action="Register" class="@GetActiveClass("Auth", "Register")">
+                                         <i data-lucide="user-plus" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Únete a la app</span>
+                                     </a>
+                                     <a asp-controller="Auth" asp-action="Login" class="@GetActiveClass("Auth", "Login")">
+                                         <i data-lucide="log-in" class="w-5 h-5 shrink-0"></i>
+                                         <span class="text-sm flex-1">Iniciar sesión</span>
+                                     </a>
+                                 </div>
+                             </div>
+                         }
+
+                         <div class="my-3 mx-3 h-px bg-gray-200 dark:bg-gray-700"></div>
+
+                        <div>
+                            <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Sistema</p>
+                            <div class="space-y-1">
+                                <button id="dark-mode-toggle" type="button"
+                                        class="w-full nav-item flex items-center gap-3 px-3 py-2.5 text-gray-600 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-brand-100/10 hover:text-brand-600 dark:hover:text-brand-500 rounded-xl font-medium transition-all cursor-pointer">
+                                    <i data-lucide="moon" id="dark-mode-icon" class="w-5 h-5 shrink-0"></i>
+                                    <span class="text-sm flex-1 text-left" id="dark-mode-text">Modo Oscuro</span>
+                                </button>
+                                @if (isClient)
+                                {
+                                    <a asp-controller="Client" asp-action="Profile" class="@GetActiveClass("Client", "Profile")">
+                                        <i data-lucide="user" class="w-5 h-5 shrink-0"></i>
+                                        <span class="text-sm flex-1">Mi Perfil</span>
+                                    </a>
+                                }
+                                else if (isAgent)
+                                {
+                                    <a asp-controller="Agent" asp-action="Profile" class="@GetActiveClass("Agent", "Profile")">
+                                        <i data-lucide="user" class="w-5 h-5 shrink-0"></i>
+                                        <span class="text-sm flex-1">Mi Perfil</span>
+                                    </a>
+                                }
+                                @if (isAuthenticated)
+                                {
+                                    <a asp-controller="Auth" asp-action="ChangePassword" class="@GetActiveClass("Auth", "ChangePassword")">
+                                        <i data-lucide="key-round" class="w-5 h-5 shrink-0"></i>
+                                        <span class="text-sm flex-1">Contraseña</span>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="my-3 mx-3 h-px bg-gray-200 dark:bg-gray-700"></div>
+
+                        <div>
+                            <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Acerca de</p>
+                            <div class="space-y-1">
+                                <a asp-controller="Credits" asp-action="Index" class="@GetActiveClass("Credits")">
+                                    <i data-lucide="award" class="w-5 h-5 shrink-0"></i>
+                                    <span class="text-sm flex-1">Créditos</span>
+                                </a>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <div class="p-4 border-t border-default shrink-0">
+                        <div
+                            class="flex items-center gap-3 px-3 py-2 bg-gradient-to-r from-brand-50 to-blue-50 dark:from-brand-100/10 dark:to-blue-100/5 rounded-xl">
+                            <div class="relative flex items-center justify-center shrink-0">
+                                <div class="w-2.5 h-2.5 bg-brand-500 rounded-full animate-pulse"></div>
+                                <div class="absolute w-4 h-4 bg-brand-500/20 rounded-full animate-ping"></div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-[10px] font-black text-gray-900 dark:text-gray-100 tracking-tighter uppercase">
+                                    RealEstateApp</p>
+                                    <p class="text-[8px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest">
+                                        Plataforma Inmobiliaria</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+
+                        <div class="flex-1 flex flex-col min-w-0">
+
+                            <header style="view-transition-name:app-header"
+                                    class="h-16 surface-elevated border-b border-default flex items-center justify-between px-4 sm:px-6 z-30 shrink-0 sticky top-0 shadow-sm/30">
+
+                                <div class="flex items-center gap-4 min-w-0 flex-1">
+                                    <button id="open-sidebar-btn" type="button" aria-label="Abrir menú"
+                                            class="lg:hidden p-2 text-gray-500 hover:surface-muted rounded-xl transition-colors cursor-pointer shrink-0">
+                                        <i data-lucide="menu" class="w-5 h-5"></i>
+                                    </button>
+
+                                    <h1 class="text-lg font-bold text-default truncate">@ViewData["Title"]</h1>
+                                </div>
+
+                                <div class="flex items-center gap-2 shrink-0">
+                                    @if (isAuthenticated)
+                                    {
+                                        <div class="relative">
+                                            <div class="relative">
+                                                <button id="user-menu-btn" type="button" aria-expanded="false" aria-controls="user-dropdown"
+                                                        class="flex items-center gap-3 pl-3 border-l border-default hover:surface-muted py-2 pr-2 rounded-xl transition-colors cursor-pointer group">
+                                                    <div class="hidden md:flex flex-col items-end">
+                                                        <span
+                                                        class="text-sm font-bold text-default tracking-tight leading-tight">@currentFullName</span>
+                                                        <span
+                                                        class="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-tight">@currentRole</span>
+                                                    </div>
+                                                     @await Html.PartialAsync("~/Views/Shared/Components/_Avatar.cshtml", ((string?)null, currentFullName ?? "Usuario", "sm", (string?)"border-2 border-brand-500 shadow-lg group-hover:scale-110 transition-transform"))
+                                                    <i data-lucide="chevron-down"
+                                                       class="w-4 h-4 text-gray-400 group-hover:text-default transition-colors"></i>
+                                                </button>
+
+                                                <div id="user-dropdown" class="dropdown-menu right-0 mt-3 w-56 hidden">
+                                                    <div class="px-4 py-3 border-b border-default">
+                                                        <p class="text-[10px] font-black uppercase tracking-wide text-gray-400">Cuenta</p>
+                                                    </div>
+                                                    @if (isClient)
+                                                    {
+                                                        <a asp-controller="Client" asp-action="Profile" class="dropdown-item">
+                                                            <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
+                                                            <span class="text-sm font-medium">Mi Perfil</span>
+                                                        </a>
+                                                        <a asp-controller="Client" asp-action="Edit" class="dropdown-item">
+                                                            <i data-lucide="settings" class="w-5 h-5 text-gray-400"></i>
+                                                            <span class="text-sm font-medium">Configuración</span>
+                                                        </a>
+                                                    }
+                                                    else if (isAgent)
+                                                    {
+                                                        <a asp-controller="Agent" asp-action="Profile" class="dropdown-item">
+                                                            <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
+                                                            <span class="text-sm font-medium">Mi Perfil</span>
+                                                        </a>
+                                                        <a asp-controller="Agent" asp-action="Edit" class="dropdown-item">
+                                                            <i data-lucide="settings" class="w-5 h-5 text-gray-400"></i>
+                                                            <span class="text-sm font-medium">Configuración</span>
+                                                        </a>
+                                                    }
+                                                    <a asp-controller="Auth" asp-action="ChangePassword" class="dropdown-item">
+                                                        <i data-lucide="key" class="w-5 h-5 text-gray-400"></i>
+                                                        <span class="text-sm font-medium">Cambiar Contraseña</span>
+                                                    </a>
+                                                    <div class="dropdown-divider"></div>
+                                                    <form asp-controller="Auth" asp-action="Logout" method="post" class="contents">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit"
+                                                                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-danger-50 dark:hover:bg-danger-900/20 transition-colors text-left text-danger-700 dark:text-danger-500 text-sm font-medium">
+                                                            <i data-lucide="log-out" class="w-5 h-5"></i>
+                                                            Cerrar Sesión
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="Auth" asp-action="Login" class="btn-primary px-4 py-2 text-sm">
+                                            <i data-lucide="log-in" class="w-4 h-4"></i>
+                                            Iniciar Sesión
+                                        </a>
+                                    }
+                                </div>
+                            </header>
+
+                            <main id="main-content" class="flex-1 overflow-x-hidden overflow-y-auto surface">
+                                <div style="view-transition-name:main-content"
+                                     class="page-entry w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+                                    @RenderBody()
+                                </div>
+                            </main>
+                        </div>
+                    </div>
+
+                    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+                    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+                    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+                    <script src="~/js/site.js" asp-append-version="true"></script>
+
+                    @await RenderSectionAsync("Scripts", required: false)
+
+                    <script>
+                        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true, didOpen: (t) => { t.addEventListener('mouseenter', Swal.stopTimer); t.addEventListener('mouseleave', Swal.resumeTimer); } });
+                        const originalSwalFire = Swal.fire;
+                        Swal.fire = function () {
+                        if (arguments.length > 0 && typeof arguments[0] === 'object') {
+                        if (!arguments[0].showClass) arguments[0].showClass = { popup: 'animate__animated animate__zoomIn animate__faster' };
+                        if (!arguments[0].hideClass) arguments[0].hideClass = { popup: 'animate__animated animate__zoomOut animate__faster' };
+                        }
+                        return originalSwalFire.apply(this, arguments);
+                        };
+
+                        @if (TempData["SweetAlertMessage"] != null)
+                        {
+                            var alertTypeJson = System.Text.Json.JsonSerializer.Serialize(TempData["SweetAlertType"]?.ToString() ?? "success");
+                            var alertMessageJson = System.Text.Json.JsonSerializer.Serialize(TempData["SweetAlertMessage"]?.ToString());
+                            <text>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                var alertType = @Html.Raw(alertTypeJson);
+                                var alertMessage = @Html.Raw(alertMessageJson);
+                                setTimeout(() => Toast.fire({icon: alertType, title: alertMessage }), 500);
+                                });
+                            </text>
+                        }
+
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            var errorMessageJson = System.Text.Json.JsonSerializer.Serialize(TempData["ErrorMessage"]?.ToString());
+                            <text>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                var alertMessage = @Html.Raw(errorMessageJson);
+                                setTimeout(() => Swal.fire({
+                                icon:'error', title:'Atención', text:alertMessage, confirmButtonText:'Entendido',
+                                confirmButtonColor:'#2563eb',
+                                customClass:{confirmButton:'px-6 py-2.5 text-sm font-bold text-white bg-brand-600 rounded-xl hover:bg-brand-700 shadow-lg shadow-brand-200 transition-all cursor-pointer' }
+                                }), 500);
+                                });
+                            </text>
+                        }
+                    </script>
+
+                    @if (!WebHostEnv.IsDevelopment())
+                    {
+                        <script>if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js'); }); }</script>
+                    }
+                </body>
+
+            </html>

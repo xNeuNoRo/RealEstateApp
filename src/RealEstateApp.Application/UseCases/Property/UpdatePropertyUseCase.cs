@@ -95,6 +95,58 @@ public sealed class UpdatePropertyUseCase : IUpdatePropertyUseCase
                 )
             );
 
+        var newImages = request.NewImageFiles ?? [];
+        var imageIdsToRemove = request.ImageIdsToRemove?.Distinct().ToArray() ?? [];
+        var existingImageIds = property.Images.Select(image => image.Id).ToHashSet();
+        if (imageIdsToRemove.Any(id => !existingImageIds.Contains(id)))
+            return Result.Failure(
+                Error.NotFound("Property.Image", "Una de las imágenes seleccionadas no existe.")
+            );
+
+        var finalImageCount = property.Images.Count - imageIdsToRemove.Length + newImages.Count;
+        if (finalImageCount is < 1 or > 4)
+            return Result.Failure(
+                Error.Validation(
+                    "Property.Images",
+                    finalImageCount < 1
+                        ? "La propiedad debe mantener al menos una imagen."
+                        : "La propiedad no puede tener más de 4 imágenes."
+                )
+            );
+
+        foreach (var image in newImages)
+        {
+            if (!_fileService.IsImageValid(image))
+                return Result.Failure(
+                    Error.Validation(
+                        "Property.InvalidImage",
+                        "Una de las imágenes no tiene un formato válido."
+                    )
+                );
+        }
+
+        var improvementsToAdd = request.ImprovementIdsToAdd?.Distinct().ToArray() ?? [];
+        var improvementsToRemove = request.ImprovementIdsToRemove?.Distinct().ToArray() ?? [];
+        if (improvementsToAdd.Any(id => id <= 0) || improvementsToRemove.Any(id => id <= 0))
+            return Result.Failure(
+                Error.Validation("Property.ImprovementId", "Una de las mejoras no es válida.")
+            );
+        var existingImprovementIds = property.Improvements
+            .Select(improvement => improvement.ImprovementId)
+            .ToHashSet();
+        if (improvementsToRemove.Any(id => !existingImprovementIds.Contains(id)))
+            return Result.Failure(
+                Error.NotFound("Property.Improvement", "Una de las mejoras seleccionadas no existe.")
+            );
+        if (improvementsToAdd.Any(existingImprovementIds.Contains))
+            return Result.Failure(
+                Error.Conflict("Property.DuplicateImprovement", "La mejora ya está vinculada.")
+            );
+        if (existingImprovementIds.Count - improvementsToRemove.Length + improvementsToAdd.Length < 1)
+            return Result.Failure(
+                Error.Validation("Property.Improvements", "Debe mantener al menos una mejora.")
+            );
+
         Price? newPrice = null;
         if (request.Price.HasValue)
         {
@@ -115,6 +167,7 @@ public sealed class UpdatePropertyUseCase : IUpdatePropertyUseCase
         }
 
         var detailsResult = property.UpdateDetails(
+            request.Title,
             request.Description,
             newPrice,
             newSize,
@@ -127,57 +180,92 @@ public sealed class UpdatePropertyUseCase : IUpdatePropertyUseCase
         if (detailsResult.IsFailure)
             return Result.Failure(detailsResult.GetError());
 
-        if (request.NewImageFiles is { Count: > 0 })
-        {
-            string folder = $"{FileConstants.PropertiesFolder}/{property.Code.Value}";
-            foreach (var img in request.NewImageFiles)
-            {
-                if (!_fileService.IsImageValid(img))
-                    return Result.Failure(
-                        Error.Validation(
-                            "Property.InvalidImage",
-                            "Una de las imágenes no tiene un formato válido."
-                        )
-                    );
+        var removedImageUrls = new List<string>(imageIdsToRemove.Length);
+        var uploadedImageUrls = new List<string>(newImages.Count);
+        var remainingImageIdsToRemove = new Queue<int>(imageIdsToRemove);
 
-                var url = await _fileService.UploadFileAsync(img, folder);
-                var addResult = property.AddImage(url);
-                if (addResult.IsFailure)
-                    return Result.Failure(addResult.GetError());
-            }
-        }
-
-        if (request.ImageIdsToRemove is { Count: > 0 })
+        try
         {
-            foreach (var imageId in request.ImageIdsToRemove)
+            while (
+                property.Images.Count + newImages.Count > 4
+                && remainingImageIdsToRemove.Count > 0
+            )
             {
+                var imageId = remainingImageIdsToRemove.Dequeue();
+                removedImageUrls.Add(property.Images.First(image => image.Id == imageId).Url);
                 var removeResult = property.RemoveImage(imageId);
-                if (removeResult.IsFailure && removeResult.GetError().Code != "Property.Image")
-                    return Result.Failure(removeResult.GetError());
-            }
-        }
-
-        if (request.ImprovementIdsToAdd is { Count: > 0 })
-        {
-            foreach (var impId in request.ImprovementIdsToAdd)
-            {
-                var addResult = property.AddImprovement(impId);
-                if (addResult.IsFailure)
-                    return Result.Failure(addResult.GetError());
-            }
-        }
-
-        if (request.ImprovementIdsToRemove is { Count: > 0 })
-        {
-            foreach (var impId in request.ImprovementIdsToRemove)
-            {
-                var removeResult = property.RemoveImprovement(impId);
                 if (removeResult.IsFailure)
                     return Result.Failure(removeResult.GetError());
             }
+
+            if (newImages.Count > 0)
+            {
+                string folder = $"{FileConstants.PropertiesFolder}/{property.Code.Value}";
+                foreach (var image in newImages)
+                {
+                    var url = await _fileService.UploadFileAsync(image, folder);
+                    uploadedImageUrls.Add(url);
+                    var addResult = property.AddImage(url);
+                    if (addResult.IsFailure)
+                    {
+                        DeleteUploadedFiles(uploadedImageUrls);
+                        return Result.Failure(addResult.GetError());
+                    }
+                }
+            }
+
+            while (remainingImageIdsToRemove.Count > 0)
+            {
+                var imageId = remainingImageIdsToRemove.Dequeue();
+                removedImageUrls.Add(property.Images.First(image => image.Id == imageId).Url);
+                var removeResult = property.RemoveImage(imageId);
+                if (removeResult.IsFailure)
+                {
+                    DeleteUploadedFiles(uploadedImageUrls);
+                    return Result.Failure(removeResult.GetError());
+                }
+            }
+
+            foreach (var improvementId in improvementsToAdd)
+            {
+                var addResult = property.AddImprovement(improvementId);
+                if (addResult.IsFailure)
+                {
+                    DeleteUploadedFiles(uploadedImageUrls);
+                    return Result.Failure(addResult.GetError());
+                }
+            }
+
+            foreach (var improvementId in improvementsToRemove)
+            {
+                var removeResult = property.RemoveImprovement(improvementId);
+                if (removeResult.IsFailure)
+                {
+                    DeleteUploadedFiles(uploadedImageUrls);
+                    return Result.Failure(removeResult.GetError());
+                }
+            }
+
+            _propertyRepository.Update(property);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            DeleteUploadedFiles(uploadedImageUrls);
+            throw;
         }
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        foreach (var imageUrl in removedImageUrls)
+        {
+            try
+            {
+                _fileService.DeleteFile(imageUrl);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "No se pudo eliminar la imagen reemplazada {Url}.", imageUrl);
+            }
+        }
 
         _logger.LogInformation(
             "Propiedad {PropertyId} actualizada por agente {AgentId}.",
@@ -186,5 +274,20 @@ public sealed class UpdatePropertyUseCase : IUpdatePropertyUseCase
         );
 
         return Result.Success();
+    }
+
+    private void DeleteUploadedFiles(IEnumerable<string> urls)
+    {
+        foreach (var url in urls)
+        {
+            try
+            {
+                _fileService.DeleteFile(url);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "No se pudo limpiar la imagen {Url}.", url);
+            }
+        }
     }
 }

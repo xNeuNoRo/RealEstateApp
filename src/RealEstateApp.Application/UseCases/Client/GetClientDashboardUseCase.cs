@@ -15,6 +15,7 @@ public sealed class GetClientDashboardUseCase : IGetClientDashboardUseCase
     private readonly IFavoritePropertyRepository _favoriteRepo;
     private readonly IOfferRepository _offerRepo;
     private readonly IMessageRepository _messageRepo;
+    private readonly IUserRepository _userRepository;
     private readonly ICurrentUserService _currentUser;
     private readonly IValidator<GetClientDashboardRequest> _validator;
 
@@ -22,6 +23,7 @@ public sealed class GetClientDashboardUseCase : IGetClientDashboardUseCase
         IFavoritePropertyRepository favoriteRepo,
         IOfferRepository offerRepo,
         IMessageRepository messageRepo,
+        IUserRepository userRepository,
         ICurrentUserService currentUser,
         IValidator<GetClientDashboardRequest> validator
     )
@@ -29,6 +31,7 @@ public sealed class GetClientDashboardUseCase : IGetClientDashboardUseCase
         _favoriteRepo = favoriteRepo;
         _offerRepo = offerRepo;
         _messageRepo = messageRepo;
+        _userRepository = userRepository;
         _currentUser = currentUser;
         _validator = validator;
     }
@@ -56,12 +59,14 @@ public sealed class GetClientDashboardUseCase : IGetClientDashboardUseCase
             );
 
         var clientId = _currentUser.UserId;
+        var activeAgentIds = await _userRepository.GetActiveIdsByRoleAsync(nameof(Roles.Agent), ct);
 
         var favoritesCount = await _favoriteRepo.CountAsync(
             fp =>
                 fp.ClientId == clientId
                 && fp.Property != null
-                && fp.Property.Status == PropertyStatus.Available,
+                && fp.Property.Status == PropertyStatus.Available
+                && activeAgentIds.Contains(fp.Property.AgentId),
             ct
         );
 

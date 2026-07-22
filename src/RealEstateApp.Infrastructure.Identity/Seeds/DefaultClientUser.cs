@@ -29,7 +29,7 @@ public static class DefaultClientUser
             Active = true,
             FirstName = configuration["SeedData:ClientFirstName"] ?? "Juan",
             LastName = configuration["SeedData:ClientLastName"] ?? "Pérez",
-            IdentityDocument = configuration["SeedData:ClientIdentityDocument"] ?? "40212345673",
+            IdentityDocument = configuration["SeedData:ClientIdentityDocument"] ?? "00312345671",
         };
 
         var password = configuration["SeedData:ClientPassword"] ?? "Cliente123!";

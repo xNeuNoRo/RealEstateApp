@@ -19,6 +19,7 @@ namespace RealEstateApp.Infrastructure.Identity.UseCases.Client;
 public sealed class UpdateClientProfileUseCase : IUpdateClientProfileUseCase
 {
     private readonly UserManager<AppUser> _userManager;
+    private readonly SignInManager<AppUser> _signInManager;
     private readonly ICurrentUserService _currentUser;
     private readonly IFileService _fileService;
     private readonly IMapper _mapper;
@@ -27,6 +28,7 @@ public sealed class UpdateClientProfileUseCase : IUpdateClientProfileUseCase
 
     public UpdateClientProfileUseCase(
         UserManager<AppUser> userManager,
+        SignInManager<AppUser> signInManager,
         ICurrentUserService currentUser,
         IFileService fileService,
         IMapper mapper,
@@ -35,6 +37,7 @@ public sealed class UpdateClientProfileUseCase : IUpdateClientProfileUseCase
     )
     {
         _userManager = userManager;
+        _signInManager = signInManager;
         _currentUser = currentUser;
         _fileService = fileService;
         _mapper = mapper;
@@ -75,6 +78,8 @@ public sealed class UpdateClientProfileUseCase : IUpdateClientProfileUseCase
             return Result<ClientProfileResponse>.Failure(phoneResult.GetError());
         user.SetPhone(phoneResult.GetValue().Value);
 
+        string? newProfileImage = null;
+        var previousProfileImage = user.ProfileImage;
         if (request.PhotoFile is not null)
         {
             if (!_fileService.IsImageValid(request.PhotoFile))
@@ -85,12 +90,16 @@ public sealed class UpdateClientProfileUseCase : IUpdateClientProfileUseCase
                     )
                 );
 
-            user.ProfileImage = await _fileService.UploadFileAsync(request.PhotoFile, "users");
+            newProfileImage = await _fileService.UploadFileAsync(request.PhotoFile, "users");
+            user.ProfileImage = newProfileImage;
         }
 
         var updateResult = await _userManager.UpdateAsync(user);
         if (!updateResult.Succeeded)
         {
+            if (newProfileImage is not null)
+                await _fileService.DeleteFileAsync(newProfileImage);
+
             var errors = string.Join(", ", updateResult.Errors.Select(e => e.Description));
             _logger.LogWarning(
                 "Fallo al actualizar perfil del cliente {UserId}: {Errors}",
@@ -105,6 +114,10 @@ public sealed class UpdateClientProfileUseCase : IUpdateClientProfileUseCase
             );
         }
 
+        if (newProfileImage is not null && !string.IsNullOrWhiteSpace(previousProfileImage))
+            await _fileService.DeleteFileAsync(previousProfileImage);
+
+        await _signInManager.RefreshSignInAsync(user);
         _logger.LogInformation("Cliente {UserId} actualizó su perfil.", _currentUser.UserId);
 
         var response = _mapper.Map<ClientProfileResponse>(user);

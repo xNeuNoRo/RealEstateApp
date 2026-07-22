@@ -1,0 +1,51 @@
+@model PropertyFilterViewModel
+
+<form asp-action="Index" method="get" class="space-y-5" aria-label="Filtros de propiedades">
+    @if (!string.IsNullOrWhiteSpace(Model.Code))
+    {
+        <input type="hidden" name="Code" value="@Model.Code" />
+    }
+    <div>
+        <label for="property-type" class="label-base">Tipo de propiedad</label>
+        <select id="property-type" name="PropertyTypeId" class="select-base">
+            <option value="">Todos los tipos</option>
+            @foreach (var type in Model.PropertyTypes)
+            {
+                <option value="@type.Id" selected="@(type.Id == Model.PropertyTypeId)">@type.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+        <div>
+            <label for="price-min" class="label-base">Precio mínimo</label>
+            <input id="price-min" name="PriceMin" value="@Model.PriceMin" type="number" min="0" step="0.01"
+                   inputmode="decimal" class="input-base" placeholder="RD$ 0" />
+        </div>
+        <div>
+            <label for="price-max" class="label-base">Precio máximo</label>
+            <input id="price-max" name="PriceMax" value="@Model.PriceMax" type="number" min="0" step="0.01"
+                   inputmode="decimal" class="input-base" placeholder="Sin límite" />
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+        <div>
+            <label for="bedrooms" class="label-base">Habitaciones</label>
+            <input id="bedrooms" name="Bedrooms" value="@Model.Bedrooms" type="number" min="0" max="100"
+                   inputmode="numeric" class="input-base" placeholder="Cualquiera" />
+        </div>
+        <div>
+            <label for="bathrooms" class="label-base">Baños</label>
+            <input id="bathrooms" name="Bathrooms" value="@Model.Bathrooms" type="number" min="0" max="100"
+                   inputmode="numeric" class="input-base" placeholder="Cualquiera" />
+        </div>
+    </div>
+
+    <div class="flex gap-3 border-t border-default pt-5">
+        <button type="submit" class="btn-primary flex-1"><i data-lucide="sliders-horizontal"
+                                                                class="h-4 w-4"></i>Aplicar</button>
+            <a asp-action="Index" class="btn-secondary" aria-label="Limpiar filtros"><i data-lucide="rotate-ccw"
+                                                                                            class="h-4 w-4"></i><span class="hidden sm:inline">Limpiar</span></a>
+            </div>
+        </form>

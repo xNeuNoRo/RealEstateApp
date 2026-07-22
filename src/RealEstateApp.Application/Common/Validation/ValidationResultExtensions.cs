@@ -30,7 +30,7 @@ public static class ValidationResultExtensions
 
         var message = string.Join(
             Separator,
-            result.Errors.Select(failure => $"{failure.PropertyName}: {failure.ErrorMessage}")
+            result.Errors.Select(failure => failure.ErrorMessage)
         );
 
         return Error.Validation(code, message);

@@ -24,6 +24,14 @@ public sealed class UpdatePropertyRequestValidator : AbstractValidator<UpdatePro
             .WithMessage("Debe especificar al menos un campo para actualizar.");
 
         When(
+            x => x.Title is not null,
+            () =>
+            {
+                RuleFor(x => x.Title).NotEmpty().MaximumLength(120);
+            }
+        );
+
+        When(
             x => x.Description is not null,
             () =>
             {
@@ -99,7 +107,8 @@ public sealed class UpdatePropertyRequestValidator : AbstractValidator<UpdatePro
     }
 
     private static bool HasAtLeastOneField(UpdatePropertyRequest req) =>
-        req.Description is not null
+        req.Title is not null
+        || req.Description is not null
         || req.Price.HasValue
         || req.Currency is not null
         || req.SizeM2.HasValue

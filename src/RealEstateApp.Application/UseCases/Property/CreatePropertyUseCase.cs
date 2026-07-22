@@ -77,9 +77,6 @@ public sealed class CreatePropertyUseCase : ICreatePropertyUseCase
         if (size.IsFailure)
             return Result<CreatePropertyResponse>.Failure(size.GetError());
 
-        var imageUrls = new List<string>(request.ImageFiles.Count);
-        string folder = $"{FileConstants.PropertiesFolder}/{propertyCode.Value}";
-
         foreach (var img in request.ImageFiles)
         {
             if (!_fileService.IsImageValid(img))
@@ -93,29 +90,46 @@ public sealed class CreatePropertyUseCase : ICreatePropertyUseCase
                 );
             }
 
-            var url = await _fileService.UploadFileAsync(img, folder);
-            imageUrls.Add(url);
         }
 
-        var propertyResult = Domain.Entities.Property.Create(
-            propertyCode,
-            request.Description,
-            price.GetValue(),
-            size.GetValue(),
-            request.Bedrooms,
-            request.Bathrooms,
-            request.PropertyTypeId,
-            request.SaleTypeId,
-            _currentUser.UserId,
-            imageUrls,
-            request.ImprovementIds
-        );
+        var imageUrls = new List<string>(request.ImageFiles.Count);
+        string folder = $"{FileConstants.PropertiesFolder}/{propertyCode.Value}";
+        Domain.Entities.Property property;
+        try
+        {
+            foreach (var img in request.ImageFiles)
+                imageUrls.Add(await _fileService.UploadFileAsync(img, folder));
 
-        if (propertyResult.IsFailure)
-            return Result<CreatePropertyResponse>.Failure(propertyResult.GetError());
+            var propertyResult = Domain.Entities.Property.Create(
+                propertyCode,
+                request.Title,
+                request.Description,
+                price.GetValue(),
+                size.GetValue(),
+                request.Bedrooms,
+                request.Bathrooms,
+                request.PropertyTypeId,
+                request.SaleTypeId,
+                _currentUser.UserId,
+                imageUrls,
+                request.ImprovementIds
+            );
 
-        await _propertyRepository.AddAsync(propertyResult.GetValue(), cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+            if (propertyResult.IsFailure)
+            {
+                DeleteUploadedFiles(imageUrls);
+                return Result<CreatePropertyResponse>.Failure(propertyResult.GetError());
+            }
+
+            property = propertyResult.GetValue();
+            await _propertyRepository.AddAsync(property, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            DeleteUploadedFiles(imageUrls);
+            throw;
+        }
 
         _logger.LogInformation(
             "Propiedad {Code} creada por agente {AgentId}.",
@@ -125,10 +139,25 @@ public sealed class CreatePropertyUseCase : ICreatePropertyUseCase
 
         return Result<CreatePropertyResponse>.Success(
             new CreatePropertyResponse(
-                propertyResult.GetValue().Id,
+                property.Id,
                 propertyCode.Value,
                 "Propiedad publicada correctamente."
             )
         );
+    }
+
+    private void DeleteUploadedFiles(IEnumerable<string> urls)
+    {
+        foreach (var url in urls)
+        {
+            try
+            {
+                _fileService.DeleteFile(url);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "No se pudo limpiar la imagen {Url}.", url);
+            }
+        }
     }
 }

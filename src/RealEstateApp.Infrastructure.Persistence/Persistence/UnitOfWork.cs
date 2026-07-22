@@ -1,9 +1,7 @@
 using System.Data;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using RealEstateApp.Domain.Common;
-using RealEstateApp.Domain.Interfaces.Events;
 using RealEstateApp.Domain.Interfaces.Persistence;
 using RealEstateApp.Infrastructure.Persistence.Contexts;
 
@@ -12,13 +10,11 @@ namespace RealEstateApp.Infrastructure.Persistence.Persistence;
 public sealed class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
-    private readonly IDomainEventDispatcher _dispatcher;
     private IDbContextTransaction? _transaction;
 
-    public UnitOfWork(AppDbContext context, IDomainEventDispatcher dispatcher)
+    public UnitOfWork(AppDbContext context)
     {
         _context = context;
-        _dispatcher = dispatcher;
     }
 
     public bool HasActiveTransaction => _transaction is not null;
@@ -38,10 +34,6 @@ public sealed class UnitOfWork : IUnitOfWork
     {
         try
         {
-            await _context.SaveChangesAsync(ct);
-
-            await DispatchDomainEventsAsync(ct);
-
             await _context.SaveChangesAsync(ct);
 
             if (_transaction is not null)
@@ -79,32 +71,52 @@ public sealed class UnitOfWork : IUnitOfWork
         return await _context.SaveChangesAsync(ct);
     }
 
-    private async Task DispatchDomainEventsAsync(CancellationToken ct)
+    public async Task<Result<T>> ExecuteInTransactionAsync<T>(
+        Func<CancellationToken, Task<Result<T>>> operation,
+        IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
+        CancellationToken ct = default
+    )
     {
-        var aggregates = _context
-            .ChangeTracker.Entries<AggregateRoot>()
-            .Where(e => e.Entity.DomainEvents.Count > 0)
-            .Select(e => e.Entity)
-            .ToList();
-
-        foreach (var aggregate in aggregates)
+        var strategy = _context.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(async (ct) =>
         {
-            // Copiamos los eventos a una lista para evitar modificar la colección mientras iteramos.
-            var events = aggregate.DomainEvents.ToList();
-            aggregate.ClearDomainEvents();
-
-            // Usamos reflexión para invocar el método genérico DispatchAsync con el tipo de evento correcto.
-            foreach (var @event in events)
+            await using var transaction = await _context.Database.BeginTransactionAsync(isolationLevel, ct);
+            try
             {
-                var eventType = @event.GetType();
-                var method = typeof(IDomainEventDispatcher)
-                    .GetMethod(nameof(IDomainEventDispatcher.DispatchAsync))!
-                    .MakeGenericMethod(eventType);
-
-                // Invocamos el método genérico y esperamos su resultado.
-                await (Task)method.Invoke(_dispatcher, [@event, ct])!;
+                var result = await operation(ct);
+                await transaction.CommitAsync(ct);
+                return result;
             }
-        }
+            catch
+            {
+                await transaction.RollbackAsync(ct);
+                throw;
+            }
+        }, ct);
+    }
+
+    public async Task<Result> ExecuteInTransactionAsync(
+        Func<CancellationToken, Task<Result>> operation,
+        IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
+        CancellationToken ct = default
+    )
+    {
+        var strategy = _context.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(async (ct) =>
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync(isolationLevel, ct);
+            try
+            {
+                var result = await operation(ct);
+                await transaction.CommitAsync(ct);
+                return result;
+            }
+            catch
+            {
+                await transaction.RollbackAsync(ct);
+                throw;
+            }
+        }, ct);
     }
 
     public async ValueTask DisposeAsync()

@@ -11,7 +11,6 @@ using RealEstateApp.Application.Dtos.Chat.Responses;
 using RealEstateApp.Application.Dtos.Client.Requests;
 using RealEstateApp.Application.Dtos.Client.Responses;
 using RealEstateApp.Application.Dtos.Favorites.Responses;
-using RealEstateApp.Application.Dtos.Offers.Requests;
 using RealEstateApp.Application.Dtos.Offers.Responses;
 using RealEstateApp.Application.Dtos.Property.Requests;
 using RealEstateApp.Application.Dtos.Property.Responses;
@@ -22,6 +21,7 @@ using RealEstateApp.Application.ViewModels.Chat;
 using RealEstateApp.Application.ViewModels.Client;
 using RealEstateApp.Application.ViewModels.Offers;
 using RealEstateApp.Application.ViewModels.Property;
+using RealEstateApp.Application.ViewModels.Home;
 using RealEstateApp.Application.ViewModels.Shared;
 
 namespace RealEstateApp.Application.Mappings;
@@ -44,9 +44,8 @@ public sealed class ViewModelMappingProfile : Profile
     private void MapAuth()
     {
         CreateMap<LoginViewModel, LoginRequest>();
-        CreateMap<RegisterClientViewModel, RegisterClientRequest>();
-        CreateMap<RegisterAgentViewModel, RegisterAgentRequest>();
-        CreateMap<ForgotPasswordViewModel, ForgotPasswordRequest>();
+        CreateMap<ForgotPasswordViewModel, ForgotPasswordRequest>()
+            .ForMember(d => d.Origin, opt => opt.Ignore());
         CreateMap<ResetPasswordViewModel, ResetPasswordRequest>();
         CreateMap<ChangePasswordViewModel, ChangePasswordRequest>();
     }
@@ -71,7 +70,9 @@ public sealed class ViewModelMappingProfile : Profile
 
     private void MapAgent()
     {
+        CreateMap<PublicAgentResponse, PublicAgentListItemViewModel>();
         CreateMap<PropertyListItemResponse, AgentPropertyListItemViewModel>();
+        CreateMap<PropertySummaryResponse, AgentPropertyListItemViewModel>();
         CreateMap<AgentProfileResponse, AgentProfileViewModel>();
         CreateMap<UpdateAgentProfileViewModel, UpdateAgentProfileRequest>();
 
@@ -107,10 +108,18 @@ public sealed class ViewModelMappingProfile : Profile
         CreateMap<ToggleAgentStatusViewModel, ToggleAgentActiveRequest>();
         CreateMap<DeleteAgentViewModel, DeleteAgentRequest>();
         CreateMap<CreateAdminViewModel, CreateAdminRequest>();
-        CreateMap<EditAdminViewModel, UpdateAdminRequest>();
+        CreateMap<EditAdminViewModel, UpdateAdminRequest>()
+            .ConstructUsing(s => new UpdateAdminRequest(
+                s.Id, s.FirstName, s.LastName,
+                s.IdentityDocument, s.Email, s.UserName,
+                s.NewPassword, s.ConfirmPassword));
         CreateMap<ToggleAdminStatusViewModel, ToggleAdminActiveRequest>();
         CreateMap<CreateDeveloperViewModel, CreateDeveloperRequest>();
-        CreateMap<EditDeveloperViewModel, UpdateDeveloperRequest>();
+        CreateMap<EditDeveloperViewModel, UpdateDeveloperRequest>()
+            .ConstructUsing(s => new UpdateDeveloperRequest(
+                s.Id, s.FirstName, s.LastName,
+                s.IdentityDocument, s.Email, s.UserName,
+                s.NewPassword, s.ConfirmPassword));
         CreateMap<ToggleDeveloperStatusViewModel, ToggleDeveloperActiveRequest>();
     }
 
@@ -132,14 +141,15 @@ public sealed class ViewModelMappingProfile : Profile
     private void MapChat()
     {
         CreateMap<ConversationSummaryResponse, ConversationSummaryViewModel>();
-        CreateMap<MessageResponse, MessageViewModel>();
+        CreateMap<MessageResponse, MessageViewModel>()
+            .ForMember(d => d.IsFromCurrentUser, o => o.Ignore());
     }
 
     private void MapOffers()
     {
         CreateMap<OfferResponse, OfferListItemViewModel>();
+        CreateMap<OfferClientSummaryResponse, OfferClientSummaryViewModel>();
         CreateMap<OfferResponse, ViewModels.Offers.OfferDetailViewModel>();
-        CreateMap<CreateOfferViewModel, CreateOfferRequest>();
     }
 
     private void MapShared()

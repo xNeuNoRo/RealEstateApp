@@ -1,0 +1,28 @@
+@model (string Id, string Title, string? Message, string? ConfirmText, string? CancelText, string? ConfirmAction, string Icon)
+@{
+    var modalId = Model.Id ?? "confirm-modal";
+    var icon = Model.Icon ?? "alert-circle";
+}
+<div id="@modalId" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="@(modalId)-title">
+    <div class="modal-overlay" data-close-modal="@modalId"></div>
+    <div class="modal-container max-w-md">
+        <div class="modal-body text-center">
+            <div class="w-16 h-16 rounded-full bg-warning-50 dark:bg-warning-100/10 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="@icon" class="w-8 h-8 text-warning-500"></i>
+            </div>
+            <h3 id="@(modalId)-title" class="text-lg font-bold text-default mb-2">@Model.Title</h3>
+            @if (!string.IsNullOrEmpty(Model.Message))
+            {
+                <p class="text-muted text-sm mb-6">@Model.Message</p>
+            }
+            <div class="flex items-center justify-center gap-3">
+                <button type="button" data-close-modal="@modalId" class="btn-secondary">
+                    @(Model.CancelText ?? "Cancelar")
+                </button>
+                <a href="@Model.ConfirmAction" class="btn-danger">
+                    @(Model.ConfirmText ?? "Confirmar")
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

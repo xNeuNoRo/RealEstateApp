@@ -25,6 +25,8 @@ public sealed class ClientService : IClientService
     private readonly IAddFavoriteUseCase _addFavoriteUC;
     private readonly IRemoveFavoriteUseCase _removeFavoriteUC;
     private readonly ISendMessageUseCase _sendMessageUC;
+    private readonly IGetMyConversationsUseCase _chatListUC;
+    private readonly IGetConversationUseCase _conversationUC;
     private readonly ICreateOfferUseCase _createOfferUC;
     private readonly IGetMyOffersUseCase _myOffersUC;
     private readonly ICurrentUserService _currentUser;
@@ -37,6 +39,8 @@ public sealed class ClientService : IClientService
         IAddFavoriteUseCase addFavoriteUC,
         IRemoveFavoriteUseCase removeFavoriteUC,
         ISendMessageUseCase sendMessageUC,
+        IGetMyConversationsUseCase chatListUC,
+        IGetConversationUseCase conversationUC,
         ICreateOfferUseCase createOfferUC,
         IGetMyOffersUseCase myOffersUC,
         ICurrentUserService currentUser
@@ -49,6 +53,8 @@ public sealed class ClientService : IClientService
         _addFavoriteUC = addFavoriteUC;
         _removeFavoriteUC = removeFavoriteUC;
         _sendMessageUC = sendMessageUC;
+        _chatListUC = chatListUC;
+        _conversationUC = conversationUC;
         _createOfferUC = createOfferUC;
         _myOffersUC = myOffersUC;
         _currentUser = currentUser;
@@ -117,6 +123,32 @@ public sealed class ClientService : IClientService
             return Forbidden<MessageResponse>("Solo los clientes pueden enviar mensajes.");
 
         return await _sendMessageUC.ExecuteAsync(request, ct);
+    }
+
+    public async Task<Result<PagedResult<ConversationSummaryResponse>>> GetChatListAsync(
+        GetMyConversationsRequest request,
+        CancellationToken ct = default
+    )
+    {
+        if (!_currentUser.IsInRole(nameof(Roles.Client)))
+            return Forbidden<PagedResult<ConversationSummaryResponse>>(
+                "Solo los clientes pueden ver sus conversaciones."
+            );
+
+        return await _chatListUC.ExecuteAsync(request, ct);
+    }
+
+    public async Task<Result<PagedResult<MessageResponse>>> GetConversationAsync(
+        GetConversationRequest request,
+        CancellationToken ct = default
+    )
+    {
+        if (!_currentUser.IsInRole(nameof(Roles.Client)))
+            return Forbidden<PagedResult<MessageResponse>>(
+                "Solo los clientes pueden ver esta conversación."
+            );
+
+        return await _conversationUC.ExecuteAsync(request, ct);
     }
 
     public async Task<Result<OfferResponse>> CreateOfferAsync(

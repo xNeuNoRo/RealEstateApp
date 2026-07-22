@@ -60,6 +60,14 @@ public sealed class CreateImprovementUseCase : ICreateImprovementUseCase
             return Result<ImprovementResponse>.Failure(createResult.GetError());
 
         var improvement = createResult.GetValue();
+
+        var nameExists = await _repository.ExistsAsync(
+            i => i.Name == request.Name, cancellationToken);
+        if (nameExists)
+            return Result<ImprovementResponse>.Failure(
+                Error.Validation("Improvement.NameDuplicate",
+                    "Ya existe una mejora con ese nombre."));
+
         await _repository.AddAsync(improvement, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

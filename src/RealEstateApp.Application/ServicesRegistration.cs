@@ -18,6 +18,7 @@ using RealEstateApp.Application.UseCases.Favorites;
 using RealEstateApp.Application.UseCases.Improvement;
 using RealEstateApp.Application.UseCases.Offers;
 using RealEstateApp.Application.UseCases.Property;
+using RealEstateApp.Application.ViewModels.Shared;
 
 namespace RealEstateApp.Application;
 
@@ -42,6 +43,9 @@ public static class ServicesRegistration
 
         // Application Services (wrappers para MVC)
         services.AddApplicationServices();
+
+        // ViewModel infrastructure
+        services.AddViewModelInfrastructure();
 
         return services;
     }
@@ -97,6 +101,7 @@ public static class ServicesRegistration
         services.AddScoped<IAcceptOfferUseCase, AcceptOfferUseCase>();
         services.AddScoped<IRejectOfferUseCase, RejectOfferUseCase>();
         services.AddScoped<IGetPropertyOffersUseCase, GetPropertyOffersUseCase>();
+        services.AddScoped<IGetPropertyOfferClientsUseCase, GetPropertyOfferClientsUseCase>();
         services.AddScoped<IGetMyOffersUseCase, GetMyOffersUseCase>();
 
         return services;
@@ -113,6 +118,7 @@ public static class ServicesRegistration
     internal static IServiceCollection AddAgentUseCases(this IServiceCollection services)
     {
         services.AddScoped<IGetAgentProfileUseCase, GetAgentProfileUseCase>();
+        services.AddScoped<IGetPublicAgentsUseCase, GetPublicAgentsUseCase>();
 
         return services;
     }
@@ -130,6 +136,7 @@ public static class ServicesRegistration
         services.AddScoped<IGetAllPropertyTypesUseCase, GetAllPropertyTypesUseCase>();
         services.AddScoped<IDeletePropertyTypeUseCase, DeletePropertyTypeUseCase>();
         services.AddScoped<IGetPropertyTypeByIdUseCase, GetPropertyTypeByIdUseCase>();
+        services.AddScoped<IGetPublicPropertyTypesUseCase, GetPublicPropertyTypesUseCase>();
 
         // SaleType
         services.AddScoped<ICreateSaleTypeUseCase, CreateSaleTypeUseCase>();
@@ -147,6 +154,13 @@ public static class ServicesRegistration
         services.AddScoped<IAgentService, AgentService>();
         services.AddScoped<IClientService, ClientService>();
         services.AddScoped<IAdminService, AdminService>();
+
+        return services;
+    }
+
+    internal static IServiceCollection AddViewModelInfrastructure(this IServiceCollection services)
+    {
+        services.AddScoped<IViewModelBuilder<BaseViewModel>, ViewModelBuilder>();
 
         return services;
     }

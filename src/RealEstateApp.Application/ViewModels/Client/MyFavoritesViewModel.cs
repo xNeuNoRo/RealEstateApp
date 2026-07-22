@@ -1,15 +1,19 @@
 namespace RealEstateApp.Application.ViewModels.Client;
 
-public sealed class MyFavoritesViewModel
+using RealEstateApp.Domain.Common;
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class MyFavoritesViewModel : BaseViewModel
 {
-    public IReadOnlyList<FavoriteListItemViewModel> Favorites { get; init; } = [];
+    public PagedResult<FavoriteListItemViewModel> Favorites { get; init; } = new([], 0, 1, 12);
 }
 
-public sealed class FavoriteListItemViewModel
+public sealed class FavoriteListItemViewModel : BaseViewModel
 {
     public int Id { get; init; }
     public int PropertyId { get; init; }
     public string Code { get; init; } = null!;
+    public string Title { get; init; } = null!;
     public string Description { get; init; } = null!;
     public decimal Price { get; init; }
     public string Currency { get; init; } = null!;

@@ -122,7 +122,7 @@ public class FileService : IFileService
     }
 
     /// <summary>
-    /// Valida que un archivo sea una imagen permitida por tamaño, extensión, MIME y magic bytes.
+    /// Valida que un archivo sea una imagen permitida por tamaño, extensión y MIME.
     /// </summary>
     public bool IsImageValid(IAppFile file)
     {
@@ -152,64 +152,7 @@ public class FileService : IFileService
             return false;
         }
 
-        if (!HasValidMagicBytes(file, extension))
-        {
-            _logger.LogWarning("Magic bytes invalidos para extension: {Extension}", extension);
-            return false;
-        }
-
         return true;
-    }
-
-    private bool HasValidMagicBytes(IAppFile file, string extension)
-    {
-        if (!_settings.ImageMagicBytes.TryGetValue(extension, out var expected) || expected is null)
-            return false;
-
-        try
-        {
-            var stream = file.Content;
-            long originalPosition = stream.Position;
-            stream.Position = 0;
-
-            var buffer = new byte[expected.Length];
-            int read = stream.Read(buffer, 0, expected.Length);
-
-            if (read < expected.Length)
-            {
-                stream.Position = originalPosition;
-                return false;
-            }
-
-            for (int i = 0; i < expected.Length; i++)
-            {
-                if (buffer[i] != expected[i])
-                {
-                    stream.Position = originalPosition;
-                    return false;
-                }
-            }
-
-            if (extension == ".webp")
-            {
-                stream.Seek(8, SeekOrigin.Begin);
-                var webpHeader = new byte[4];
-                int webpRead = stream.Read(webpHeader, 0, 4);
-                stream.Position = originalPosition;
-                return webpRead == 4
-                    && webpHeader[0] == 0x57
-                    && webpHeader[1] == 0x45
-                    && webpHeader[2] == 0x42
-                    && webpHeader[3] == 0x50;
-            }
-
-            stream.Position = originalPosition;
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
     }
 
     /// <summary>

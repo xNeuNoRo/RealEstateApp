@@ -1,0 +1,65 @@
+@model ChatListViewModel
+@inject ICurrentUserService CurrentUser
+@{
+    var isAgent = CurrentUser.IsInRole("Agent");
+    ViewData["Title"] = isAgent ? "Bandeja de mensajes" : "Mis conversaciones";
+
+    var emptyTitle = isAgent
+        ? "Aún no tienes mensajes de clientes"
+        : "Aún no tienes conversaciones";
+    var emptyDesc = isAgent
+        ? "Cuando un cliente escriba sobre una de tus propiedades, aparecerá aquí para que puedas responder."
+        : "Cuando contactes a un agente desde una propiedad, tu conversación aparecerá aquí.";
+    var emptyCta = isAgent
+        ? ""
+        : "<a href=\"/Property\" class=\"btn-primary\">Explorar propiedades</a>";
+}
+
+<div class="space-y-8">
+    <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <p class="text-xs font-black uppercase tracking-[.16em] text-brand-600">
+                @(isAgent ? "Gestión de leads" : "Comunicación")
+            </p>
+            <h1 class="mt-2 text-3xl font-black tracking-tight text-default">@ViewData["Title"]</h1>
+            <p class="mt-2 text-sm text-muted">
+                @Model.Conversations.TotalCount @(Model.Conversations.TotalCount == 1 ? "conversación" : "conversaciones")
+                @(isAgent ? "con clientes interesados." : "con tus asesores inmobiliarios.")
+            </p>
+        </div>
+        @if (!isAgent)
+        {
+            <a asp-controller="Property" asp-action="Index" class="btn-primary">
+                <i data-lucide="search" class="h-4 w-4"></i>Buscar propiedades
+            </a>
+        }
+    </header>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div asp-validation-summary="All" class="rounded-2xl border border-danger-500/30 bg-danger-50 p-4 text-sm font-semibold text-danger-700" role="alert"></div>
+    }
+
+    @if (Model.Conversations.Items.Count == 0)
+    {
+        <div class="rounded-3xl border border-dashed border-default bg-[var(--color-bg-elevated)]">
+            <partial name="~/Views/Shared/Components/_EmptyState.cshtml"
+                     model='("messages-square", @emptyTitle, @emptyDesc, @emptyCta)' />
+        </div>
+    }
+    else
+    {
+        <div class="space-y-3" role="list" aria-label="Lista de conversaciones">
+            @foreach (var conversation in Model.Conversations.Items)
+            {
+                <partial name="_ConversationItem" model="conversation" />
+            }
+        </div>
+
+        <partial name="~/Views/Home/_Pagination.cshtml" model='new PaginationViewModel {
+            Action = nameof(MessageController.Index),
+            Controller = "Message",
+            CurrentPage = Model.Conversations.Page,
+            TotalPages = Model.Conversations.TotalPages }' />
+    }
+</div>

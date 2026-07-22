@@ -10,7 +10,7 @@ public sealed class SendMessageRequestValidator : AbstractValidator<SendMessageR
         RuleFor(x => x.PropertyId).GreaterThan(0).WithMessage("El ID de propiedad es requerido.");
         RuleFor(x => x.Content)
             .NotEmpty()
-            .WithMessage("El mensaje no puede estar vacío.")
+            .WithMessage("Debe escribir un mensaje antes de enviarlo.")
             .MaximumLength(2000)
             .WithMessage("El mensaje no debe exceder 2000 caracteres.");
     }

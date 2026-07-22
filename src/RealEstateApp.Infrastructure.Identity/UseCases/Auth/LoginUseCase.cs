@@ -7,6 +7,7 @@ using RealEstateApp.Application.Dtos.Auth.Responses;
 using RealEstateApp.Application.Interfaces.UseCases.Auth;
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Infrastructure.Identity.Entities;
+using RealEstateApp.Infrastructure.Identity.Seeds;
 
 namespace RealEstateApp.Infrastructure.Identity.UseCases.Auth;
 
@@ -91,6 +92,23 @@ public sealed class LoginUseCase : ILoginUseCase
         }
 
         var roles = await _userManager.GetRolesAsync(user);
+
+        string[] validWebRoles = [DefaultRoles.Client, DefaultRoles.Agent, DefaultRoles.Admin];
+        if (!roles.Any(validWebRoles.Contains))
+        {
+            _logger.LogWarning(
+                "Login fallido: usuario {UserId} sin rol válido para WebApp.",
+                user.Id
+            );
+            return Result<AuthResponse>.Failure(
+                Error.Unauthorized(
+                    "Auth.InvalidRole",
+                    "El usuario no tiene un rol válido para acceder a la aplicación web."
+                )
+            );
+        }
+
+        await _signInManager.SignInAsync(user, request.RememberMe);
 
         _logger.LogInformation(
             "Login exitoso: {UserId}, roles: {Roles}.",

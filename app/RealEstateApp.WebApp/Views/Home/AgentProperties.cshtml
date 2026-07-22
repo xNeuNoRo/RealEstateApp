@@ -1,0 +1,59 @@
+@model PublicAgentPropertiesViewModel
+@{
+    ViewData["Title"] = $"Propiedades de {Model.Agent.FullName}";
+    var paginationValues = new Dictionary<string, object?> { ["id"] = Model.Agent.Id };
+}
+
+<div class="space-y-8">
+    <section class="rounded-3xl border border-default bg-(--color-bg-elevated) p-6 shadow-sm sm:p-8">
+        <a asp-action="Agents"
+           class="inline-flex items-center gap-1.5 text-sm font-bold text-muted transition-colors hover:text-brand-600"><i
+            data-lucide="arrow-left" class="h-4 w-4"></i>Todos los agentes</a>
+            <div class="mt-6 flex flex-col gap-5 sm:flex-row sm:items-center">
+                @await Html.PartialAsync("~/Views/Shared/Components/_Avatar.cshtml", (Model.Agent.ProfileImage,
+                Model.Agent.FullName, "xl", "ring-4 ring-brand-50 dark:ring-brand-100/20"))
+                <div class="min-w-0">
+                    <p class="text-xs font-black uppercase tracking-[0.16em] text-brand-600 dark:text-brand-500">Agente
+                        inmobiliario</p>
+                        <h1 class="mt-1 truncate text-3xl font-black tracking-tight text-default">@Model.Agent.FullName</h1>
+                        <p class="mt-2 text-sm text-muted">Propiedades disponibles publicadas por este agente.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section aria-labelledby="agent-properties-title">
+                <div class="mb-6 flex items-end justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-[0.16em] text-brand-600 dark:text-brand-500">Portafolio
+                            público</p>
+                            <h2 id="agent-properties-title" class="mt-1 text-2xl font-black tracking-tight text-default">Propiedades
+                                disponibles</h2>
+                            </div>
+                            <p class="text-sm text-muted">@Model.Properties.TotalCount @(Model.Properties.TotalCount == 1 ? "propiedad"                : "propiedades")</p>
+                        </div>
+                        @if (Model.Properties.Items.Count == 0)
+                        {
+                            var emptyState = (
+                                "house-heart",
+                                "Este agente no tiene propiedades disponibles",
+                                "Vuelve más tarde para conocer sus próximas publicaciones.",
+                                "<a href='/Home/Agents' class='btn-primary'>Explorar otros agentes</a>"
+                            );
+                            <partial name="~/Views/Shared/Components/_EmptyState.cshtml" model="emptyState" />
+                        }
+                        else
+                        {
+                            <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" role="list"
+                                 aria-label="Propiedades disponibles del agente">
+                                @foreach (var property in Model.Properties.Items)
+                                {
+                                    <div role="listitem">
+                                        <partial name="_PropertyCard" model="property" />
+                                    </div>
+                                }
+                            </div>
+                            <partial name="_Pagination"
+                                     model="new PaginationViewModel { Action = nameof(HomeController.AgentProperties), CurrentPage = Model.Properties.Page, TotalPages = Model.Properties.TotalPages, RouteValues = paginationValues }" />
+                        }
+                    </section>
+                </div>

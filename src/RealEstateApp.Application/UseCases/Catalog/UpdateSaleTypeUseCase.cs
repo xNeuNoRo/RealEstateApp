@@ -63,6 +63,13 @@ public sealed class UpdateSaleTypeUseCase : IUpdateSaleTypeUseCase
         if (result.IsFailure)
             return Result.Failure(result.GetError());
 
+        var codeExists = await _repository.ExistsAsync(
+            st => st.Code == request.Code && st.Id != request.Id, cancellationToken);
+        if (codeExists)
+            return Result.Failure(
+                Error.Validation("SaleType.CodeDuplicate",
+                    "Ya existe un tipo de venta con ese código."));
+
         _repository.Update(entity);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

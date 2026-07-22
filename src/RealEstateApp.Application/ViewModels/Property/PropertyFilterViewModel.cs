@@ -39,7 +39,8 @@ public sealed class PropertyFilterViewModel : IValidatableObject
         {
             yield return new ValidationResult(
                 "El precio mínimo no puede ser mayor que el precio máximo.",
-                [nameof(PriceMin), nameof(PriceMax)]);
+                [nameof(PriceMin), nameof(PriceMax)]
+            );
         }
     }
 }

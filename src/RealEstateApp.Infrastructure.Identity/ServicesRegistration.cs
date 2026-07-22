@@ -31,58 +31,18 @@ namespace RealEstateApp.Infrastructure.Identity;
 public static class ServicesRegistration
 {
     /// <summary>
-    /// Configura Identity con JWT para la WebApi.
+    /// Configura JWT puro (sin IdentityContext ni UserManager).
+    /// Reutilizable desde producción y tests.
     /// </summary>
-    public static IServiceCollection AddIdentityForWebApi(
+    public static IServiceCollection AddJwtAuthentication(
         this IServiceCollection services,
         IConfiguration configuration
     )
     {
-        // --- DbContext ---
-        services.AddDbContext<IdentityContext>(options =>
-            options.UseSqlServer(
-                configuration.GetConnectionString("RealEstateDb"),
-                sql =>
-                {
-                    sql.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName);
-                    sql.EnableRetryOnFailure(
-                        maxRetryCount: 3,
-                        maxRetryDelay: TimeSpan.FromSeconds(5),
-                        errorNumbersToAdd: null
-                    );
-                    sql.CommandTimeout(30);
-                }
-            )
-        );
-
-        // --- JWT Settings ---
-        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
-
-        // --- Identity ---
-        services
-            .AddIdentityCore<AppUser>(opt =>
-            {
-                opt.Password.RequiredLength = 8;
-                opt.Password.RequireDigit = true;
-                opt.Password.RequireNonAlphanumeric = true;
-                opt.Password.RequireLowercase = true;
-                opt.Password.RequireUppercase = true;
-
-                opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                opt.Lockout.MaxFailedAccessAttempts = 5;
-
-                opt.User.RequireUniqueEmail = true;
-            })
-            .AddRoles<IdentityRole>()
-            .AddSignInManager<AppUser>()
-            .AddEntityFrameworkStores<IdentityContext>()
-            .AddDefaultTokenProviders();
-
-        // --- JWT ---
         var jwtSettings =
             configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()
             ?? throw new InvalidOperationException(
-                "JwtSettings no está configurado correctamente en appsettings.Development.json"
+                "JwtSettings no está configurado correctamente en appsettings."
             );
 
         services
@@ -136,26 +96,131 @@ public static class ServicesRegistration
                 };
             });
 
+        return services;
+    }
+
+    /// <summary>
+    /// Configura Identity con JWT para la WebApi.
+    /// </summary>
+    public static IServiceCollection AddIdentityForWebApi(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
+    {
+        services.AddIdentityCommon(configuration);
+        services.AddJwtAuthentication(configuration);
         services.AddAuthorization();
 
-        // --- Servicios ---
         services.AddScoped<IAccountServiceForWebApi, AccountServiceForWebApi>();
-        services.AddScoped<IAccountServiceForWebApp, AccountServiceForWebApp>();
-        services.AddScoped<ICurrentUserService, CurrentUserService>();
-        services.AddScoped<IUserRepository, UserRepository>();
-
-        // --- AutoMapper ---
-        services.AddAutoMapper(cfg => { }, typeof(ServicesRegistration).Assembly);
-
-        // --- Identity Use Cases ---
-        services.AddAllIdentityUseCases();
 
         return services;
     }
 
-    internal static IServiceCollection AddAllIdentityUseCases(this IServiceCollection services)
+    /// <summary>
+    /// Registra la infraestructura común de Identity (DbContext, Identity Core, servicios, Use Cases).
+    /// Compartido entre WebApi y WebApp.
+    /// </summary>
+    internal static IServiceCollection AddIdentityCommon(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
+    {
+        // --- DbContext ---
+        services.AddDbContext<IdentityContext>(options =>
+            options.UseSqlServer(
+                configuration.GetConnectionString("RealEstateDb"),
+                sql =>
+                {
+                    sql.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName);
+                    sql.EnableRetryOnFailure(
+                        maxRetryCount: 3,
+                        maxRetryDelay: TimeSpan.FromSeconds(5),
+                        errorNumbersToAdd: null
+                    );
+                    sql.CommandTimeout(30);
+                }
+            )
+        );
+
+        // --- JWT Settings ---
+        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+
+        // --- Identity ---
+        services
+            .AddIdentityCore<AppUser>(opt =>
+            {
+                opt.Password.RequiredLength = 8;
+                opt.Password.RequireDigit = true;
+                opt.Password.RequireNonAlphanumeric = true;
+                opt.Password.RequireLowercase = true;
+                opt.Password.RequireUppercase = true;
+                opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                opt.Lockout.MaxFailedAccessAttempts = 5;
+                opt.User.RequireUniqueEmail = true;
+            })
+            .AddRoles<IdentityRole>()
+            .AddSignInManager()
+            .AddClaimsPrincipalFactory<AppUserClaimsPrincipalFactory>()
+            .AddEntityFrameworkStores<IdentityContext>()
+            .AddDefaultTokenProviders();
+
+        services.AddAuthorization();
+
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IUserRepository, UserRepository>();
+
+        services.AddAutoMapper(cfg => { }, typeof(ServicesRegistration).Assembly);
+
+        return services;
+    }
+
+    /// <summary>
+    /// Configura Identity con Cookie auth para la WebApp (MVC/Razor Pages).
+    /// </summary>
+    public static IServiceCollection AddIdentityForWebApp(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
+    {
+        services.AddIdentityCommon(configuration);
+        services.AddScoped<IAccountServiceForWebApp, AccountServiceForWebApp>();
+        services.AddAllIdentityUseCases();
+
+        services
+            .AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+                opt.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+                opt.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+            })
+            .AddIdentityCookies();
+
+        services.ConfigureApplicationCookie(opt =>
+        {
+            opt.LoginPath = "/Auth/Login";
+            opt.AccessDeniedPath = "/Auth/AccessDenied";
+            opt.SlidingExpiration = true;
+            opt.ExpireTimeSpan = TimeSpan.FromDays(7);
+            opt.Cookie.HttpOnly = true;
+            opt.Cookie.SameSite = SameSiteMode.Lax;
+            opt.Cookie.Name = ".RealEstateApp.Auth";
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection AddAllIdentityUseCases(this IServiceCollection services)
     {
         services.AddAuthUseCases();
+        return services.AddIdentityBackendUseCases();
+    }
+
+    /// <summary>
+    /// Registra Use Cases de administración, cliente y agente que dependen de Identity
+    /// (necesarios para AdminService en WebApi y WebApp).
+    /// </summary>
+    public static IServiceCollection AddIdentityBackendUseCases(this IServiceCollection services)
+    {
         services.AddAdminUseCases();
         services.AddIdentityClientUseCases();
         services.AddIdentityAgentUseCases();
@@ -188,6 +253,8 @@ public static class ServicesRegistration
         services.AddScoped<IGetAdminDashboardUseCase, GetAdminDashboardUseCase>();
         services.AddScoped<IGetAgentsListUseCase, GetAgentsListUseCase>();
         services.AddScoped<IGetAgentByIdUseCase, GetAgentByIdUseCase>();
+        services.AddScoped<IGetAdminByIdUseCase, GetAdminByIdUseCase>();
+        services.AddScoped<IGetDeveloperByIdUseCase, GetDeveloperByIdUseCase>();
         services.AddScoped<IToggleAgentActiveUseCase, ToggleAgentActiveUseCase>();
         services.AddScoped<IChangeAgentStatusUseCase, ChangeAgentStatusUseCase>();
         services.AddScoped<IDeleteAgentUseCase, DeleteAgentUseCase>();

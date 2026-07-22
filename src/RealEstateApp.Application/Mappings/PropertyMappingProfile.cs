@@ -9,6 +9,7 @@ public sealed class PropertyMappingProfile : Profile
     public PropertyMappingProfile()
     {
         CreateMap<Property, PropertyListItemResponse>()
+            .ForMember(d => d.Title, o => o.MapFrom(s => s.Title))
             .ForMember(d => d.Code, o => o.MapFrom(s => s.Code.Value))
             .ForMember(d => d.Price, o => o.MapFrom(s => s.Price.Amount))
             .ForMember(d => d.Currency, o => o.MapFrom(s => s.Price.Currency))
@@ -34,6 +35,7 @@ public sealed class PropertyMappingProfile : Profile
             .ForMember(d => d.AgentName, o => o.Ignore());
 
         CreateMap<Property, PropertyDetailResponse>()
+            .ForMember(d => d.Title, o => o.MapFrom(s => s.Title))
             .ForMember(d => d.Code, o => o.MapFrom(s => s.Code.Value))
             .ForMember(d => d.Price, o => o.MapFrom(s => s.Price.Amount))
             .ForMember(d => d.Currency, o => o.MapFrom(s => s.Price.Currency))
@@ -71,9 +73,11 @@ public sealed class PropertyMappingProfile : Profile
             .ForMember(d => d.AgentProfileImage, o => o.Ignore());
 
         CreateMap<Property, PropertySummaryResponse>()
+            .ForMember(d => d.Title, o => o.MapFrom(s => s.Title))
             .ForMember(d => d.Code, o => o.MapFrom(s => s.Code.Value))
             .ForMember(d => d.Price, o => o.MapFrom(s => s.Price.Amount))
             .ForMember(d => d.Currency, o => o.MapFrom(s => s.Price.Currency))
+            .ForMember(d => d.SizeM2, o => o.MapFrom(s => s.Size.Area))
             .ForMember(d => d.Status, o => o.MapFrom(s => s.Status.ToString()))
             .ForMember(
                 d => d.MainImageUrl,
@@ -83,6 +87,14 @@ public sealed class PropertyMappingProfile : Profile
                             ? s.Images.First(i => i.IsMain).Url
                             : null
                     )
+            )
+            .ForMember(
+                d => d.PropertyTypeName,
+                o => o.MapFrom(s => s.PropertyType != null ? s.PropertyType.Name : null)
+            )
+            .ForMember(
+                d => d.SaleTypeName,
+                o => o.MapFrom(s => s.SaleType != null ? s.SaleType.Name : null)
             );
 
         CreateMap<PropertyImage, PropertyImageDto>()

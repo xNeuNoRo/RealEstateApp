@@ -13,6 +13,7 @@ public sealed class CatalogMappingProfile : Profile
         CreateMap<PropertyType, PropertyTypeResponse>();
 
         CreateMap<SaleType, SaleTypeResponse>()
-            .ForMember(d => d.Code, o => o.MapFrom(s => s.Code.ToString()));
+            .ConstructUsing(s => new SaleTypeResponse(
+                s.Id, s.Code.ToString(), s.Name, s.Description));
     }
 }

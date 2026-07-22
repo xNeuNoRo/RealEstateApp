@@ -1,0 +1,32 @@
+@model (string Label, string Type, string? Icon, string? CssClass, bool Disabled, bool Block, bool Loading)
+@{
+    var baseClass = "inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 cursor-pointer";
+    var variantClass = Model.Type switch
+    {
+        "primary" => "bg-gradient-to-r from-brand-from to-brand-to text-white hover:brightness-110 focus:ring-brand-500 shadow-lg shadow-brand-100 dark:shadow-brand-900/30",
+        "secondary" => "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-gray-500",
+        "outline" => "border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 focus:ring-gray-500",
+        "danger" => "bg-gradient-to-r from-red-500 to-red-600 text-white hover:brightness-110 focus:ring-red-500 shadow-lg shadow-red-100 dark:shadow-red-900/30",
+        "ghost" => "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 focus:ring-gray-500",
+        _ => "bg-gradient-to-r from-brand-from to-brand-to text-white"
+    };
+    var sizeClass = "px-4 py-2.5 text-sm";
+    var blockClass = Model.Block ? "w-full" : "";
+    var disabledClass = Model.Disabled ? "opacity-50 cursor-not-allowed" : "hover:scale-[1.02] active:scale-95";
+    var cssClass = $"{baseClass} {variantClass} {sizeClass} {blockClass} {disabledClass} {Model.CssClass}";
+}
+<button type="submit" class="@cssClass" disabled="@Model.Disabled" @(Model.Loading ? "data-loading" : "")>
+    @if (Model.Loading)
+    {
+        <span class="spinner-sm"></span>
+        <span>Procesando...</span>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(Model.Icon))
+        {
+            <i data-lucide="@Model.Icon" class="w-4 h-4"></i>
+        }
+        @Model.Label
+    }
+</button>

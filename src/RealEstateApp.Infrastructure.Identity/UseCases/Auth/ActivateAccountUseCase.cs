@@ -41,6 +41,9 @@ public sealed class ActivateAccountUseCase : IActivateAccountUseCase
                 Error.NotFound("Auth.UserNotFound", "El usuario especificado no existe.")
             );
 
+        if (user.EmailConfirmed && user.Active)
+            return Result.Success();
+
         var token = Uri.UnescapeDataString(request.Token);
         var result = await _userManager.ConfirmEmailAsync(user, token);
 

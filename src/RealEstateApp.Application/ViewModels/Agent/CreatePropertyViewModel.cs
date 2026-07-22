@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RealEstateApp.Application.ViewModels.Agent;
 
-public sealed class CreatePropertyViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public class CreatePropertyViewModel : BaseViewModel
 {
     [Required(ErrorMessage = "El tipo de propiedad es requerido.")]
     [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un tipo de propiedad.")]
@@ -19,8 +21,21 @@ public sealed class CreatePropertyViewModel
     [Display(Name = "Precio")]
     public decimal Price { get; set; }
 
+    [Required(ErrorMessage = "El título es requerido.")]
+    [StringLength(
+        120,
+        MinimumLength = 3,
+        ErrorMessage = "El título debe tener entre 3 y 120 caracteres."
+    )]
+    [Display(Name = "Título")]
+    public string Title { get; set; } = null!;
+
     [Required(ErrorMessage = "La descripción es requerida.")]
-    [StringLength(2000, MinimumLength = 5, ErrorMessage = "La descripción debe tener entre 5 y 2000 caracteres.")]
+    [StringLength(
+        2000,
+        MinimumLength = 5,
+        ErrorMessage = "La descripción debe tener entre 5 y 2000 caracteres."
+    )]
     [Display(Name = "Descripción")]
     public string Description { get; set; } = null!;
 
@@ -40,11 +55,16 @@ public sealed class CreatePropertyViewModel
     public int Bathrooms { get; set; }
 
     [Required(ErrorMessage = "La moneda es requerida.")]
-    [StringLength(3, MinimumLength = 3, ErrorMessage = "La moneda debe tener 3 caracteres (ej. DOP, USD).")]
+    [StringLength(
+        3,
+        MinimumLength = 3,
+        ErrorMessage = "La moneda debe tener 3 caracteres (ej. DOP, USD)."
+    )]
     [Display(Name = "Moneda")]
     public string Currency { get; set; } = "DOP";
 
     [Display(Name = "Mejoras")]
+    [MinLength(1, ErrorMessage = "Debe seleccionar al menos una mejora.")]
     public List<int> ImprovementIds { get; set; } = [];
 
     public IReadOnlyList<Shared.SelectListItemViewModel> PropertyTypes { get; set; } = [];

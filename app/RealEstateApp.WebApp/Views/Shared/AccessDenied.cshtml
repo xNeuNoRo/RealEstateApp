@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Acceso Denegado";
+}
+<div class="flex items-center justify-center min-h-[70vh] py-8 page-entry">
+    <div class="text-center max-w-md">
+        <h1 class="text-9xl font-black text-gray-100 dark:text-gray-800 tracking-tighter mb-4">403</h1>
+        <div
+            class="w-20 h-20 bg-warning-50 dark:bg-warning-100/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i data-lucide="shield-ban" class="w-10 h-10 text-warning-500"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-default mb-2">Acceso Denegado</h2>
+        <p class="text-muted mb-8">No tiene permisos suficientes para acceder a esta sección. Si cree que esto es un
+            error, contacte al administrador.</p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a asp-controller="Home" asp-action="Index" class="btn-primary px-6 py-3">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                    Volver al Inicio
+                </a>
+                <a asp-controller="Auth" asp-action="Login" class="btn-secondary px-6 py-3">
+                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    Iniciar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+    @section Scripts {
+        <script>lucide.createIcons();</script>
+    }

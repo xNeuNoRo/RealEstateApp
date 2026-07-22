@@ -1,0 +1,25 @@
+@model (string? Src, string Name, string Size, string? CssClass)
+@{
+    var size = Model.Size ?? "md";
+    var sizeClass = size switch
+    {
+        "xs" => "w-6 h-6 text-[0.5rem]",
+        "sm" => "w-8 h-8 text-[0.65rem]",
+        "md" => "w-10 h-10 text-[0.75rem]",
+        "lg" => "w-14 h-14 text-[0.875rem]",
+        "xl" => "w-24 h-24 text-[1.5rem]",
+        _ => "w-10 h-10 text-[0.75rem]"
+    };
+    var initials = string.IsNullOrEmpty(Model.Name) ? "U" :
+        string.Concat(Model.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => s[0]).Take(2)).ToUpper();
+}
+@if (!string.IsNullOrEmpty(Model.Src))
+{
+    <img src="@Model.Src" alt="@Model.Name" class="@sizeClass rounded-full object-cover shrink-0 @Model.CssClass" loading="lazy" />
+}
+else
+{
+    <div class="@sizeClass rounded-full bg-gradient-to-br from-brand-from to-brand-to text-white font-black flex items-center justify-center shrink-0 @Model.CssClass" aria-label="@Model.Name" role="img" title="@Model.Name">
+        @initials
+    </div>
+}

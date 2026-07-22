@@ -19,7 +19,8 @@ public class IdentityContext : IdentityDbContext<AppUser>
     {
         base.OnModelCreating(builder);
 
-        builder.HasDefaultSchema("Identity");
+        if (Database.ProviderName?.Contains("SqlServer") == true)
+            builder.HasDefaultSchema("Identity");
 
         builder.Entity<AppUser>(e =>
         {

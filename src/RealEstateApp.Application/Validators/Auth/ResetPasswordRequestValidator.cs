@@ -20,7 +20,9 @@ public sealed class ResetPasswordRequestValidator : AbstractValidator<ResetPassw
             .NotEmpty()
             .WithMessage("La nueva contraseña es requerida.")
             .MinimumLength(8)
-            .WithMessage("La contraseña debe tener al menos 8 caracteres.");
+            .WithMessage("La contraseña debe tener al menos 8 caracteres.")
+            .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$")
+            .WithMessage("La contraseña debe incluir mayúscula, minúscula, número y símbolo.");
 
         RuleFor(x => x.ConfirmPassword)
             .NotEmpty()

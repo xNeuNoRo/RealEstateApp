@@ -1,0 +1,60 @@
+@model CreateSaleTypeViewModel
+@using RealEstateApp.Domain.Enums
+@{
+    ViewData["Title"] = "Nuevo Tipo de Venta";
+    var saleTypeCodes = new SelectList(new[]
+    {
+        new { Value = SaleTypeCode.Sale, Text = "Venta" },
+        new { Value = SaleTypeCode.Rent, Text = "Alquiler" },
+        new { Value = SaleTypeCode.RentToOwn, Text = "Traspaso" },
+    }, "Value", "Text");
+}
+
+<div class="mx-auto max-w-2xl space-y-8">
+    <nav aria-label="Ruta de navegación">
+        <ol class="flex items-center gap-2 text-sm text-muted">
+            <li><a asp-action="Index" class="font-semibold transition-colors hover:text-brand-600">Tipos de Venta</a></li>
+            <li aria-hidden="true"><i data-lucide="chevron-right" class="h-4 w-4"></i></li>
+            <li class="font-semibold text-default" aria-current="page">Nuevo</li>
+        </ol>
+    </nav>
+
+    <section class="rounded-3xl border border-default bg-[var(--color-bg-elevated)] p-6 shadow-sm sm:p-9" aria-labelledby="create-title">
+        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 dark:bg-brand-100/15">
+            <i data-lucide="receipt" class="h-6 w-6"></i>
+        </div>
+        <p class="mt-6 text-xs font-black uppercase tracking-[.16em] text-brand-600">Cat&aacute;logo</p>
+        <h1 id="create-title" class="mt-2 text-3xl font-black tracking-tight text-default">Nuevo Tipo de Venta</h1>
+        <p class="mt-3 max-w-xl text-sm leading-6 text-muted">Define una modalidad de transacci&oacute;n (Venta, Alquiler o Traspaso).</p>
+
+        <form asp-action="Create" method="post" class="mt-8 space-y-5" novalidate>
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="validation-summary" role="alert"></div>
+
+            <div class="space-y-1.5">
+                <label asp-for="Code" class="label-base"></label>
+                <select asp-for="Code" asp-items="saleTypeCodes" class="input-base"></select>
+                <span asp-validation-for="Code" class="field-validation"></span>
+            </div>
+
+            <div class="space-y-1.5">
+                <label asp-for="Name" class="label-base"></label>
+                <input asp-for="Name" class="input-base" autocomplete="off" autofocus placeholder="Ej. Venta Directa" />
+                <span asp-validation-for="Name" class="field-validation"></span>
+            </div>
+
+            <div class="space-y-1.5">
+                <label asp-for="Description" class="label-base"></label>
+                <textarea asp-for="Description" rows="3" class="input-base" placeholder="Describe brevemente este tipo de venta"></textarea>
+                <span asp-validation-for="Description" class="field-validation"></span>
+            </div>
+
+            <div class="flex flex-col-reverse gap-3 border-t border-default pt-6 sm:flex-row sm:justify-end">
+                <a asp-action="Index" class="btn-secondary">Cancelar</a>
+                <button type="submit" class="btn-primary px-6">
+                    <i data-lucide="save" class="h-4 w-4"></i>Guardar tipo
+                </button>
+            </div>
+        </form>
+    </section>
+</div>

@@ -154,6 +154,7 @@ public class AgentsController : BaseApiController
             {
                 Id = i.Id,
                 Code = i.Code,
+                Title = i.Title,
                 PropertyType = i.PropertyTypeName ?? "",
                 SaleType = i.SaleTypeName ?? "",
                 Price = i.Price,

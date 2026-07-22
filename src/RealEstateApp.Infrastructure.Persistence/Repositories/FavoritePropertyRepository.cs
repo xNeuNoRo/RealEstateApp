@@ -45,6 +45,23 @@ public sealed class FavoritePropertyRepository
         return await _dbSet.AnyAsync(x => x.ClientId == clientId && x.PropertyId == propertyId, ct);
     }
 
+    public async Task<IReadOnlySet<int>> GetPropertyIdsAsync(
+        string clientId,
+        IReadOnlyCollection<int> propertyIds,
+        CancellationToken ct = default
+    )
+    {
+        if (propertyIds.Count == 0)
+            return new HashSet<int>();
+
+        var ids = await _dbSet
+            .Where(x => x.ClientId == clientId && propertyIds.Contains(x.PropertyId))
+            .Select(x => x.PropertyId)
+            .ToListAsync(ct);
+
+        return ids.ToHashSet();
+    }
+
     public async Task<int> CountByPropertyAsync(int propertyId, CancellationToken ct = default)
     {
         return await _dbSet.CountAsync(x => x.PropertyId == propertyId, ct);
@@ -60,6 +77,9 @@ public sealed class FavoritePropertyRepository
 
         if (options.Filter is not null)
             query = query.Where(options.Filter);
+
+        if (options.UseSplitQuery)
+            query = query.AsSplitQuery();
 
         foreach (var include in options.Includes)
             query = query.Include(include);

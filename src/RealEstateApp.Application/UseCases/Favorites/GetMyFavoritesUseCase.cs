@@ -16,18 +16,21 @@ public sealed class GetMyFavoritesUseCase : IGetMyFavoritesUseCase
 {
     private readonly IFavoritePropertyRepository _favoriteRepository;
     private readonly ICurrentUserService _currentUser;
+    private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
     private readonly IValidator<GetMyFavoritesRequest> _validator;
 
     public GetMyFavoritesUseCase(
         IFavoritePropertyRepository favoriteRepository,
         ICurrentUserService currentUser,
+        IUserRepository userRepository,
         IMapper mapper,
         IValidator<GetMyFavoritesRequest> validator
     )
     {
         _favoriteRepository = favoriteRepository;
         _currentUser = currentUser;
+        _userRepository = userRepository;
         _mapper = mapper;
         _validator = validator;
     }
@@ -52,11 +55,24 @@ public sealed class GetMyFavoritesUseCase : IGetMyFavoritesUseCase
             );
 
         var clientId = _currentUser.UserId;
+        var activeAgentIds = await _userRepository.GetActiveIdsByRoleAsync(
+            nameof(Roles.Agent),
+            cancellationToken
+        );
 
         var options = new QueryOptions<FavoriteProperty>
         {
-            Filter = fp => fp.Property != null && fp.Property.Status == PropertyStatus.Available,
-            Includes = [fp => fp.Property],
+            Filter = fp =>
+                fp.Property != null
+                && fp.Property.Status == PropertyStatus.Available
+                && activeAgentIds.Contains(fp.Property.AgentId),
+            Includes =
+            [
+                fp => fp.Property,
+                fp => fp.Property.Images,
+                fp => fp.Property.PropertyType!,
+                fp => fp.Property.SaleType!,
+            ],
             OrderBy = q => q.OrderByDescending(fp => fp.CreatedAt),
             Skip = (request.Page - 1) * request.PageSize,
             Take = request.PageSize,
@@ -72,7 +88,8 @@ public sealed class GetMyFavoritesUseCase : IGetMyFavoritesUseCase
             fp =>
                 fp.ClientId == clientId
                 && fp.Property != null
-                && fp.Property.Status == PropertyStatus.Available,
+                && fp.Property.Status == PropertyStatus.Available
+                && activeAgentIds.Contains(fp.Property.AgentId),
             cancellationToken
         );
 

@@ -61,7 +61,14 @@ public sealed class RemoveFavoriteUseCase : IRemoveFavoriteUseCase
             cancellationToken
         );
         if (favorite is null)
-            return Result.Failure(Error.NotFound("Favorites.NotFound", "El favorito no existe."));
+        {
+            _logger.LogInformation(
+                "Favorito {PropertyId} no existía al eliminar (idempotente), cliente {ClientId}.",
+                request.PropertyId,
+                clientId
+            );
+            return Result.Success();
+        }
 
         _favoriteRepository.Delete(favorite);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

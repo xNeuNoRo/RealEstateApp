@@ -1,6 +1,8 @@
 namespace RealEstateApp.Application.ViewModels.Admin;
 
-public sealed class AdminDashboardViewModel
+using RealEstateApp.Application.ViewModels.Shared;
+
+public sealed class AdminDashboardViewModel : BaseViewModel
 {
     public int AvailableProperties { get; init; }
     public int SoldProperties { get; init; }

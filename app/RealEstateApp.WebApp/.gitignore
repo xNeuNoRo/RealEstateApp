@@ -1,0 +1,14 @@
+node_modules/
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+bun-debug.log*
+coverage/
+.nyc_output/
+*.tgz
+.cache/

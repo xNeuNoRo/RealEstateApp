@@ -86,6 +86,57 @@ public sealed class OfferRepository : GenericRepository<Offer>, IOfferRepository
         );
     }
 
+    public async Task<IReadOnlyList<OfferClientSummary>> GetClientSummariesByPropertyAsync(
+        int propertyId,
+        int skip,
+        int take,
+        CancellationToken ct = default
+    )
+    {
+        var offers = await _dbSet
+            .AsNoTracking()
+            .Where(offer => offer.PropertyId == propertyId)
+            .Select(offer => new
+            {
+                offer.ClientId,
+                offer.Amount,
+                offer.Status,
+                offer.CreatedAt,
+                offer.Id
+            })
+            .ToListAsync(ct);
+
+        return offers
+            .GroupBy(o => o.ClientId)
+            .Select(g =>
+            {
+                var last = g.OrderByDescending(o => o.CreatedAt).ThenByDescending(o => o.Id).First();
+                return new OfferClientSummary(
+                    g.Key,
+                    g.Count(),
+                    last.Amount,
+                    last.Status,
+                    g.Max(o => o.CreatedAt)
+                );
+            })
+            .OrderByDescending(s => s.LastCreatedAt)
+            .ThenBy(s => s.ClientId)
+            .Skip(skip)
+            .Take(take)
+            .ToList();
+    }
+
+    public Task<int> CountClientsByPropertyAsync(
+        int propertyId,
+        CancellationToken ct = default
+    ) =>
+        _dbSet
+            .AsNoTracking()
+            .Where(offer => offer.PropertyId == propertyId)
+            .Select(offer => offer.ClientId)
+            .Distinct()
+            .CountAsync(ct);
+
     private static IQueryable<Offer> ApplyOptionsToQuery(
         IQueryable<Offer> query,
         QueryOptions<Offer>? options
@@ -94,8 +145,14 @@ public sealed class OfferRepository : GenericRepository<Offer>, IOfferRepository
         if (options is null)
             return query;
 
+        if (options.UseSplitQuery)
+            query = query.AsSplitQuery();
+
         foreach (var include in options.Includes)
             query = query.Include(include);
+
+        if (options.Filter is not null)
+            query = query.Where(options.Filter);
 
         if (options.OrderBy is not null)
             query = options.OrderBy(query);

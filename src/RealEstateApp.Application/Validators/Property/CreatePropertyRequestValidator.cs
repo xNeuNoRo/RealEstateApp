@@ -17,6 +17,12 @@ public sealed class CreatePropertyRequestValidator : AbstractValidator<CreatePro
 
     public CreatePropertyRequestValidator()
     {
+        RuleFor(x => x.Title)
+            .NotEmpty()
+            .WithMessage("El título es requerido.")
+            .MaximumLength(120)
+            .WithMessage("El título no debe exceder 120 caracteres.");
+
         RuleFor(x => x.Description)
             .NotEmpty()
             .WithMessage("La descripción es requerida.")

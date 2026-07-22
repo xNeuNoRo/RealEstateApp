@@ -19,11 +19,11 @@ public sealed class PropertyCodeGenerator : IPropertyCodeGenerator
 
     public async Task<PropertyCode> GenerateNextAsync(CancellationToken ct = default)
     {
-        var lastCode = await _context
+        var codes = await _context
             .Properties.AsNoTracking()
             .Select(x => x.Code.Value)
-            .OrderByDescending(c => int.Parse(c))
-            .FirstOrDefaultAsync(ct);
+            .ToListAsync(ct);
+        var lastCode = codes.OrderByDescending(c => c).FirstOrDefault();
 
         var next = lastCode switch
         {
