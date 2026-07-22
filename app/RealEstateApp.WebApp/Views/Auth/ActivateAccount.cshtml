@@ -8,20 +8,25 @@
     @if (Model.Success)
     {
         <div class="auth-status-icon auth-status-success"><i data-lucide="badge-check" class="h-8 w-8"></i></div>
-        <p class="mt-6 text-xs font-black uppercase tracking-[0.18em] text-success-700 dark:text-success-500">Activación completada</p>
-        <h1 class="mt-2 text-3xl font-black tracking-tight text-default">Tu cuenta está lista</h1>
-        <p class="mt-3 text-sm leading-6 text-muted">@Model.Message</p>
-        <a asp-action="Login" class="btn-primary btn-lg mt-7 w-full"><i data-lucide="log-in" class="h-4 w-4"></i>Iniciar sesión</a>
-    }
+        <p class="mt-6 text-xs font-black uppercase tracking-[0.18em] text-success-700 dark:text-success-500">Activación
+            completada</p>
+            <h1 class="mt-2 text-3xl font-black tracking-tight text-default">Tu cuenta está lista</h1>
+            <p class="mt-3 text-sm leading-6 text-muted">@Model.Message</p>
+            <a asp-action="Login" class="btn-primary btn-lg mt-7 w-full"><i data-lucide="log-in" class="h-4 w-4"></i>Iniciar
+                sesión</a>
+            }
     else
-    {
-        <div class="auth-status-icon auth-status-error"><i data-lucide="link-2-off" class="h-8 w-8"></i></div>
-        <p class="mt-6 text-xs font-black uppercase tracking-[0.18em] text-danger-700 dark:text-danger-500">No pudimos completar la activación</p>
-        <h1 class="mt-2 text-3xl font-black tracking-tight text-default">Revisa tu enlace</h1>
-        <p class="mt-3 text-sm leading-6 text-muted">@Model.Message</p>
-        <div class="mt-7 grid gap-3">
-            <a asp-action="ResendActivation" class="btn-primary btn-lg w-full"><i data-lucide="mail-check" class="h-4 w-4"></i>Solicitar un enlace nuevo</a>
-            <a asp-action="Login" class="btn-secondary btn-lg w-full"><i data-lucide="arrow-left" class="h-4 w-4"></i>Volver al acceso</a>
-        </div>
-    }
-</div>
+            {
+                <div class="auth-status-icon auth-status-error"><i data-lucide="link-2-off" class="h-8 w-8"></i></div>
+                <p class="mt-6 text-xs font-black uppercase tracking-[0.18em] text-danger-700 dark:text-danger-500">No pudimos
+                    completar la activación</p>
+                    <h1 class="mt-2 text-3xl font-black tracking-tight text-default">Revisa tu enlace</h1>
+                    <p class="mt-3 text-sm leading-6 text-muted">@Model.Message</p>
+                    <div class="mt-7 grid gap-3">
+                        <a asp-action="ResendActivation" class="btn-primary btn-lg w-full"><i data-lucide="mail-check"
+                                                                                                  class="h-4 w-4"></i>Solicitar un enlace nuevo</a>
+                            <a asp-action="Login" class="btn-secondary btn-lg w-full"><i data-lucide="arrow-left" class="h-4 w-4"></i>Volver
+                                al acceso</a>
+                            </div>
+                        }
+                    </div>

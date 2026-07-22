@@ -1,20 +1,142 @@
 @model AgentHomeViewModel
 @{
     ViewData["Title"] = "Panel de agente";
-    var totalPropertiesStat = ("building-2", "blue", Model.TotalProperties.ToString(), "Propiedades gestionadas", (string?)null);
-    var availablePropertiesStat = ("circle-check-big", "green", Model.AvailablePropertiesCount.ToString(), "Disponibles", (string?)null);
+    var totalPropertiesStat = ("building-2", "blue", Model.TotalProperties.ToString(), "Propiedades gestionadas",
+(string?)null);
+    var availablePropertiesStat = ("circle-check-big", "green", Model.AvailablePropertiesCount.ToString(), "Disponibles",
+(string?)null);
     var soldPropertiesStat = ("badge-check", "purple", Model.SoldPropertiesCount.ToString(), "Vendidas", (string?)null);
 }
 
-<div class="space-y-8"><header class="relative overflow-hidden rounded-3xl border border-brand-100 bg-gradient-to-br from-slate-950 via-brand-700 to-brand-500 p-6 text-white shadow-xl shadow-brand-600/15 sm:p-9"><div class="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div><div class="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><p class="text-xs font-black uppercase tracking-[.16em] text-blue-200">Operación inmobiliaria</p><h1 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Tu inventario, bajo control.</h1><p class="mt-3 max-w-2xl text-sm leading-6 text-blue-100">Publica, mantiene y negocia cada propiedad desde un único espacio de trabajo.</p></div><a asp-controller="Property" asp-action="Create" class="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 text-sm font-black text-brand-700 shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-50"><i data-lucide="plus" class="h-4 w-4"></i>Publicar propiedad</a></div></header>
+<div class="space-y-8">
+    <header
+        class="relative overflow-hidden rounded-3xl border border-brand-100 bg-linear-to-br from-slate-950 via-brand-700 to-brand-500 p-6 text-white shadow-xl shadow-brand-600/15 sm:p-9">
+        <div class="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
+        <div class="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <p class="text-xs font-black uppercase tracking-[.16em] text-blue-200">Operación inmobiliaria</p>
+                <h1 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Tu inventario, bajo control.</h1>
+                <p class="mt-3 max-w-2xl text-sm leading-6 text-blue-100">Publica, mantiene y negocia cada propiedad
+                    desde un único espacio de trabajo.</p>
+                </div><a asp-controller="Property" asp-action="Create"
+                     class="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 text-sm font-black text-brand-700 shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-50"><i
+                data-lucide="plus" class="h-4 w-4"></i>Publicar propiedad</a>
+            </div>
+        </header>
 
-    @if (!ViewData.ModelState.IsValid) { <div asp-validation-summary="All" class="rounded-2xl border border-danger-500/30 bg-danger-50 p-4 text-sm font-semibold text-danger-700" role="alert"></div> }
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All"
+                 class="rounded-2xl border border-danger-500/30 bg-danger-50 p-4 text-sm font-semibold text-danger-700"
+                 role="alert"></div>
+        }
 
-    <section class="grid gap-4 sm:grid-cols-3" aria-label="Resumen del inventario"><partial name="~/Views/Shared/Components/_StatCard.cshtml" model="totalPropertiesStat" /><partial name="~/Views/Shared/Components/_StatCard.cshtml" model="availablePropertiesStat" /><partial name="~/Views/Shared/Components/_StatCard.cshtml" model="soldPropertiesStat" /></section>
+        <section class="grid gap-4 sm:grid-cols-3" aria-label="Resumen del inventario">
+            <partial name="~/Views/Shared/Components/_StatCard.cshtml" model="totalPropertiesStat" />
+            <partial name="~/Views/Shared/Components/_StatCard.cshtml" model="availablePropertiesStat" />
+            <partial name="~/Views/Shared/Components/_StatCard.cshtml" model="soldPropertiesStat" />
+        </section>
 
-    <section class="rounded-3xl border border-default bg-[var(--color-bg-elevated)] p-5 shadow-sm sm:p-6" aria-labelledby="agent-actions-title"><div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><p class="text-xs font-black uppercase tracking-[.14em] text-brand-600">Trabajo diario</p><h2 id="agent-actions-title" class="mt-1 text-xl font-black text-default">Herramientas de inventario</h2></div><p class="text-sm text-muted">Gestiona contenido y negociaciones por propiedad.</p></div><div class="mt-5 grid gap-3 sm:grid-cols-3"><a asp-controller="Property" asp-action="Create" class="group rounded-2xl border border-default p-4 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"><i data-lucide="house-plus" class="h-5 w-5 text-brand-600"></i><p class="mt-4 font-extrabold text-default">Nueva publicación</p><p class="mt-1 text-xs leading-5 text-muted">Añade una propiedad al inventario.</p></a><a asp-controller="Property" asp-action="MyProperties" class="group rounded-2xl border border-default p-4 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"><i data-lucide="layout-list" class="h-5 w-5 text-brand-600"></i><p class="mt-4 font-extrabold text-default">Gestionar inventario</p><p class="mt-1 text-xs leading-5 text-muted">Edita fotos, precios y características.</p></a><a asp-action="Profile" class="group rounded-2xl border border-default p-4 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"><i data-lucide="contact-round" class="h-5 w-5 text-brand-600"></i><p class="mt-4 font-extrabold text-default">Perfil profesional</p><p class="mt-1 text-xs leading-5 text-muted">Actualiza tus datos de contacto.</p></a></div></section>
+        <section class="rounded-3xl border border-default bg-(--color-bg-elevated) p-5 shadow-sm sm:p-6"
+                 aria-labelledby="agent-actions-title">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p class="text-xs font-black uppercase tracking-[.14em] text-brand-600">Trabajo diario</p>
+                    <h2 id="agent-actions-title" class="mt-1 text-xl font-black text-default">Herramientas de inventario
+                    </h2>
+                </div>
+                <p class="text-sm text-muted">Gestiona contenido y negociaciones por propiedad.</p>
+            </div>
+            <div class="mt-5 grid gap-3 sm:grid-cols-3"><a asp-controller="Property" asp-action="Create"
+                                                           class="group rounded-2xl border border-default p-4 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"><i
+                data-lucide="house-plus" class="h-5 w-5 text-brand-600"></i>
+                <p class="mt-4 font-extrabold text-default">Nueva publicación</p>
+                <p class="mt-1 text-xs leading-5 text-muted">Añade una propiedad al inventario.</p>
+            </a><a asp-controller="Property" asp-action="MyProperties"
+               class="group rounded-2xl border border-default p-4 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"><i
+            data-lucide="layout-list" class="h-5 w-5 text-brand-600"></i>
+            <p class="mt-4 font-extrabold text-default">Gestionar inventario</p>
+            <p class="mt-1 text-xs leading-5 text-muted">Edita fotos, precios y características.</p>
+        </a><a asp-action="Profile"
+           class="group rounded-2xl border border-default p-4 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"><i
+        data-lucide="contact-round" class="h-5 w-5 text-brand-600"></i>
+        <p class="mt-4 font-extrabold text-default">Perfil profesional</p>
+        <p class="mt-1 text-xs leading-5 text-muted">Actualiza tus datos de contacto.</p>
+    </a></div>
+</section>
 
-    <section aria-labelledby="available-title"><div class="mb-5 flex flex-wrap items-end justify-between gap-4"><div><p class="text-xs font-black uppercase tracking-[.14em] text-success-700">En mercado</p><h2 id="available-title" class="mt-1 text-2xl font-black tracking-tight text-default">Disponibles para negociación</h2></div><a asp-controller="Property" asp-action="MyProperties" class="btn-secondary">Ver inventario<i data-lucide="arrow-right" class="h-4 w-4"></i></a></div>@if (Model.AvailableProperties.Count == 0) { <div class="rounded-3xl border border-dashed border-default bg-[var(--color-bg-elevated)]"><partial name="~/Views/Shared/Components/_EmptyState.cshtml" model='("building-2", "No tienes propiedades disponibles", "Publica tu primer inmueble para comenzar a captar interesados.", "<a href=\"/Property/Create\" class=\"btn-primary\">Publicar propiedad</a>")' /></div> } else { <div class="grid gap-5 lg:grid-cols-3" role="list">@foreach (var property in Model.AvailableProperties) { <article class="overflow-hidden rounded-3xl border border-default bg-[var(--color-bg-elevated)] shadow-sm" role="listitem"><div class="relative aspect-[16/9] bg-brand-50 dark:bg-brand-100/20">@if (!string.IsNullOrWhiteSpace(property.MainImageUrl)) { <img src="@property.MainImageUrl" alt="@property.Title" class="h-full w-full object-cover" loading="lazy" decoding="async" /> } else { <div class="flex h-full items-center justify-center bg-gradient-to-br from-brand-from to-brand-to text-white/55"><i data-lucide="building-2" class="h-12 w-12"></i></div> }<span class="absolute bottom-3 left-3 rounded-xl bg-gray-950/80 px-3 py-1.5 text-sm font-black text-white backdrop-blur">@PriceHelper.FormatCompact(property.Price, property.Currency)</span></div><div class="p-5"><p class="text-[11px] font-black uppercase tracking-[.14em] text-brand-600">@property.SaleTypeName · REF. @property.Code</p><h3 class="mt-1 line-clamp-2 text-base font-extrabold leading-5 text-default">@property.Title</h3><div class="mt-4 grid grid-cols-2 gap-2"><a asp-controller="Offer" asp-action="PropertyOffers" asp-route-propertyId="@property.Id" class="btn-primary"><i data-lucide="hand-coins" class="h-4 w-4"></i>Ofertas</a><a asp-controller="Property" asp-action="Edit" asp-route-id="@property.Id" class="btn-secondary"><i data-lucide="pencil" class="h-4 w-4"></i>Editar</a></div></div></article> }</div>}</section>
+<section aria-labelledby="available-title">
+    <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
+        <div>
+            <p class="text-xs font-black uppercase tracking-[.14em] text-success-700">En mercado</p>
+            <h2 id="available-title" class="mt-1 text-2xl font-black tracking-tight text-default">Disponibles para
+                negociación</h2>
+            </div><a asp-controller="Property" asp-action="MyProperties" class="btn-secondary">Ver inventario<i
+            data-lucide="arrow-right" class="h-4 w-4"></i></a>
+        </div>@if (Model.AvailableProperties.Count == 0) {
+        <div class="rounded-3xl border border-dashed border-default bg-(--color-bg-elevated)">
+            <partial name="~/Views/Shared/Components/_EmptyState.cshtml"
+                     model='("building-2", "No tienes propiedades disponibles", "Publica tu primer inmueble para comenzar a captar interesados.", "<a href=\"/Property/Create\" class=\"btn-primary\">Publicar propiedad</a>")' />
+        </div>
+    } else
+    {
 
-    @if (Model.SoldProperties.Count > 0) { <section aria-labelledby="sold-title"><div class="mb-5"><p class="text-xs font-black uppercase tracking-[.14em] text-purple-700">Historial</p><h2 id="sold-title" class="mt-1 text-2xl font-black tracking-tight text-default">Operaciones cerradas</h2></div><div class="grid gap-4 sm:grid-cols-3" role="list">@foreach (var property in Model.SoldProperties) { <a asp-controller="Property" asp-action="Detail" asp-route-id="@property.Id" class="rounded-2xl border border-default bg-[var(--color-bg-elevated)] p-5 transition hover:-translate-y-0.5 hover:shadow-md" role="listitem"><p class="text-[11px] font-black uppercase tracking-[.14em] text-purple-700">Vendida · @property.Title</p><h3 class="mt-2 line-clamp-2 font-extrabold text-default">@property.Title</h3><p class="mt-3 text-sm font-black text-brand-600">@PriceHelper.FormatCompact(property.Price, property.Currency)</p></a> }</div></section> }
-</div>
+        <div class="grid gap-5 lg:grid-cols-3" role="list">@foreach (var property in
+            Model.AvailableProperties) {
+                <article class="overflow-hidden rounded-3xl border border-default bg-(--color-bg-elevated) shadow-sm"
+                         role="listitem">
+                    <div class="relative aspect-16/9 bg-brand-50 dark:bg-brand-100/20">@if
+                        (!string.IsNullOrWhiteSpace(property.MainImageUrl)) {
+                            <img src="@property.MainImageUrl" alt="@property.Title" class="h-full w-full object-cover"
+                                 loading="lazy" decoding="async" />
+                        }
+                    else
+                        {
+
+                            <div
+                                class="flex h-full items-center justify-center bg-linear-to-br from-brand-from to-brand-to text-white/55">
+                                <i data-lucide="building-2" class="h-12 w-12"></i>
+                            </div>
+                        }
+                        <span
+                            class="absolute bottom-3 left-3 rounded-xl bg-gray-950/80 px-3 py-1.5 text-sm font-black text-white backdrop-blur">@PriceHelper.FormatCompact(property.Price,
+                                                                                                                                            property.Currency)</span>
+                        </div>
+                        <div class="p-5">
+                            <p class="text-[11px] font-black uppercase tracking-[.14em] text-brand-600">@property.SaleTypeName ·
+                                REF. @property.Code</p>
+                                <h3 class="mt-1 line-clamp-2 text-base font-extrabold leading-5 text-default">@property.Title</h3>
+                                <div class="mt-4 grid grid-cols-2 gap-2"><a asp-controller="Offer" asp-action="PropertyOffers"
+                                                                            asp-route-propertyId="@property.Id" class="btn-primary"><i data-lucide="hand-coins"
+                                                                                               class="h-4 w-4"></i>Ofertas</a><a asp-controller="Property" asp-action="Edit"
+                                                                  asp-route-id="@property.Id" class="btn-secondary"><i data-lucide="pencil"
+                                                                                         class="h-4 w-4"></i>Editar</a></div>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+
+            @if (Model.SoldProperties.Count > 0)
+            {
+                <section aria-labelledby="sold-title">
+                    <div class="mb-5">
+                        <p class="text-xs font-black uppercase tracking-[.14em] text-purple-700">Historial</p>
+                        <h2 id="sold-title" class="mt-1 text-2xl font-black tracking-tight text-default">Operaciones cerradas</h2>
+                    </div>
+                    <div class="grid gap-4 sm:grid-cols-3" role="list">@foreach (var property in Model.SoldProperties) {
+                        <a asp-controller="Property" asp-action="Detail" asp-route-id="@property.Id"
+                           class="rounded-2xl border border-default bg-(--color-bg-elevated) p-5 transition hover:-translate-y-0.5 hover:shadow-md"
+                           role="listitem">
+                            <p class="text-[11px] font-black uppercase tracking-[.14em] text-purple-700">Vendida · @property.Title
+                            </p>
+                            <h3 class="mt-2 line-clamp-2 font-extrabold text-default">@property.Title</h3>
+                            <p class="mt-3 text-sm font-black text-brand-600">@PriceHelper.FormatCompact(property.Price,
+                                                                                                                                                            property.Currency)</p>
+                            </a>
+                        }
+                    </div>
+                </section>
+            }
+        </div>

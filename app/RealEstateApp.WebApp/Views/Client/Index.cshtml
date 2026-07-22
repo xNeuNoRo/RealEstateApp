@@ -4,52 +4,98 @@
     var favoritesStat = ("heart", "red", Model.FavoritesCount.ToString(), "Propiedades favoritas", (string?)null);
     var offersStat = ("file-text", "blue", Model.TotalOffers.ToString(), "Ofertas realizadas", (string?)null);
     var activeOffersStat = ("clock-3", "amber", Model.ActiveOffers.ToString(), "Propuestas en curso", (string?)null);
-    var conversationsStat = ("messages-square", "purple", Model.ConversationsCount.ToString(), "Conversaciones", (string?)null);
+    var conversationsStat = ("messages-square", "purple", Model.ConversationsCount.ToString(), "Conversaciones",
+(string?)null);
 }
 
 <div class="space-y-8">
-    <header class="relative overflow-hidden rounded-3xl border border-brand-100 bg-gradient-to-br from-slate-950 via-brand-700 to-brand-500 p-6 text-white shadow-xl shadow-brand-600/15 sm:p-9">
+    <header
+        class="relative overflow-hidden rounded-3xl border border-brand-100 bg-linear-to-br from-slate-950 via-brand-700 to-brand-500 p-6 text-white shadow-xl shadow-brand-600/15 sm:p-9">
         <div class="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
         <div class="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
                 <p class="text-xs font-black uppercase tracking-[.16em] text-blue-200">Tu búsqueda inmobiliaria</p>
-                <h1 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Encuentra un lugar para vivir mejor.</h1>
-                <p class="mt-3 max-w-2xl text-sm leading-6 text-blue-100">Guarda opciones, sigue tus propuestas y mantén cada decisión cerca de ti.</p>
+                <h1 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Encuentra un lugar para vivir mejor.
+                </h1>
+                <p class="mt-3 max-w-2xl text-sm leading-6 text-blue-100">Guarda opciones, sigue tus propuestas y mantén
+                    cada decisión cerca de ti.</p>
+                </div>
+                <a asp-controller="Property" asp-action="Index"
+                   class="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 text-sm font-black text-brand-700 shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-50"><i
+                    data-lucide="search" class="h-4 w-4"></i>Explorar propiedades</a>
+                </div>
+            </header>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="All"
+                     class="rounded-2xl border border-danger-500/30 bg-danger-50 p-4 text-sm font-semibold text-danger-700"
+                     role="alert"></div>
+            }
+
+            <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Resumen de actividad">
+                <partial name="~/Views/Shared/Components/_StatCard.cshtml" model="favoritesStat" />
+                <partial name="~/Views/Shared/Components/_StatCard.cshtml" model="offersStat" />
+                <partial name="~/Views/Shared/Components/_StatCard.cshtml" model="activeOffersStat" />
+                <partial name="~/Views/Shared/Components/_StatCard.cshtml" model="conversationsStat" />
+            </section>
+
+            <section class="rounded-3xl border border-default bg-(--color-bg-elevated) p-5 shadow-sm sm:p-6"
+                     aria-labelledby="quick-actions-title">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-[.14em] text-brand-600">Siguiente paso</p>
+                        <h2 id="quick-actions-title" class="mt-1 text-xl font-black text-default">Gestiona tu búsqueda</h2>
+                    </div>
+                    <p class="text-sm text-muted">Cada acción conserva contexto de tu compra.</p>
+                </div>
+                <div class="mt-5 grid gap-3 sm:grid-cols-3">
+                    <a asp-controller="Property" asp-action="Index"
+                       class="group rounded-2xl border border-default p-4 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"><i
+                        data-lucide="map-pinned" class="h-5 w-5 text-brand-600"></i>
+                        <p class="mt-4 font-extrabold text-default">Buscar propiedades</p>
+                        <p class="mt-1 text-xs leading-5 text-muted">Filtra por precio, tipo y características.</p>
+                    </a>
+                    <a asp-action="Favorites"
+                       class="group rounded-2xl border border-default p-4 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"><i
+                        data-lucide="heart" class="h-5 w-5 text-danger-500"></i>
+                        <p class="mt-4 font-extrabold text-default">Revisar favoritas</p>
+                        <p class="mt-1 text-xs leading-5 text-muted">Compara las propiedades que guardaste.</p>
+                    </a>
+                    <a asp-controller="Offer" asp-action="MyOffers"
+                       class="group rounded-2xl border border-default p-4 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"><i
+                        data-lucide="hand-coins" class="h-5 w-5 text-success-700"></i>
+                        <p class="mt-4 font-extrabold text-default">Consultar ofertas</p>
+                        <p class="mt-1 text-xs leading-5 text-muted">Conoce el estado de cada negociación.</p>
+                    </a>
+                </div>
+            </section>
+
+            <section aria-labelledby="featured-properties-title">
+                <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-[.14em] text-brand-600">Inventario disponible</p>
+                        <h2 id="featured-properties-title" class="mt-1 text-2xl font-black tracking-tight text-default">
+                            Propiedades para considerar</h2>
+                        </div><a asp-controller="Property" asp-action="Index" class="btn-secondary">Ver catálogo completo<i
+                        data-lucide="arrow-right" class="h-4 w-4"></i></a>
+                    </div>
+                    @if (Model.AvailableProperties.Count == 0)
+                    {
+                        <div class="rounded-3xl border border-dashed border-default bg-(--color-bg-elevated)">
+                            <partial name="~/Views/Shared/Components/_EmptyState.cshtml"
+                                     model='("building-2", "No hay propiedades destacadas ahora", "Visita el catálogo para ver nuevas publicaciones cuando estén disponibles.", "<a href=\"/Property\" class=\"btn-primary\">Explorar catálogo</a>")' />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3" role="list">@foreach (var property in
+                            Model.AvailableProperties) {
+                                <div role="listitem">
+                                    <partial name="~/Views/Home/_PropertyCard.cshtml" model="property" />
+                                </div>
+                            }
+                        </div>
+                    }
+                </section>
             </div>
-            <a asp-controller="Property" asp-action="Index" class="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 text-sm font-black text-brand-700 shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-50"><i data-lucide="search" class="h-4 w-4"></i>Explorar propiedades</a>
-        </div>
-    </header>
-
-    @if (!ViewData.ModelState.IsValid)
-    {
-        <div asp-validation-summary="All" class="rounded-2xl border border-danger-500/30 bg-danger-50 p-4 text-sm font-semibold text-danger-700" role="alert"></div>
-    }
-
-    <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Resumen de actividad">
-        <partial name="~/Views/Shared/Components/_StatCard.cshtml" model="favoritesStat" />
-        <partial name="~/Views/Shared/Components/_StatCard.cshtml" model="offersStat" />
-        <partial name="~/Views/Shared/Components/_StatCard.cshtml" model="activeOffersStat" />
-        <partial name="~/Views/Shared/Components/_StatCard.cshtml" model="conversationsStat" />
-    </section>
-
-    <section class="rounded-3xl border border-default bg-[var(--color-bg-elevated)] p-5 shadow-sm sm:p-6" aria-labelledby="quick-actions-title">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><p class="text-xs font-black uppercase tracking-[.14em] text-brand-600">Siguiente paso</p><h2 id="quick-actions-title" class="mt-1 text-xl font-black text-default">Gestiona tu búsqueda</h2></div><p class="text-sm text-muted">Cada acción conserva contexto de tu compra.</p></div>
-        <div class="mt-5 grid gap-3 sm:grid-cols-3">
-            <a asp-controller="Property" asp-action="Index" class="group rounded-2xl border border-default p-4 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"><i data-lucide="map-pinned" class="h-5 w-5 text-brand-600"></i><p class="mt-4 font-extrabold text-default">Buscar propiedades</p><p class="mt-1 text-xs leading-5 text-muted">Filtra por precio, tipo y características.</p></a>
-            <a asp-action="Favorites" class="group rounded-2xl border border-default p-4 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"><i data-lucide="heart" class="h-5 w-5 text-danger-500"></i><p class="mt-4 font-extrabold text-default">Revisar favoritas</p><p class="mt-1 text-xs leading-5 text-muted">Compara las propiedades que guardaste.</p></a>
-            <a asp-controller="Offer" asp-action="MyOffers" class="group rounded-2xl border border-default p-4 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"><i data-lucide="hand-coins" class="h-5 w-5 text-success-700"></i><p class="mt-4 font-extrabold text-default">Consultar ofertas</p><p class="mt-1 text-xs leading-5 text-muted">Conoce el estado de cada negociación.</p></a>
-        </div>
-    </section>
-
-    <section aria-labelledby="featured-properties-title">
-        <div class="mb-5 flex flex-wrap items-end justify-between gap-4"><div><p class="text-xs font-black uppercase tracking-[.14em] text-brand-600">Inventario disponible</p><h2 id="featured-properties-title" class="mt-1 text-2xl font-black tracking-tight text-default">Propiedades para considerar</h2></div><a asp-controller="Property" asp-action="Index" class="btn-secondary">Ver catálogo completo<i data-lucide="arrow-right" class="h-4 w-4"></i></a></div>
-        @if (Model.AvailableProperties.Count == 0)
-        {
-            <div class="rounded-3xl border border-dashed border-default bg-[var(--color-bg-elevated)]"><partial name="~/Views/Shared/Components/_EmptyState.cshtml" model='("building-2", "No hay propiedades destacadas ahora", "Visita el catálogo para ver nuevas publicaciones cuando estén disponibles.", "<a href=\"/Property\" class=\"btn-primary\">Explorar catálogo</a>")' /></div>
-        }
-        else
-        {
-            <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3" role="list">@foreach (var property in Model.AvailableProperties) { <div role="listitem"><partial name="~/Views/Home/_PropertyCard.cshtml" model="property" /></div> }</div>
-        }
-    </section>
-</div>
