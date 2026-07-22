@@ -29,7 +29,7 @@ public static class DefaultAgentUser
             Active = true,
             FirstName = configuration["SeedData:AgentFirstName"] ?? "María",
             LastName = configuration["SeedData:AgentLastName"] ?? "García",
-            IdentityDocument = configuration["SeedData:AgentIdentityDocument"] ?? "40212345674",
+            IdentityDocument = configuration["SeedData:AgentIdentityDocument"] ?? "00412345670",
         };
 
         var password = configuration["SeedData:AgentPassword"] ?? "Agente123!";

@@ -29,7 +29,7 @@ public static class DefaultDeveloperUser
             Active = true,
             FirstName = configuration["SeedData:DeveloperFirstName"] ?? "System",
             LastName = configuration["SeedData:DeveloperLastName"] ?? "Developer",
-            IdentityDocument = configuration["SeedData:DeveloperIdentityDocument"] ?? "40212345672",
+            IdentityDocument = configuration["SeedData:DeveloperIdentityDocument"] ?? "00212345672",
         };
 
         var password = configuration["SeedData:DeveloperPassword"] ?? "Developer123!";

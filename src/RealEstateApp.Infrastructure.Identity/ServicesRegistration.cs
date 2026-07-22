@@ -31,20 +31,18 @@ namespace RealEstateApp.Infrastructure.Identity;
 public static class ServicesRegistration
 {
     /// <summary>
-    /// Configura Identity con JWT para la WebApi.
+    /// Configura JWT puro (sin IdentityContext ni UserManager).
+    /// Reutilizable desde producción y tests.
     /// </summary>
-    public static IServiceCollection AddIdentityForWebApi(
+    public static IServiceCollection AddJwtAuthentication(
         this IServiceCollection services,
         IConfiguration configuration
     )
     {
-        services.AddIdentityCommon(configuration);
-
-        // --- JWT ---
         var jwtSettings =
             configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()
             ?? throw new InvalidOperationException(
-                "JwtSettings no está configurado correctamente en appsettings.Development.json"
+                "JwtSettings no está configurado correctamente en appsettings."
             );
 
         services
@@ -98,9 +96,21 @@ public static class ServicesRegistration
                 };
             });
 
+        return services;
+    }
+
+    /// <summary>
+    /// Configura Identity con JWT para la WebApi.
+    /// </summary>
+    public static IServiceCollection AddIdentityForWebApi(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
+    {
+        services.AddIdentityCommon(configuration);
+        services.AddJwtAuthentication(configuration);
         services.AddAuthorization();
 
-        // Servicio legado exclusivo de la API JWT.
         services.AddScoped<IAccountServiceForWebApi, AccountServiceForWebApi>();
 
         return services;
@@ -199,9 +209,18 @@ public static class ServicesRegistration
         return services;
     }
 
-    internal static IServiceCollection AddAllIdentityUseCases(this IServiceCollection services)
+    public static IServiceCollection AddAllIdentityUseCases(this IServiceCollection services)
     {
         services.AddAuthUseCases();
+        return services.AddIdentityBackendUseCases();
+    }
+
+    /// <summary>
+    /// Registra Use Cases de administración, cliente y agente que dependen de Identity
+    /// (necesarios para AdminService en WebApi y WebApp).
+    /// </summary>
+    public static IServiceCollection AddIdentityBackendUseCases(this IServiceCollection services)
+    {
         services.AddAdminUseCases();
         services.AddIdentityClientUseCases();
         services.AddIdentityAgentUseCases();

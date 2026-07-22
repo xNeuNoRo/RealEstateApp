@@ -111,7 +111,7 @@ public sealed class AppDbContext : DbContext
 
     private void AuditEntries()
     {
-        var now = _timeProvider.GetUtcNow();
+        var now = _timeProvider.GetUtcNow().UtcDateTime;
 
         foreach (var entry in ChangeTracker.Entries<IAuditableEntity>())
         {
