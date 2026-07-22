@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealEstateApp.Api", "app\Re
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F1C697B7-AB13-407B-8F13-4B2D7A1FE027}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealEstateApp.Api.Tests", "tests\RealEstateApp.Api.Tests\RealEstateApp.Api.Tests.csproj", "{9EFC9D6E-5A72-4EE0-9086-73BDC29BAD6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{E3CBB882-F9CF-47D8-8A33-8D96A6F9F2DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3CBB882-F9CF-47D8-8A33-8D96A6F9F2DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3CBB882-F9CF-47D8-8A33-8D96A6F9F2DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EFC9D6E-5A72-4EE0-9086-73BDC29BAD6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EFC9D6E-5A72-4EE0-9086-73BDC29BAD6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EFC9D6E-5A72-4EE0-9086-73BDC29BAD6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EFC9D6E-5A72-4EE0-9086-73BDC29BAD6F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,5 +75,6 @@ Global
 		{62E94EE1-982A-49D7-B8A2-6FB74899EAB8} = {18581FC3-DE48-4DFF-820E-785258048193}
 		{210DC65A-A513-47B3-8056-3F09CB75E628} = {F1126156-C095-4986-A02A-D3377C202A86}
 		{E3CBB882-F9CF-47D8-8A33-8D96A6F9F2DF} = {F1126156-C095-4986-A02A-D3377C202A86}
+		{9EFC9D6E-5A72-4EE0-9086-73BDC29BAD6F} = {F1C697B7-AB13-407B-8F13-4B2D7A1FE027}
 	EndGlobalSection
 EndGlobal
