@@ -15,18 +15,21 @@ namespace RealEstateApp.Application.UseCases.Catalog;
 public sealed class GetAllPropertyTypesUseCase : IGetAllPropertyTypesUseCase
 {
     private readonly IGenericRepository<PropertyType> _repository;
+    private readonly IPropertyRepository _propertyRepository;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUser;
     private readonly IValidator<GetAllPropertyTypesRequest> _validator;
 
     public GetAllPropertyTypesUseCase(
         IGenericRepository<PropertyType> repository,
+        IPropertyRepository propertyRepository,
         IMapper mapper,
         ICurrentUserService currentUser,
         IValidator<GetAllPropertyTypesRequest> validator
     )
     {
         _repository = repository;
+        _propertyRepository = propertyRepository;
         _mapper = mapper;
         _currentUser = currentUser;
         _validator = validator;
@@ -87,8 +90,18 @@ public sealed class GetAllPropertyTypesUseCase : IGetAllPropertyTypesUseCase
 
         var responseItems = _mapper.Map<IReadOnlyList<PropertyTypeResponse>>(items);
 
+        var enrichedItems = new List<PropertyTypeResponse>(responseItems.Count);
+        foreach (var item in responseItems)
+        {
+            var count = await _propertyRepository.CountAsync(
+                p => p.PropertyTypeId == item.Id,
+                cancellationToken
+            );
+            enrichedItems.Add(item with { PropertiesCount = count });
+        }
+
         var pagedResult = new PagedResult<PropertyTypeResponse>(
-            responseItems,
+            enrichedItems.AsReadOnly(),
             totalCount,
             request.Page,
             request.PageSize

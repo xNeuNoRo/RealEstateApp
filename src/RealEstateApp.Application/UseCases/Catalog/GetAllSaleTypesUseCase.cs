@@ -15,18 +15,21 @@ namespace RealEstateApp.Application.UseCases.Catalog;
 public sealed class GetAllSaleTypesUseCase : IGetAllSaleTypesUseCase
 {
     private readonly IGenericRepository<SaleType> _repository;
+    private readonly IPropertyRepository _propertyRepository;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUser;
     private readonly IValidator<GetAllSaleTypesRequest> _validator;
 
     public GetAllSaleTypesUseCase(
         IGenericRepository<SaleType> repository,
+        IPropertyRepository propertyRepository,
         IMapper mapper,
         ICurrentUserService currentUser,
         IValidator<GetAllSaleTypesRequest> validator
     )
     {
         _repository = repository;
+        _propertyRepository = propertyRepository;
         _mapper = mapper;
         _currentUser = currentUser;
         _validator = validator;
@@ -83,9 +86,21 @@ public sealed class GetAllSaleTypesUseCase : IGetAllSaleTypesUseCase
             )
             : await _repository.CountAsync(predicate: null, cancellationToken);
 
+        var responseItems = _mapper.Map<IReadOnlyList<SaleTypeResponse>>(items);
+
+        var enrichedItems = new List<SaleTypeResponse>(responseItems.Count);
+        foreach (var item in responseItems)
+        {
+            var count = await _propertyRepository.CountAsync(
+                p => p.SaleTypeId == item.Id,
+                cancellationToken
+            );
+            enrichedItems.Add(item with { PropertiesCount = count });
+        }
+
         return Result<PagedResult<SaleTypeResponse>>.Success(
             new PagedResult<SaleTypeResponse>(
-                _mapper.Map<IReadOnlyList<SaleTypeResponse>>(items),
+                enrichedItems.AsReadOnly(),
                 totalCount,
                 request.Page,
                 request.PageSize

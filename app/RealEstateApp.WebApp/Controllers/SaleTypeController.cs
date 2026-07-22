@@ -46,8 +46,15 @@ public sealed class SaleTypeController : BaseController
         var request = new GetAllSaleTypesRequest(searchTerm?.Trim(), page, PageSize);
         var result = await _adminService.GetSaleTypesAsync(request, ct);
 
-        if (result.IsSuccess && result.GetValue().TotalPages > 0 && page > result.GetValue().TotalPages)
-            return RedirectToAction(nameof(Index), new { searchTerm, page = result.GetValue().TotalPages });
+        if (
+            result.IsSuccess
+            && result.GetValue().TotalPages > 0
+            && page > result.GetValue().TotalPages
+        )
+            return RedirectToAction(
+                nameof(Index),
+                new { searchTerm, page = result.GetValue().TotalPages }
+            );
 
         var items = result.IsSuccess ? MapPage(result.GetValue()) : EmptyPage(page);
         if (result.IsFailure)
@@ -172,13 +179,13 @@ public sealed class SaleTypeController : BaseController
         PagedResult<SaleTypeResponse> page
     ) =>
         new(
-            page.Items
-                .Select(i => new SaleTypeListItemViewModel
+            page.Items.Select(i => new SaleTypeListItemViewModel
                 {
                     Id = i.Id,
                     Code = i.Code,
                     Name = i.Name,
                     Description = i.Description,
+                    PropertiesCount = i.PropertiesCount,
                 })
                 .ToList()
                 .AsReadOnly(),

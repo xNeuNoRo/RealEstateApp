@@ -46,8 +46,15 @@ public sealed class PropertyTypeController : BaseController
         var request = new GetAllPropertyTypesRequest(searchTerm?.Trim(), page, PageSize);
         var result = await _adminService.GetPropertyTypesAsync(request, ct);
 
-        if (result.IsSuccess && result.GetValue().TotalPages > 0 && page > result.GetValue().TotalPages)
-            return RedirectToAction(nameof(Index), new { searchTerm, page = result.GetValue().TotalPages });
+        if (
+            result.IsSuccess
+            && result.GetValue().TotalPages > 0
+            && page > result.GetValue().TotalPages
+        )
+            return RedirectToAction(
+                nameof(Index),
+                new { searchTerm, page = result.GetValue().TotalPages }
+            );
 
         var items = result.IsSuccess ? MapPage(result.GetValue()) : EmptyPage(page);
         if (result.IsFailure)
@@ -93,7 +100,9 @@ public sealed class PropertyTypeController : BaseController
             return View(model);
         }
 
-        this.SetSuccessMessage($"Tipo de propiedad \"{result.GetValue().Name}\" creado correctamente.");
+        this.SetSuccessMessage(
+            $"Tipo de propiedad \"{result.GetValue().Name}\" creado correctamente."
+        );
         return RedirectToAction(nameof(Index));
     }
 
@@ -171,12 +180,12 @@ public sealed class PropertyTypeController : BaseController
         PagedResult<PropertyTypeResponse> page
     ) =>
         new(
-            page.Items
-                .Select(i => new PropertyTypeListItemViewModel
+            page.Items.Select(i => new PropertyTypeListItemViewModel
                 {
                     Id = i.Id,
                     Name = i.Name,
                     Description = i.Description,
+                    PropertiesCount = i.PropertiesCount,
                 })
                 .ToList()
                 .AsReadOnly(),

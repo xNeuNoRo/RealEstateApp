@@ -46,8 +46,15 @@ public sealed class ImprovementController : BaseController
         var request = new GetAllImprovementsRequest(searchTerm?.Trim(), page, PageSize);
         var result = await _adminService.GetImprovementsAsync(request, ct);
 
-        if (result.IsSuccess && result.GetValue().TotalPages > 0 && page > result.GetValue().TotalPages)
-            return RedirectToAction(nameof(Index), new { searchTerm, page = result.GetValue().TotalPages });
+        if (
+            result.IsSuccess
+            && result.GetValue().TotalPages > 0
+            && page > result.GetValue().TotalPages
+        )
+            return RedirectToAction(
+                nameof(Index),
+                new { searchTerm, page = result.GetValue().TotalPages }
+            );
 
         var items = result.IsSuccess ? MapPage(result.GetValue()) : EmptyPage(page);
         if (result.IsFailure)
@@ -171,12 +178,12 @@ public sealed class ImprovementController : BaseController
         PagedResult<ImprovementResponse> page
     ) =>
         new(
-            page.Items
-                .Select(i => new ImprovementListItemViewModel
+            page.Items.Select(i => new ImprovementListItemViewModel
                 {
                     Id = i.Id,
                     Name = i.Name,
                     Description = i.Description,
+                    PropertiesCount = i.PropertiesCount,
                 })
                 .ToList()
                 .AsReadOnly(),

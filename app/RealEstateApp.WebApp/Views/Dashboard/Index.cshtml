@@ -18,9 +18,9 @@
         <h2 id="properties-heading" class="mb-4 text-sm font-black uppercase tracking-[.12em] text-muted">Propiedades</h2>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <partial name="~/Views/Shared/Components/_KpiCard.cshtml"
-                     model='("home", Model.AvailableProperties.ToString("N0"), "Disponibles", "/Property?status=Disponible", "text-brand-600")' />
+                     model='("home", Model.AvailableProperties.ToString("N0"), "Disponibles", "#", "text-brand-600")' />
             <partial name="~/Views/Shared/Components/_KpiCard.cshtml"
-                     model='("check-circle", Model.SoldProperties.ToString("N0"), "Vendidas", "/Property?status=Vendida", "text-emerald-500")' />
+                     model='("check-circle", Model.SoldProperties.ToString("N0"), "Vendidas", "#", "text-emerald-500")' />
         </div>
         @if (totalProperties > 0)
         {
