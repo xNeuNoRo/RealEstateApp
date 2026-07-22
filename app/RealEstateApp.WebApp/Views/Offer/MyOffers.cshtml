@@ -1,0 +1,70 @@
+@model MyOffersViewModel
+@{
+    ViewData["Title"] = Model.PageTitle;
+    string StatusClass(OfferListItemViewModel offer) => offer.Status switch
+    {
+        "Accepted" => "border-success-500/25 bg-success-50 text-success-700 dark:bg-success-900/20 dark:text-success-500",
+        "Rejected" => "border-danger-500/25 bg-danger-50 text-danger-700 dark:bg-danger-900/20 dark:text-danger-500",
+        _ => "border-warning-500/25 bg-warning-50 text-warning-700 dark:bg-warning-900/20 dark:text-warning-500",
+    };
+}
+
+<div class="space-y-8">
+    <header class="relative overflow-hidden rounded-3xl border border-brand-100 bg-gradient-to-br from-slate-950 via-brand-800 to-blue-600 p-6 text-white shadow-xl shadow-brand-600/15 sm:p-9">
+        <div class="pointer-events-none absolute -right-12 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
+        <div class="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <p class="text-xs font-black uppercase tracking-[.16em] text-blue-200">Actividad comercial</p>
+                <h1 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Tus propuestas, en un solo lugar.</h1>
+                <p class="mt-3 max-w-2xl text-sm leading-6 text-blue-100">Consulta monto, estado y respuesta de cada oferta realizada sobre propiedades disponibles.</p>
+            </div>
+            <a asp-controller="Property" asp-action="Index" class="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 text-sm font-black text-brand-700 shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-50"><i data-lucide="search" class="h-4 w-4"></i>Explorar propiedades</a>
+        </div>
+    </header>
+
+    <section aria-labelledby="offers-title">
+        <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div><h2 id="offers-title" class="text-2xl font-black tracking-tight text-default">@(Model.PropertyId.HasValue ? "Historial de la propiedad" : "Mis ofertas")</h2><p class="mt-1 text-sm text-muted">@Model.Offers.TotalCount @(Model.Offers.TotalCount == 1 ? "oferta registrada" : "ofertas registradas")</p></div>
+            <nav class="flex flex-wrap gap-2" aria-label="Filtrar ofertas por estado">
+                <a asp-action="MyOffers" asp-route-propertyId="@Model.PropertyId" class="@(Model.Status is null ? "btn-primary" : "btn-secondary") min-h-10 px-4 text-xs">Todas</a>
+                <a asp-action="MyOffers" asp-route-propertyId="@Model.PropertyId" asp-route-status="@OfferStatus.Pending" class="@(Model.Status == OfferStatus.Pending ? "btn-primary" : "btn-secondary") min-h-10 px-4 text-xs">Pendientes</a>
+                <a asp-action="MyOffers" asp-route-propertyId="@Model.PropertyId" asp-route-status="@OfferStatus.Accepted" class="@(Model.Status == OfferStatus.Accepted ? "btn-primary" : "btn-secondary") min-h-10 px-4 text-xs">Aceptadas</a>
+                <a asp-action="MyOffers" asp-route-propertyId="@Model.PropertyId" asp-route-status="@OfferStatus.Rejected" class="@(Model.Status == OfferStatus.Rejected ? "btn-primary" : "btn-secondary") min-h-10 px-4 text-xs">Rechazadas</a>
+            </nav>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="mb-5 rounded-2xl border border-danger-500/30 bg-danger-50 p-4 text-sm font-semibold text-danger-700"></div>
+        }
+
+        @if (Model.Offers.Items.Count == 0)
+        {
+            <div class="rounded-3xl border border-dashed border-default bg-[var(--color-bg-elevated)]"><partial name="~/Views/Shared/Components/_EmptyState.cshtml" model='("hand-coins", "No hay ofertas en esta vista", "Explora las propiedades disponibles y presenta una propuesta cuando encuentres tu próximo inmueble.", "<a href=\"/Property\" class=\"btn-primary\">Explorar propiedades</a>")' /></div>
+        }
+        else
+        {
+            <div class="grid gap-5 lg:grid-cols-2" role="list">
+                @foreach (var offer in Model.Offers.Items)
+                {
+                    <article class="overflow-hidden rounded-3xl border border-default bg-[var(--color-bg-elevated)] shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand-600/10" role="listitem">
+                        <div class="grid sm:grid-cols-[11rem_minmax(0,1fr)]">
+                            <div class="relative min-h-44 overflow-hidden bg-brand-50 dark:bg-brand-100/20">
+                                @if (!string.IsNullOrWhiteSpace(offer.PropertyMainImageUrl)) { <img src="@offer.PropertyMainImageUrl" alt="@offer.PropertyTitle" class="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" /> }
+                                else { <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-brand-from to-brand-to text-white/60"><i data-lucide="building-2" class="h-12 w-12"></i></div> }
+                                <span class="absolute bottom-3 left-3 rounded-xl bg-gray-950/80 px-3 py-1.5 text-xs font-black text-white backdrop-blur">REF. @offer.PropertyCode</span>
+                            </div>
+                            <div class="flex min-w-0 flex-col p-5">
+                                <div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="text-[11px] font-black uppercase tracking-[.14em] text-brand-600">@offer.SaleTypeName · @offer.PropertyTypeName</p><h3 class="mt-1 line-clamp-2 font-extrabold text-default">@offer.PropertyTitle</h3></div><span class="inline-flex shrink-0 items-center rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-wide @StatusClass(offer)">@offer.StatusLabel</span></div>
+                                <dl class="mt-5 grid grid-cols-2 gap-3 border-y border-default py-4"><div><dt class="text-[10px] font-black uppercase tracking-wider text-subtle">Tu oferta</dt><dd class="mt-1 text-xl font-black text-brand-600">@PriceHelper.Format(offer.Amount, "DOP")</dd></div><div><dt class="text-[10px] font-black uppercase tracking-wider text-subtle">Precio publicado</dt><dd class="mt-1 text-sm font-bold text-default">@PriceHelper.Format(offer.PropertyPrice, offer.PropertyCurrency)</dd></div></dl>
+                                <div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-muted"><span class="inline-flex items-center gap-1.5"><i data-lucide="calendar-clock" class="h-3.5 w-3.5"></i>@offer.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, h:mm tt")</span>@if (offer.RespondedAt.HasValue) { <span>Respondida @offer.RespondedAt.Value.ToLocalTime().ToString("dd MMM yyyy")</span> }</div>
+                                @if (offer.PropertyStatus == nameof(PropertyStatus.Available)) { <a asp-controller="Property" asp-action="Detail" asp-route-id="@offer.PropertyId" class="btn-secondary mt-4 w-full"><i data-lucide="external-link" class="h-4 w-4"></i>Ver propiedad</a> }
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+            <partial name="~/Views/Home/_Pagination.cshtml" model='new PaginationViewModel { Action = nameof(OfferController.MyOffers), Controller = "Offer", CurrentPage = Model.Offers.Page, TotalPages = Model.Offers.TotalPages, RouteValues = new Dictionary<string, object?> { ["propertyId"] = Model.PropertyId, ["status"] = Model.Status } }' />
+        }
+    </section>
+</div>

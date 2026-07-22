@@ -1,25 +1,48 @@
 ﻿@model ErrorViewModel
 @{
-    ViewData["Title"] = "Error";
+    ViewData["Title"] = "Error del Sistema";
 }
-
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
-
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
+<div class="flex items-center justify-center min-h-[70vh] py-8 page-entry">
+    <div class="max-w-xl w-full surface-elevated rounded-2xl shadow-xl overflow-hidden border border-default">
+        <div class="bg-danger-50/80 dark:bg-danger-100/10 px-5 py-4 border-b border-danger-100 dark:border-danger-900/30 flex items-center gap-3">
+            <div class="p-2 bg-danger-100 dark:bg-danger-900/30 rounded-lg text-danger-600 dark:text-danger-500">
+                <i data-lucide="triangle-alert" class="w-6 h-6"></i>
+            </div>
+            <h4 class="text-lg font-bold text-danger-800 dark:text-danger-300 tracking-tight">Error del Sistema</h4>
+        </div>
+        <div class="p-8 text-center flex flex-col items-center">
+            <h1 class="text-8xl font-black text-gray-100 dark:text-gray-800 tracking-tighter mb-2 select-none">
+                @(Model.StatusCode > 0 ? Model.StatusCode.ToString() : "500")
+            </h1>
+            <h5 class="text-xl font-medium text-default mb-6 max-w-lg">
+                Ha ocurrido un error al procesar su solicitud.
+            </h5>
+            @if (Model.ShowRequestId)
+            {
+                <div class="w-full surface-muted rounded-xl p-5 border border-default text-left mb-8 flex items-start gap-4">
+                    <div class="mt-1 text-subtle">
+                        <i data-lucide="terminal" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <strong class="block text-sm font-semibold text-default mb-1">Código de seguimiento:</strong>
+                        <code class="inline-block surface-elevated border border-default text-muted px-2 py-1 rounded text-xs font-mono font-medium mb-2 shadow-sm">@Model.RequestId</code>
+                        <p class="text-xs text-subtle leading-relaxed mt-2">Proporcione este código al administrador si el problema persiste.</p>
+                    </div>
+                </div>
+            }
+            <div class="flex flex-col-reverse sm:flex-row items-center justify-center gap-3 w-full sm:w-auto">
+                <a asp-controller="Home" asp-action="Index" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 surface-elevated border border-default text-default font-medium text-sm rounded-xl hover:surface-muted transition-colors focus-ring">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                    Volver al Inicio
+                </a>
+                <button onclick="history.back()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-brand-from to-brand-to text-white font-medium text-sm rounded-xl hover:brightness-110 shadow-sm transition-all focus-ring">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Regresar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>lucide.createIcons();</script>
 }
-
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>

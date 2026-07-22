@@ -1,0 +1,48 @@
+@model ClientProfileViewModel
+@{
+    ViewData["Title"] = "Mi perfil";
+}
+
+<div class="mx-auto max-w-3xl space-y-7">
+    <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <p class="text-xs font-black uppercase tracking-[.16em] text-brand-600">Cuenta de cliente</p>
+            <h1 class="mt-2 text-3xl font-black tracking-tight text-default">Tu perfil y preferencias.</h1>
+            <p class="mt-2 text-sm text-muted">Mantén tus datos al día para una comunicación inmobiliaria clara.</p>
+        </div><a asp-action="Edit" class="btn-primary"><i data-lucide="pencil" class="h-4 w-4"></i>Editar perfil</a>
+    </header>
+    <section class="overflow-hidden rounded-3xl border border-default bg-(--color-bg-elevated) shadow-sm">
+        <div class="bg-linear-to-r from-brand-700 via-brand-600 to-blue-500 px-6 py-8 text-white sm:px-8">
+            <div class="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
+                @await Html.PartialAsync("~/Views/Shared/Components/_Avatar.cshtml", (Model.ProfileImage,
+                $"{Model.FirstName} {Model.LastName}", "xl", "ring-4 ring-white/40"))<div>
+                <h2 class="text-2xl font-black">@Model.FirstName @Model.LastName</h2>
+                <p class="mt-1 text-sm text-blue-100">Cliente de RealEstateApp</p>
+            </div>
+        </div>
+    </div>
+    <dl class="grid divide-y divide-default sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+        <div class="p-6">
+            <dt class="text-xs font-black uppercase tracking-[.14em] text-subtle">Correo electrónico</dt>
+            <dd class="mt-2 flex items-center gap-2 font-semibold text-default"><i data-lucide="mail"
+                                                                                       class="h-4 w-4 text-brand-600"></i>@Model.Email</dd>
+            </div>
+            <div class="p-6">
+                <dt class="text-xs font-black uppercase tracking-[.14em] text-subtle">Teléfono</dt>
+                <dd class="mt-2 flex items-center gap-2 font-semibold text-default"><i data-lucide="phone"
+                                                                                           class="h-4 w-4 text-brand-600"></i>@(string.IsNullOrWhiteSpace(Model.Phone) ? "Sin teléfono registrado" : Model.Phone)</dd>
+                </div>
+                <div class="p-6">
+                    <dt class="text-xs font-black uppercase tracking-[.14em] text-subtle">Usuario</dt>
+                    <dd class="mt-2 flex items-center gap-2 font-semibold text-default"><i data-lucide="at-sign"
+                                                                                               class="h-4 w-4 text-brand-600"></i>@Model.UserName</dd>
+                    </div>
+                    <div class="p-6">
+                        <dt class="text-xs font-black uppercase tracking-[.14em] text-subtle">Seguridad</dt>
+                        <dd class="mt-2"><a asp-controller="Auth" asp-action="ChangePassword"
+                                            class="inline-flex items-center gap-2 text-sm font-bold text-brand-700 hover:text-brand-800"><i
+                            data-lucide="key-round" class="h-4 w-4"></i>Cambiar contraseña</a></dd>
+                        </div>
+                    </dl>
+                </section>
+            </div>

@@ -7,5 +7,5 @@ public enum SaleTypeCode
 {
     Sale = 1,
     Rent = 2,
-    Transfer = 3,
+    RentToOwn = 3,
 }

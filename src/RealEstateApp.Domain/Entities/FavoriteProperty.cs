@@ -10,6 +10,8 @@ public class FavoriteProperty : AggregateRoot
     public string ClientId { get; private set; } = null!;
     public int PropertyId { get; private set; }
 
+    public Property Property { get; private set; } = null!;
+
     private FavoriteProperty() { }
 
     public static Result<FavoriteProperty> Create(string clientId, int propertyId)

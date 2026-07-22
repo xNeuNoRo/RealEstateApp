@@ -1,6 +1,5 @@
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Enums;
-using RealEstateApp.Domain.Events;
 
 namespace RealEstateApp.Domain.Entities;
 
@@ -57,16 +56,6 @@ public class Message : AggregateRoot
             Content = content.Trim(),
         };
 
-        msg.RaiseEvent(
-            new MessageSentEvent(
-                propertyId,
-                msg.Id,
-                clientId,
-                agentId,
-                senderType,
-                DateTimeOffset.UtcNow
-            )
-        );
         return Result.Success(msg);
     }
 }

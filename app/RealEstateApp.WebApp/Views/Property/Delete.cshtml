@@ -1,0 +1,10 @@
+@model DeletePropertyViewModel
+@{ ViewData["Title"] = $"Eliminar {Model.Title}"; }
+
+<div class="mx-auto max-w-xl space-y-6">
+    <nav aria-label="Ruta de navegación"><ol class="flex items-center gap-2 text-sm text-muted"><li><a asp-action="MyProperties" class="font-semibold hover:text-brand-600">Mis propiedades</a></li><li aria-hidden="true"><i data-lucide="chevron-right" class="h-4 w-4"></i></li><li class="font-bold text-default" aria-current="page">Eliminar</li></ol></nav>
+    <section class="overflow-hidden rounded-3xl border border-danger-500/20 bg-[var(--color-bg-elevated)] shadow-xl shadow-danger-500/5" aria-labelledby="delete-title">
+        @if (!string.IsNullOrWhiteSpace(Model.MainImageUrl)) { <div class="relative aspect-[16/8] overflow-hidden bg-[var(--color-bg-muted)]"><img src="@Model.MainImageUrl" alt="@Model.Title" class="h-full w-full object-cover" /><div class="absolute inset-0 bg-gradient-to-t from-gray-950/70 to-transparent"></div><span class="absolute bottom-4 left-4 font-mono text-sm font-black text-white">REF. @Model.Code</span></div> }
+        <div class="p-6 text-center sm:p-8"><span class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-danger-50 text-danger-700"><i data-lucide="triangle-alert" class="h-8 w-8"></i></span><h1 id="delete-title" class="mt-5 text-2xl font-black text-default">¿Está seguro que desea eliminar esta propiedad?</h1><p class="mx-auto mt-3 max-w-md text-sm leading-6 text-muted">“@Model.Title” será retirada definitivamente del inventario. Esta acción no puede deshacerse.</p><form asp-action="Delete" method="post" class="mt-7 grid gap-3 sm:grid-cols-2">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@Model.Id" /><a asp-action="MyProperties" class="btn-secondary min-h-12"><i data-lucide="x" class="h-4 w-4"></i>Cancelar</a><button type="submit" class="btn-danger min-h-12"><i data-lucide="trash-2" class="h-4 w-4"></i>Aceptar y eliminar</button></form></div>
+    </section>
+</div>

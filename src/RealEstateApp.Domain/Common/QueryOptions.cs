@@ -13,4 +13,5 @@ public sealed class QueryOptions<T>
     public int? Skip { get; set; }
     public int? Take { get; set; }
     public bool IsTracking { get; set; }
+    public bool UseSplitQuery { get; set; }
 }

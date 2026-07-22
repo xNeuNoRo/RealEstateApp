@@ -1,0 +1,40 @@
+@model (string Name, bool Checked, string? Label, string? Description, string? Icon, string Color, bool Disabled, string? Id)
+@{
+    var inputId = !string.IsNullOrEmpty(Model.Id) ? Model.Id : $"switch-{Model.Name}";
+    var color = Model.Color ?? "brand";
+    var colorClass = color switch
+    {
+        "green" => "peer-checked:bg-success-500",
+        "red" => "peer-checked:bg-danger-500",
+        "amber" => "peer-checked:bg-warning-500",
+        "blue" => "peer-checked:bg-brand-500",
+        _ => "peer-checked:bg-gradient-to-r peer-checked:from-brand-from peer-checked:to-brand-to"
+    };
+}
+<label for="@inputId" class="@(Model.Disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer") flex items-center justify-between gap-3 group">
+    <div class="flex items-center gap-3 min-w-0 flex-1">
+        @if (!string.IsNullOrEmpty(Model.Icon))
+        {
+            <div class="w-9 h-9 rounded-xl bg-muted flex items-center justify-center shrink-0 group-hover:bg-brand-50 dark:group-hover:bg-brand-100/20 transition-colors">
+                <i data-lucide="@Model.Icon" class="w-4 h-4 text-subtle group-hover:text-brand-600 dark:group-hover:text-brand-500 transition-colors"></i>
+            </div>
+        }
+        <div class="min-w-0">
+            @if (!string.IsNullOrEmpty(Model.Label))
+            {
+                <p class="text-sm font-semibold text-default truncate">@Model.Label</p>
+            }
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <p class="text-xs text-muted truncate">@Model.Description</p>
+            }
+        </div>
+    </div>
+    <div class="relative shrink-0">
+        <input type="checkbox" id="@inputId" name="@Model.Name" value="true"
+               @(Model.Checked ? "checked" : "") @(Model.Disabled ? "disabled" : "")
+               role="switch" aria-checked="@(Model.Checked ? "true" : "false")"
+               class="peer sr-only" />
+        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-500/20 dark:peer-focus:ring-brand-400/20 rounded-full @colorClass peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all after:shadow-sm peer-checked:after:border-white"></div>
+    </div>
+</label>

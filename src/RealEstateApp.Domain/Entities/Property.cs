@@ -1,6 +1,5 @@
 using RealEstateApp.Domain.Common;
 using RealEstateApp.Domain.Enums;
-using RealEstateApp.Domain.Events;
 using RealEstateApp.Domain.ValueObjects;
 
 namespace RealEstateApp.Domain.Entities;
@@ -14,6 +13,7 @@ public class Property : AggregateRoot
     private readonly List<PropertyImprovement> _improvements = new();
 
     public PropertyCode Code { get; private set; } = null!;
+    public string Title { get; private set; } = null!;
     public string Description { get; private set; } = null!;
     public Price Price { get; private set; } = null!;
     public Size Size { get; private set; } = null!;
@@ -36,6 +36,7 @@ public class Property : AggregateRoot
 
     public static Result<Property> Create(
         PropertyCode code,
+        string title,
         string description,
         Price price,
         Size size,
@@ -48,6 +49,14 @@ public class Property : AggregateRoot
         IReadOnlyCollection<int> initialImprovementIds
     )
     {
+        if (string.IsNullOrWhiteSpace(title))
+            return Result.Failure<Property>(
+                Error.Validation("Property.Title", "El título es requerido.")
+            );
+        if (title.Trim().Length > 120)
+            return Result.Failure<Property>(
+                Error.Validation("Property.Title", "El título no puede exceder 120 caracteres.")
+            );
         if (string.IsNullOrWhiteSpace(description))
             return Result.Failure<Property>(
                 Error.Validation("Property.Desc", "La descripción es requerida.")
@@ -89,6 +98,7 @@ public class Property : AggregateRoot
         var property = new Property
         {
             Code = code,
+            Title = title.Trim(),
             Description = description.Trim(),
             Price = price,
             Size = size,
@@ -107,9 +117,6 @@ public class Property : AggregateRoot
         foreach (var impId in initialImprovementIds.Distinct())
             property._improvements.Add(new PropertyImprovement(property.Id, impId));
 
-        property.RaiseEvent(
-            new PropertyCreatedEvent(property.Id, agentId, code, DateTimeOffset.UtcNow)
-        );
         return Result.Success(property);
     }
 
@@ -118,6 +125,80 @@ public class Property : AggregateRoot
         if (newPrice is null)
             return Result.Failure(Error.Validation("Property.Price", "El precio es requerido."));
         Price = newPrice;
+        Touch();
+        return Result.Success();
+    }
+
+    public Result UpdateDetails(
+        string? title,
+        string? description,
+        Price? price,
+        Size? size,
+        int? bedrooms,
+        int? bathrooms,
+        int? propertyTypeId,
+        int? saleTypeId
+    )
+    {
+        if (title is not null)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+                return Result.Failure(
+                    Error.Validation("Property.Title", "El título no puede estar vacío.")
+                );
+            if (title.Trim().Length > 120)
+                return Result.Failure(
+                    Error.Validation("Property.Title", "El título no puede exceder 120 caracteres.")
+                );
+            Title = title.Trim();
+        }
+        if (description is not null)
+        {
+            if (string.IsNullOrWhiteSpace(description))
+                return Result.Failure(
+                    Error.Validation("Property.Desc", "La descripción no puede estar vacía.")
+                );
+            Description = description.Trim();
+        }
+        if (price is not null)
+            Price = price;
+        if (size is not null)
+            Size = size;
+        if (bedrooms.HasValue)
+        {
+            if (bedrooms.Value < 0)
+                return Result.Failure(
+                    Error.Validation(
+                        "Property.Bedrooms",
+                        "Las habitaciones no pueden ser negativas."
+                    )
+                );
+            Bedrooms = bedrooms.Value;
+        }
+        if (bathrooms.HasValue)
+        {
+            if (bathrooms.Value < 0)
+                return Result.Failure(
+                    Error.Validation("Property.Bathrooms", "Los baños no pueden ser negativos.")
+                );
+            Bathrooms = bathrooms.Value;
+        }
+        if (propertyTypeId.HasValue)
+        {
+            if (propertyTypeId.Value <= 0)
+                return Result.Failure(
+                    Error.Validation("Property.PropertyType", "El tipo de propiedad no es válido.")
+                );
+            PropertyTypeId = propertyTypeId.Value;
+        }
+        if (saleTypeId.HasValue)
+        {
+            if (saleTypeId.Value <= 0)
+                return Result.Failure(
+                    Error.Validation("Property.SaleType", "El tipo de venta no es válido.")
+                );
+            SaleTypeId = saleTypeId.Value;
+        }
         Touch();
         return Result.Success();
     }

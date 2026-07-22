@@ -1,0 +1,42 @@
+@model UpdateAgentProfileViewModel
+@{
+    ViewData["Title"] = "Editar perfil";
+}
+
+<div class="mx-auto max-w-3xl space-y-7">
+    <header><a asp-action="Profile"
+               class="inline-flex items-center gap-2 text-sm font-semibold text-muted transition hover:text-brand-600"><i
+        data-lucide="arrow-left" class="h-4 w-4"></i>Volver al perfil</a>
+        <p class="mt-6 text-xs font-black uppercase tracking-[.16em] text-brand-600">Perfil profesional</p>
+        <h1 class="mt-2 text-3xl font-black tracking-tight text-default">Actualiza tus datos.</h1>
+    </header>
+    <form asp-action="Edit" method="post" enctype="multipart/form-data"
+          class="rounded-3xl border border-default bg-(--color-bg-elevated) p-6 shadow-sm sm:p-8">
+        @Html.AntiForgeryToken()<div asp-validation-summary="All" class="mb-5 validation-summary" role="alert"></div>
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div class="space-y-1.5"><label asp-for="FirstName" class="label-base"></label><input asp-for="FirstName"
+                                                                                                      class="input-base" autocomplete="given-name" /><span asp-validation-for="FirstName"
+                                                                     class="field-validation"></span></div>
+                <div class="space-y-1.5"><label asp-for="LastName" class="label-base"></label><input asp-for="LastName"
+                                                                                                         class="input-base" autocomplete="family-name" /><span asp-validation-for="LastName"
+                                                                          class="field-validation"></span></div>
+                </div>
+                <div class="mt-5 space-y-1.5"><label asp-for="Phone" class="label-base"></label><input asp-for="Phone"
+                                                                                                           type="tel" class="input-base" autocomplete="tel" inputmode="tel" placeholder="809-555-1234"
+                                                                                                           data-phone-mask /><span asp-validation-for="Phone" class="field-validation"></span></div>
+                    <div class="mt-5 space-y-1.5"><label for="photoFile" class="label-base">Foto profesional</label><input
+                        id="photoFile" name="photoFile" type="file" accept="image/jpeg,image/png,image/webp"
+                        class="input-base file:mr-4 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-bold file:text-brand-700"
+                        aria-describedby="photo-help" />
+                        <p id="photo-help" class="helper-text">Opcional. JPEG, PNG o WebP de hasta 15 MB.</p><span
+                        class="field-validation">@Html.ValidationMessage("photoFile")</span>
+                    </div>
+                    <div class="mt-8 flex flex-col-reverse gap-3 border-t border-default pt-6 sm:flex-row sm:justify-end"><a
+                        asp-action="Profile" class="btn-secondary">Cancelar</a><button type="submit" class="btn-primary"><i
+                        data-lucide="save" class="h-4 w-4"></i>Guardar cambios</button></div>
+                    </form>
+                </div>
+
+                @section Scripts {
+                    <partial name="_ValidationScriptsPartial" />
+                }

@@ -1,0 +1,76 @@
+@model CreatePropertyViewModel
+
+<section class="rounded-3xl border border-default bg-[var(--color-bg-elevated)] p-5 shadow-sm sm:p-7" aria-labelledby="property-basics-title">
+    <div class="mb-6 flex items-start gap-3">
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 dark:bg-brand-100/20 dark:text-brand-500"><i data-lucide="house" class="h-5 w-5"></i></span>
+        <div><h2 id="property-basics-title" class="text-lg font-black text-default">Información del inmueble</h2><p class="mt-1 text-sm text-muted">Datos que verán clientes al explorar catálogo.</p></div>
+    </div>
+
+    <div class="grid gap-5 sm:grid-cols-2">
+        <div>
+            <label asp-for="PropertyTypeId" class="label-base"></label>
+            <select asp-for="PropertyTypeId" class="select-base" aria-describedby="property-type-error">
+                <option value="">Selecciona tipo</option>
+                @foreach (var item in Model.PropertyTypes) { <option value="@item.Id">@item.Name</option> }
+            </select>
+            <span asp-validation-for="PropertyTypeId" id="property-type-error" class="mt-1 block text-xs font-semibold text-danger-700"></span>
+        </div>
+        <div>
+            <label asp-for="SaleTypeId" class="label-base"></label>
+            <select asp-for="SaleTypeId" class="select-base" aria-describedby="sale-type-error">
+                <option value="">Selecciona operación</option>
+                @foreach (var item in Model.SaleTypes) { <option value="@item.Id">@item.Name</option> }
+            </select>
+            <span asp-validation-for="SaleTypeId" id="sale-type-error" class="mt-1 block text-xs font-semibold text-danger-700"></span>
+        </div>
+        <div>
+            <label asp-for="Price" class="label-base"></label>
+            <div class="relative"><span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-black text-brand-600">RD$</span><input asp-for="Price" type="number" min="0.01" max="100000000" step="0.01" inputmode="decimal" class="input-base pr-16" data-property-price /></div>
+            <span asp-validation-for="Price" class="mt-1 block text-xs font-semibold text-danger-700"></span>
+        </div>
+        <div>
+            <label asp-for="SizeM2" class="label-base"></label>
+            <div class="relative"><input asp-for="SizeM2" type="number" min="0.01" max="10000" step="0.01" inputmode="decimal" class="input-base pr-12" /><span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-subtle">m²</span></div>
+            <span asp-validation-for="SizeM2" class="mt-1 block text-xs font-semibold text-danger-700"></span>
+        </div>
+        <div class="sm:col-span-2">
+            <label asp-for="Title" class="label-base"></label>
+            <input asp-for="Title" maxlength="120" class="input-base"
+                   placeholder="Ej: Casa de 3 habitaciones en Jardines del Norte"
+                   data-property-title />
+            <span asp-validation-for="Title" class="mt-1 block text-xs font-semibold text-danger-700"></span>
+        </div>
+        <div class="sm:col-span-2">
+            <div class="flex items-center justify-between gap-3"><label asp-for="Description" class="label-base"></label><span class="text-xs font-semibold text-subtle" data-description-count>0 / 2000</span></div>
+            <textarea asp-for="Description" rows="5" maxlength="2000" class="textarea-base resize-y" placeholder="Describe distribución, ubicación, iluminación y atributos que hacen única esta propiedad" data-property-description></textarea>
+            <span asp-validation-for="Description" class="mt-1 block text-xs font-semibold text-danger-700"></span>
+        </div>
+    </div>
+</section>
+
+<section class="rounded-3xl border border-default bg-[var(--color-bg-elevated)] p-5 shadow-sm sm:p-7" aria-labelledby="property-features-title">
+    <div class="mb-6 flex items-start gap-3">
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 dark:bg-brand-100/20 dark:text-brand-500"><i data-lucide="ruler" class="h-5 w-5"></i></span>
+        <div><h2 id="property-features-title" class="text-lg font-black text-default">Distribución y mejoras</h2><p class="mt-1 text-sm text-muted">Características para comparar inmueble con precisión.</p></div>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2">
+        <div><label asp-for="Bedrooms" class="label-base"></label><input asp-for="Bedrooms" type="number" min="0" max="20" inputmode="numeric" class="input-base" /><span asp-validation-for="Bedrooms" class="mt-1 block text-xs font-semibold text-danger-700"></span></div>
+        <div><label asp-for="Bathrooms" class="label-base"></label><input asp-for="Bathrooms" type="number" min="0" max="20" inputmode="numeric" class="input-base" /><span asp-validation-for="Bathrooms" class="mt-1 block text-xs font-semibold text-danger-700"></span></div>
+    </div>
+    <fieldset class="mt-6" data-improvements>
+        <legend class="label-base">Mejoras <span class="text-danger-500" aria-hidden="true">*</span></legend>
+        <p class="mb-3 text-xs text-muted">Selecciona al menos una característica.</p>
+        <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            @foreach (var item in Model.Improvements)
+            {
+                var selected = Model.ImprovementIds.Contains(item.Id);
+                <label class="group flex cursor-pointer items-center gap-3 rounded-2xl border border-default p-3 transition hover:border-brand-500 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-100/15">
+                    <input type="checkbox" name="ImprovementIds" value="@item.Id" checked="@selected" class="sr-only" />
+                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[var(--color-bg-muted)] text-subtle group-has-[:checked]:bg-brand-600 group-has-[:checked]:text-white"><i data-lucide="check" class="h-4 w-4"></i></span>
+                    <span class="text-sm font-bold text-default">@item.Name</span>
+                </label>
+            }
+        </div>
+        <span asp-validation-for="ImprovementIds" class="mt-2 block text-xs font-semibold text-danger-700" data-improvement-error role="alert"></span>
+    </fieldset>
+</section>

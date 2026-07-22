@@ -1,0 +1,37 @@
+@using System
+@model RealEstateApp.Application.Models.Emails.WelcomeClientModel
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Bienvenido a RealEstateApp</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+    <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="background-color: #16a34a; color: white; padding: 24px; border-radius: 8px 8px 0 0; text-align: center;">
+            <h1 style="margin: 0; font-size: 22px;">RealEstateApp</h1>
+        </div>
+        <div style="padding: 32px 24px;">
+            <h2 style="color: #1f2937; font-size: 18px;">¡Bienvenido, @Model.FullName!</h2>
+            <p style="color: #4b5563; line-height: 1.6;">
+                Su cuenta ha sido activada correctamente en <strong>RealEstateApp</strong>.
+                Ahora puede iniciar sesión y explorar todas las propiedades disponibles,
+                marcar favoritas, comunicarse con agentes y realizar ofertas.
+            </p>
+            <div style="text-align: center; margin: 28px 0;">
+                <a href="@Model.ActivationLink"
+                   style="background-color: #16a34a; color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; display: inline-block;">
+                    Ir a RealEstateApp
+                </a>
+            </div>
+            <p style="color: #9ca3af; font-size: 14px; text-align: center;">
+                Gracias por unirse a nuestra plataforma inmobiliaria.
+            </p>
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
+            <p style="color: #6b7280; font-size: 13px; text-align: center;">
+                RealEstateApp &copy; @DateTime.Now.Year
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -15,6 +15,8 @@ public class Offer : AggregateRoot
     public OfferStatus Status { get; private set; }
     public DateTimeOffset? RespondedAt { get; private set; }
 
+    public Property Property { get; private set; } = null!;
+
     private Offer() { }
 
     public static Result<Offer> Create(int propertyId, string clientId, decimal amount)
@@ -54,8 +56,8 @@ public class Offer : AggregateRoot
             );
 
         Status = OfferStatus.Accepted;
-        RespondedAt = DateTimeOffset.UtcNow;
-        RaiseEvent(new OfferAcceptedEvent(Id, PropertyId, ClientId, Amount, DateTimeOffset.UtcNow));
+        RespondedAt = DomainTime.UtcNow;
+        RaiseEvent(new OfferAcceptedEvent(Id, PropertyId, ClientId, Amount, DomainTime.UtcNow));
         Touch();
         return Result.Success();
     }
@@ -71,7 +73,7 @@ public class Offer : AggregateRoot
             );
 
         Status = OfferStatus.Rejected;
-        RespondedAt = DateTimeOffset.UtcNow;
+        RespondedAt = DomainTime.UtcNow;
         Touch();
         return Result.Success();
     }
