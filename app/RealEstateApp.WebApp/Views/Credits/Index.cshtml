@@ -1,0 +1,351 @@
+@model RealEstateApp.Application.ViewModels.Credits.CreditsViewModel
+@{
+    ViewData["Title"] = "Créditos";
+    var teamMembers = Model.Team.Where(m => !m.IsMaster).ToList();
+    var master = Model.Team.FirstOrDefault(m => m.IsMaster);
+}
+
+<style>
+    @@keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    @@keyframes float-delayed {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+    }
+    @@keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(245,158,11,0.15), 0 0 40px rgba(245,158,11,0.05); }
+        50% { box-shadow: 0 0 30px rgba(245,158,11,0.3), 0 0 60px rgba(245,158,11,0.1); }
+    }
+    @@keyframes crown-spin {
+        0% { transform: rotate(-10deg) scale(1); }
+        25% { transform: rotate(10deg) scale(1.1); }
+        50% { transform: rotate(-5deg) scale(1); }
+        75% { transform: rotate(8deg) scale(1.05); }
+        100% { transform: rotate(-10deg) scale(1); }
+    }
+    @@keyframes heartbeat {
+        0%, 100% { transform: scale(1); }
+        25% { transform: scale(1.15); }
+        50% { transform: scale(1); }
+        75% { transform: scale(1.1); }
+    }
+    @@keyframes gradient-shift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    @@keyframes particle-drift {
+        0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 0.8; }
+        100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+    }
+    @@keyframes fade-in-up {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @@keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+    @@keyframes border-dance {
+        0%, 100% { border-color: rgba(37,99,235,0.2); }
+        50% { border-color: rgba(37,99,235,0.5); }
+    }
+
+    .animate-float { animation: float 4s ease-in-out infinite; }
+    .animate-float-delayed { animation: float-delayed 5s ease-in-out infinite 1s; }
+    .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+    .animate-crown-spin { animation: crown-spin 2.5s ease-in-out infinite; }
+    .animate-heartbeat { animation: heartbeat 1.5s ease-in-out infinite; }
+    .animate-gradient-shift {
+        background-size: 200% 200%;
+        animation: gradient-shift 6s ease infinite;
+    }
+    .animate-shimmer {
+        background-size: 200% 100%;
+        animation: shimmer 3s ease-in-out infinite;
+    }
+    .animate-border-dance { animation: border-dance 3s ease-in-out infinite; }
+    .animate-fade-in-up {
+        animation: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+    }
+
+    .stagger-delay-1 { animation-delay: 0.1s; }
+    .stagger-delay-2 { animation-delay: 0.2s; }
+    .stagger-delay-3 { animation-delay: 0.3s; }
+    .stagger-delay-4 { animation-delay: 0.4s; }
+
+    .team-card {
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        will-change: transform, box-shadow;
+    }
+    .team-card:hover {
+        transform: translateY(-4px) scale(1.02);
+    }
+
+    .team-avatar {
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .team-card:hover .team-avatar {
+        transform: scale(1.1) rotate(-3deg);
+    }
+
+    .team-icon {
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .team-card:hover .team-icon {
+        transform: rotate(6deg) scale(1.15);
+    }
+
+    #particles-canvas {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .hero-blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.15;
+        pointer-events: none;
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .animate-float, .animate-float-delayed, .animate-pulse-glow,
+        .animate-crown-spin, .animate-heartbeat, .animate-gradient-shift,
+        .animate-shimmer, .animate-border-dance, .animate-fade-in-up,
+        .team-card, .team-avatar, .team-icon,
+        #particles-canvas, .hero-blob, .reveal {
+            animation: none !important;
+            transition: none !important;
+            transform: none !important;
+            opacity: 1 !important;
+        }
+    }
+</style>
+
+<div class="relative">
+    <canvas id="particles-canvas" aria-hidden="true"></canvas>
+
+    <div class="max-w-5xl mx-auto relative z-10 space-y-8">
+        <div class="hero-blob w-96 h-96 bg-brand-500 -top-20 -left-20"></div>
+        <div class="hero-blob w-80 h-80 bg-violet-500 -bottom-10 -right-10"></div>
+
+        <div style="view-transition-name: credits-hero" class="relative overflow-hidden rounded-[2rem] bg-white dark:bg-gray-800/95 shadow-xl border border-gray-100 dark:border-gray-700/50 backdrop-blur-sm">
+            <div class="h-40 bg-gradient-to-br from-brand-from via-blue-500 to-brand-to animate-gradient-shift relative overflow-hidden">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.2),transparent_50%)]"></div>
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(255,255,255,0.1),transparent_40%)]"></div>
+            </div>
+            <div class="px-8 pb-8 -mt-16 relative z-10">
+                <div class="w-28 h-28 bg-gradient-to-br from-brand-from to-brand-to rounded-[1.25rem] flex items-center justify-center shadow-2xl shadow-brand-200 dark:shadow-brand-900/50 border-4 border-white dark:border-gray-800 animate-float">
+                    <i data-lucide="building-2" class="w-14 h-14 text-white drop-shadow-lg"></i>
+                </div>
+                <div class="mt-5">
+                    <div class="flex items-center gap-4 flex-wrap">
+                        <h1 class="text-4xl sm:text-5xl font-black text-gray-900 dark:text-gray-100 tracking-tighter">
+                            @Model.ProjectName
+                        </h1>
+                        <span class="px-3 py-1.5 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs font-black rounded-full border border-brand-200 dark:border-brand-700/50 tracking-wide">
+                            v@(Model.Version)
+                        </span>
+                    </div>
+                    <p class="text-gray-500 dark:text-gray-400 mt-2 text-lg font-medium">@Model.Description</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="view-transition-name: credits-team" class="reveal">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-from to-brand-to flex items-center justify-center shadow-lg shadow-brand-200 dark:shadow-brand-900/50">
+                    <i data-lucide="users" class="w-5 h-5 text-white"></i>
+                </div>
+                <h2 class="text-2xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Equipo de Desarrollo</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                @for (int i = 0; i < teamMembers.Count; i++)
+                {
+                    var member = teamMembers[i];
+                    var delay = $"stagger-delay-{i + 1}";
+                    <a href="@member.GitHubUrl" target="_blank" rel="noopener noreferrer"
+                       class="team-card animate-fade-in-up @delay group relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800/95 border border-gray-100 dark:border-gray-700/50 shadow-sm hover:shadow-xl @member.HoverColor dark:hover:bg-gray-800 @member.AvatarColor/5 transition-all cursor-pointer">
+                        <div class="absolute inset-0 @member.AvatarColor opacity-[0.03] dark:opacity-[0.06] group-hover:opacity-[0.08] transition-opacity"></div>
+                        <div class="p-6 relative z-10">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-xl @member.AvatarColor flex items-center justify-center text-white text-lg font-black shadow-lg @member.AvatarShadow team-avatar shrink-0">
+                                    @member.Initials
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-black text-gray-900 dark:text-gray-100 truncate">@member.Name</p>
+                                    <p class="text-[10px] font-black uppercase tracking-widest @member.RoleColor mt-0.5">@member.Role</p>
+                                </div>
+                                <i data-lucide="github" class="w-5 h-5 text-gray-300 dark:text-gray-600 @member.IconColor team-icon shrink-0"></i>
+                            </div>
+                        </div>
+                        <div class="h-0.5 w-full @member.AvatarColor origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
+                    </a>
+                }
+            </div>
+        </div>
+
+        <div class="relative py-6" style="view-transition-name: credits-divider">
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-200 dark:border-gray-700"></div>
+            </div>
+            <div class="relative flex justify-center">
+                <div class="px-4 bg-gray-50 dark:bg-gray-900">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-from to-brand-to flex items-center justify-center shadow-lg shadow-brand-200 dark:shadow-brand-900/50">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (master != null)
+        {
+            <div style="view-transition-name: credits-master" class="reveal">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-200 dark:shadow-amber-900/50">
+                        <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Project Master</h2>
+                </div>
+
+                <div class="relative group animate-pulse-glow rounded-2xl">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-500"></div>
+                    <div class="relative flex items-center gap-5 p-6 rounded-2xl bg-white dark:bg-gray-800/95 border border-amber-200 dark:border-amber-800 transition-all cursor-default">
+                        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white text-xl font-black shadow-xl shadow-amber-200 dark:shadow-amber-900/50 shrink-0 team-avatar">
+                            @master.Initials
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-base font-black text-gray-900 dark:text-gray-100">@master.Name</p>
+                            <p class="text-xs font-black uppercase tracking-widest text-amber-600 dark:text-amber-400 mt-0.5">@master.Role</p>
+                        </div>
+                        <div class="p-3 bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-800/20 text-amber-600 dark:text-amber-400 rounded-xl animate-crown-spin group-hover:animate-crown-spin shrink-0">
+                            <i data-lucide="crown" class="w-6 h-6 fill-amber-600 dark:fill-amber-400 drop-shadow-md"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div style="view-transition-name: credits-footer" class="reveal text-center py-8">
+            <div class="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800/50 px-6 py-3 rounded-2xl border border-gray-100 dark:border-gray-700/50 shadow-sm">
+                <span>Hecho con</span>
+                <i data-lucide="heart" class="w-4 h-4 text-red-500 fill-red-500 animate-heartbeat"></i>
+                <span>pasión en</span>
+                <a href="https://itla.edu.do" target="_blank" rel="noopener noreferrer"
+                   class="font-bold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 hover:underline transition-colors">
+                    ITLA
+                </a>
+            </div>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-4 font-medium">
+                @Model.ProjectName v@(Model.Version) &middot; @DateTime.Now.Year
+            </p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        lucide.createIcons();
+
+        (function() {
+            const canvas = document.getElementById('particles-canvas');
+            if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let animationId = null;
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+
+            class Particle {
+                constructor() { this.reset(); }
+                reset() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = canvas.height + 20;
+                    this.size = Math.random() * 3 + 1;
+                    this.speedX = (Math.random() - 0.5) * 0.3;
+                    this.speedY = -(Math.random() * 0.4 + 0.2);
+                    this.opacity = Math.random() * 0.4 + 0.1;
+                    this.hue = Math.random() * 60 + 200;
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    if (this.y < -20 || this.x < -20 || this.x > canvas.width + 20) this.reset();
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `hsla(${this.hue}, 70%, 60%, ${this.opacity})`;
+                    ctx.fill();
+                }
+            }
+
+            function init() {
+                resize();
+                particles = Array.from({ length: 40 }, () => {
+                    const p = new Particle();
+                    p.y = Math.random() * canvas.height;
+                    return p;
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => { p.update(); p.draw(); });
+                animationId = requestAnimationFrame(animate);
+            }
+
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(resize, 200);
+            });
+
+            init();
+            animate();
+        })();
+
+        (function() {
+            const revealElements = document.querySelectorAll('.reveal');
+            if (!revealElements.length || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                revealElements.forEach(el => el.classList.add('visible'));
+                return;
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+            revealElements.forEach(el => observer.observe(el));
+        })();
+    </script>
+}
