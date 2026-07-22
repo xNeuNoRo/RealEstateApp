@@ -21,13 +21,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealEstateApp.WebApp", "app
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealEstateApp.Api", "app\RealEstateApp.Api\RealEstateApp.Api.csproj", "{E3CBB882-F9CF-47D8-8A33-8D96A6F9F2DF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F1C697B7-AB13-407B-8F13-4B2D7A1FE027}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A5BAA1DF-FD3C-4805-9253-62EE3BCA17A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -58,6 +57,9 @@ Global
 		{E3CBB882-F9CF-47D8-8A33-8D96A6F9F2DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3CBB882-F9CF-47D8-8A33-8D96A6F9F2DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3CBB882-F9CF-47D8-8A33-8D96A6F9F2DF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A5BAA1DF-FD3C-4805-9253-62EE3BCA17A6} = {18581FC3-DE48-4DFF-820E-785258048193}
